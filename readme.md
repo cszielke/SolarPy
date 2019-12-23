@@ -6,7 +6,7 @@ Das Programm ist gedacht, um mittels eines Raspberry Pi's die Daten der Wechselr
 
 Es besteht die Möglichkeit die Daten in einer MySQL und/oder InfluxDB Datenbank zu archivieren.
 
-Über eine REST-API Schnittstelle können die Daten über http abgefragt werden. Andere Ausgabeschnittstellen sind leicht implementierbar.
+Über eine REST-API Schnittstelle oder über MQTT können die Daten abgefragt werden. Andere Ausgabeschnittstellen sind leicht implementierbar.
 
 Das Programm ist komplett in Python geschrieben und benötigt keine Oberfläche. Das Programm lässt sich umfangreich über eine CFG-Datei konfigurieren.
 
