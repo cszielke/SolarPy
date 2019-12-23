@@ -1,1 +1,7 @@
-body{ background-color: #222 }
+body{ color: white; background-color: #222; }
+h1 { color: #3333ff; }
+p.ex { color: rgb(0,0,255); }
+a:link {color: white; }
+a:visited {color: lightgray; }
+a:active {color: rgb(243, 89, 89); }
+a:hover {color: yellow; }
