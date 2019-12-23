@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+
 class MockFile():
     def read(self):
         return False
-        
+
+
 class RequestHandler():
     def __init__(self):
         self.contentType = ""
@@ -22,7 +24,7 @@ class RequestHandler():
         return self.status
 
     def getContentType(self):
-        return self.contentType 
+        return self.contentType
 
     def getType(self):
         return 'static'

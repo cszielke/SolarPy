@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 import os
 from http.server import BaseHTTPRequestHandler
-#from pathlib import Path
-
-#from urllib.parse import urlparse
-#from urllib.parse import parse_qs
 from pvhttpsrv.routes.main import routes
 
 from pvhttpsrv.routes.response.dataRequestHandler import DataRequestHandler
@@ -45,7 +41,7 @@ class Server(BaseHTTPRequestHandler):
 
     def handle_http(self, handler):
         status_code = handler.getStatus()
-        
+
         self.send_response(status_code)
 
         if status_code == 200:
@@ -53,10 +49,10 @@ class Server(BaseHTTPRequestHandler):
             self.send_header('Content-type', handler.getContentType())
         else:
             content = "404 Not Found"
-        
+
         self.end_headers()
 
-        if isinstance( content, (bytes, bytearray) ):
+        if isinstance(content, (bytes, bytearray)):
             return content
 
         return bytes(content, 'UTF-8')
@@ -64,5 +60,3 @@ class Server(BaseHTTPRequestHandler):
     def respond(self, opts):
         response = self.handle_http(opts['handler'])
         self.wfile.write(response)
-
-

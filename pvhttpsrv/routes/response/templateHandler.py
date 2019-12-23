@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from pvhttpsrv.routes.response.requestHandler import RequestHandler
 
+
 class TemplateHandler(RequestHandler):
     def __init__(self):
         super().__init__()
@@ -12,6 +13,7 @@ class TemplateHandler(RequestHandler):
             self.contents = template_file
             self.setStatus(200)
             return True
-        except:
+        except Exception as e:
+            print("Error TemplateHandler: " + str(e))
             self.setStatus(404)
             return False

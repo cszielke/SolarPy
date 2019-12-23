@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import jsons
-import json
 from dataclasses import dataclass
+
 
 @dataclass
 class PVData:
@@ -12,5 +12,5 @@ class PVData:
     wr = []
 
     def toJson(self):
-        jsondata = str(jsons.dump(self)).replace("'",'"')
+        jsondata = str(jsons.dump(self)).replace("'", '"')
         return jsondata

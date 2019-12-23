@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 
-#Infos: https://www.afternerd.com/blog/python-http-server/
-#       https://daanlenaerts.com/blog/2015/06/03/create-a-simple-http-server-with-python-3/
-#       https://stackabuse.com/serving-files-with-pythons-simplehttpserver-module/
+# Infos: https://www.afternerd.com/blog/python-http-server/
+#        https://daanlenaerts.com/blog/2015/06/03/create-a-simple-http-server-with-python-3/
+#        https://stackabuse.com/serving-files-with-pythons-simplehttpserver-module/
 
 from pv.data import PVData
 import threading
 from http.server import HTTPServer
-#import http.server
-#+import socketserver
 from pvhttpsrv.server import Server
+
 
 class PVHttpSrv:
     serveraddress = ""
@@ -20,12 +19,12 @@ class PVHttpSrv:
 
     pvdata = PVData()
 
-    def __init__(self,serveraddress="",port=8080,directory="",onDataRequest=None):
+    def __init__(self, serveraddress="", port=8080, directory="", onDataRequest=None):
         self.port = port
         self.directory = directory
         self.serveraddress = serveraddress
 
-        self.handler = Server #pvHttpRequestHandler
+        self.handler = Server  # pvHttpRequestHandler
         self.handler.onDataRequest = onDataRequest
 
         # Server settings
@@ -39,9 +38,8 @@ class PVHttpSrv:
         print('starting http server...')
         self.server_thread.start()
         print('running http server...')
-    
+
     def stop(self):
         self.httpd.shutdown()
         self.httpd.server_close()
         print("http server stopped")
-        
