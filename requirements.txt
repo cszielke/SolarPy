@@ -1,0 +1,7 @@
+paho-mqtt
+argparse
+ConfigParser
+pyserial
+dataclasses
+jsons
+pymysql
