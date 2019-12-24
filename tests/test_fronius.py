@@ -1,4 +1,4 @@
-# content of test_sample.py
+# content of test_fronius.py - it's meaningless, right now. Just to satisfy github workflow
 def func(x):
     return x + 1
 

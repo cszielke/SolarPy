@@ -41,25 +41,43 @@ Unter ```http://localhost:8080/data.json``` können die aktuellen Daten der Sola
 ```JSON
 {
     "Error": "OK",
-    "PDayGesamt": 4000.0,
-    "PGesamt": 325.0,
-    "Time": 1577107367.0,
+    "PDayGesamt": 20058.800000000003,
+    "PGesamt": 28651.899999999998,
+    "Time": 1577182434.6023476,
     "wr": [{
-            "PDay": 2000.0,
-            "PNow": 143.0,
-            "UDC": 259.0,
-            "IDC": 0.7,
-            "UAC": 230.0,
-            "IAC": 0.6,
-            "FAC": 49.9
+            "ATMP": 21,
+            "FAC": 50,
+            "FAN0": 1978,
+            "FAN1": 2088,
+            "FAN2": 2058,
+            "FAN3": 3329,
+            "IAC": 5,
+            "IDC": 7,
+            "OHDAY": 202.34,
+            "OHTOT": 517660,
+            "OHYEAR": 79650,
+            "PDay": 810.2,
+            "PNow": 1206.0,
+            "STATUS": 2,
+            "UAC": 232,
+            "UDC": 179.96
         }, {
-            "PDay": 2000.0,
-            "PNow": 182.0,
-            "UDC": 237.0,
-            "IDC": 0.9,
-            "UAC": 230.0,
-            "IAC": 0.8,
-            "FAC": 49.9
+            "ATMP": 21,
+            "FAC": 50,
+            "FAN0": 1977,
+            "FAN1": 2083,
+            "FAN2": 2053,
+            "FAN3": 3324,
+            "IAC": 5,
+            "IDC": 7,
+            "OHDAY": 202.41,
+            "OHTOT": 517660,
+            "OHYEAR": 79650,
+            "PDay": 809.5,
+            "PNow": 1206.3,
+            "STATUS": 2,
+            "UAC": 232,
+            "UDC": 179.96
         }
     ]
 }

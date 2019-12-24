@@ -44,13 +44,13 @@ class PVMySQL:
             wrvalues = ""
             for wrn in range(len(self.pvdata.wr)):
                 wrvalues = wrvalues + "{},{},{},{},{},{},{},".format(
-                    self.pvdata.wr[wrn]["PNow"],
-                    self.pvdata.wr[wrn]["UDC"],
-                    self.pvdata.wr[wrn]["IDC"],
-                    self.pvdata.wr[wrn]["UAC"],
-                    self.pvdata.wr[wrn]["IAC"],
-                    self.pvdata.wr[wrn]["FAC"],
-                    self.pvdata.wr[wrn]["PDay"]
+                    self.pvdata.wr[wrn].PNow,
+                    self.pvdata.wr[wrn].UDC,
+                    self.pvdata.wr[wrn].IDC,
+                    self.pvdata.wr[wrn].UAC,
+                    self.pvdata.wr[wrn].IAC,
+                    self.pvdata.wr[wrn].FAC,
+                    self.pvdata.wr[wrn].PDay
                 )
             wrvalues = wrvalues[:-1]
 

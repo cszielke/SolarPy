@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from pv.data import PVData
+from pv.data import PVData, PVWR
 import requests
 import datetime
 import pytz
@@ -33,8 +33,8 @@ class PVRestApi:
 
         if(len(self.pvdata.wr) < 2):
             self.pvdata.wr.clear()
-            self.pvdata.wr.append({"PDay": 0, "PNow": 0, "UDC": 0, "IDC": 0, "UAC": 0, "IAC": 0, "FAC": 50})
-            self.pvdata.wr.append({"PDay": 0, "PNow": 0, "UDC": 0, "IDC": 0, "UAC": 0, "IAC": 0, "FAC": 50})
+            self.pvdata.wr.append(PVWR())
+            self.pvdata.wr.append(PVWR())
 
         try:
             x = requests.get(IP)
@@ -55,21 +55,21 @@ class PVRestApi:
                 self.pvdata.PDayGesamt = float(kvp["Tagesenerie_AC"])
                 self.pvdata.Time = self.LocalToUTC(datetime.datetime.strptime(kvp["Messzeit"], ' %d.%m.%Y %H:%M:%S')).timestamp()
 
-                self.pvdata.wr[0]["IAC"] = float(kvp["Strom_AC_WR_1"])
-                self.pvdata.wr[0]["UAC"] = float(kvp["Spannung_AC_WR_1"])
-                self.pvdata.wr[0]["FAC"] = float(kvp["Freq._AC_WR_1"])
-                self.pvdata.wr[0]["IDC"] = float(kvp["Strom_DC_WR_1"])
-                self.pvdata.wr[0]["UDC"] = float(kvp["Spannung_DC_WR_1"])
-                self.pvdata.wr[0]["PDay"] = float(kvp["Tagesenerie_WR_1"])
-                self.pvdata.wr[0]["PNow"] = float(kvp["Leistung_WR_1"])
+                self.pvdata.wr[0].IAC = float(kvp["Strom_AC_WR_1"])
+                self.pvdata.wr[0].UAC = float(kvp["Spannung_AC_WR_1"])
+                self.pvdata.wr[0].FAC = float(kvp["Freq._AC_WR_1"])
+                self.pvdata.wr[0].IDC = float(kvp["Strom_DC_WR_1"])
+                self.pvdata.wr[0].UDC = float(kvp["Spannung_DC_WR_1"])
+                self.pvdata.wr[0].PDay = float(kvp["Tagesenerie_WR_1"])
+                self.pvdata.wr[0].PNow = float(kvp["Leistung_WR_1"])
 
-                self.pvdata.wr[1]["IAC"] = float(kvp["Strom_AC_WR_2"])
-                self.pvdata.wr[1]["UAC"] = float(kvp["Spannung_AC_WR_2"])
-                self.pvdata.wr[1]["FAC"] = float(kvp["Freq._AC_WR_2"])
-                self.pvdata.wr[1]["IDC"] = float(kvp["Strom_DC_WR_2"])
-                self.pvdata.wr[1]["UDC"] = float(kvp["Spannung_DC_WR_2"])
-                self.pvdata.wr[1]["PDay"] = float(kvp["Tagesenerie_WR_2"])
-                self.pvdata.wr[1]["PNow"] = float(kvp["Leistung_WR_2"])
+                self.pvdata.wr[1].IAC = float(kvp["Strom_AC_WR_2"])
+                self.pvdata.wr[1].UAC = float(kvp["Spannung_AC_WR_2"])
+                self.pvdata.wr[1].FAC = float(kvp["Freq._AC_WR_2"])
+                self.pvdata.wr[1].IDC = float(kvp["Strom_DC_WR_2"])
+                self.pvdata.wr[1].UDC = float(kvp["Spannung_DC_WR_2"])
+                self.pvdata.wr[1].PDay = float(kvp["Tagesenerie_WR_2"])
+                self.pvdata.wr[1].PNow = float(kvp["Leistung_WR_2"])
 
                 self.pvdata.Error = "OK"
             else:

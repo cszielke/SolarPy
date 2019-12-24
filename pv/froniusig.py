@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from pv.data import PVData
+from pv.data import PVData, PVWR
 from struct import pack, unpack
 from time import time
 from time import sleep
@@ -49,7 +49,7 @@ class Commands():
     INV_GET_MIN_AC_VOLTAGE_YEAR = 0x22
     INV_GET_MAX_DC_VOLTAGE_YEAR = 0x23
 
-    INV_GET_OPERATING_HOURS_DAY = 0x24  # Jahres-Betriebszeit
+    INV_GET_OPERATING_HOURS_YEAR = 0x24  # Jahres-Betriebszeit
 
     INV_GET_YIELD_TOTAL = 0x25
 
@@ -58,9 +58,16 @@ class Commands():
     INV_GET_MIN_AC_VOLTAGE_TOTAL = 0x28
     INV_GET_MAX_DC_VOLTAGE_TOTAL = 0x29
 
-    INV_GET_OPERATING_HOURS_TOTAL = 0x24  # Jahres-Betriebszeit
+    INV_GET_OPERATING_HOURS_TOTAL = 0x2a  # Gesamt-Betriebszeit
 
-    # 0x2b - 0x35 3 PHase Inverter
+    # 0x2b - 0x31 3 PHase Inverter
+
+    INV_GET_AMBIENT_TEMP = 0x31
+    INV_FAN_SPEED_0 = 0x32
+    INV_FAN_SPEED_1 = 0x33
+    INV_FAN_SPEED_2 = 0x34
+    INV_FAN_SPEED_3 = 0x35
+    INV_STATUS = 0x37
 
     # 0xe0 - 0xf9 Sensor-Card
 
@@ -114,7 +121,7 @@ class FroniusIG:
 
         self.pvdata.wr.clear()
         for i in range(wrcount):
-            self.pvdata.wr.append({"PDay": 0, "PNow": 0, "UDC": 0, "IDC": 0, "UAC": 0, "IAC": 0, "FAC": 50})
+            self.pvdata.wr.append(PVWR())
 
     def open(self):
         if(self.ser is None):
@@ -218,6 +225,24 @@ class FroniusIG:
             value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_AC_CURRENT_NOW)
         elif(valuestr == "FAC"):
             value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_AC_FREQ_NOW)
+        elif(valuestr == "ATMP"):
+            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_AMBIENT_TEMP)
+        elif(valuestr == "FAN0"):
+            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_FAN_SPEED_0)
+        elif(valuestr == "FAN1"):
+            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_FAN_SPEED_1)
+        elif(valuestr == "FAN2"):
+            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_FAN_SPEED_2)
+        elif(valuestr == "FAN3"):
+            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_FAN_SPEED_3)
+        elif(valuestr == "STATUS"):
+            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_STATUS)
+        elif(valuestr == "OHTOT"):
+            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_OPERATING_HOURS_TOTAL)
+        elif(valuestr == "OHYEAR"):
+            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_OPERATING_HOURS_YEAR)
+        elif(valuestr == "OHDAY"):
+            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_OPERATING_HOURS_DAY)
         else:
             self.pvdata.Error = "Wrong valuestr '{}'".format(valuestr)
             print(self.pvdata.Error, file=sys.stderr)
@@ -231,16 +256,25 @@ class FroniusIG:
             try:
                 self.pvdata.Error = "OK"  # we expect everything to be ok
                 for i in range(len(self.pvdata.wr)):
-                    self.pvdata.wr[i]["PDay"] = self.GetData("PDay", i)
-                    self.pvdata.wr[i]["PNow"] = self.GetData("PNow", i)
-                    self.pvdata.wr[i]["UDC"] = self.GetData("UDC", i)
-                    self.pvdata.wr[i]["IDC"] = self.GetData("IDC", i)
-                    self.pvdata.wr[i]["UAC"] = self.GetData("UAC", i)
-                    self.pvdata.wr[i]["IAC"] = self.GetData("IAC", i)
-                    self.pvdata.wr[i]["FAC"] = self.GetData("FAC", i)
+                    self.pvdata.wr[i].PDay = self.GetData("PDay", i)
+                    self.pvdata.wr[i].PNow = self.GetData("PNow", i)
+                    self.pvdata.wr[i].UDC = self.GetData("UDC", i)
+                    self.pvdata.wr[i].IDC = self.GetData("IDC", i)
+                    self.pvdata.wr[i].UAC = self.GetData("UAC", i)
+                    self.pvdata.wr[i].IAC = self.GetData("IAC", i)
+                    self.pvdata.wr[i].FAC = self.GetData("FAC", i)
+                    self.pvdata.wr[i].ATMP = self.GetData("ATMP", i)
+                    self.pvdata.wr[i].FAN0 = self.GetData("FAN0", i)
+                    self.pvdata.wr[i].FAN1 = self.GetData("FAN1", i)
+                    self.pvdata.wr[i].FAN2 = self.GetData("FAN2", i)
+                    self.pvdata.wr[i].FAN3 = self.GetData("FAN3", i)
+                    self.pvdata.wr[i].STATUS = self.GetData("STATUS", i)
+                    self.pvdata.wr[i].OHDAY = self.GetData("OHDAY", i)
+                    self.pvdata.wr[i].OHYEAR = self.GetData("OHYEAR", i)
+                    self.pvdata.wr[i].OHTOT = self.GetData("OHTOT", i)
 
-                    self.pvdata.PGesamt = self.pvdata.PGesamt + self.pvdata.wr[i]["PNow"]
-                    self.pvdata.PDayGesamt = self.pvdata.PDayGesamt + self.pvdata.wr[i]["PDay"]
+                    self.pvdata.PGesamt = self.pvdata.PGesamt + self.pvdata.wr[i].PNow
+                    self.pvdata.PDayGesamt = self.pvdata.PDayGesamt + self.pvdata.wr[i].PDay
 
                 self.pvdata.Time = time()
 
