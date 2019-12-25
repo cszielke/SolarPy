@@ -93,7 +93,7 @@ def GetAllData():
         pvdata = sim.GetPVDataSimulation()
     else:
         pvdata.Time = 0
-        pvdata.Error = "Error: No valid datasource [ifcard,restapi,simulation]: ("+DATASOURCE+")"
+        pvdata.Error = "Error: No valid datasource [ifcard,restapi,simulation]: (" + DATASOURCE + ")"
         print(pvdata.Error)
         exit(1)
 
@@ -333,7 +333,7 @@ def main():
     elif(DATASOURCE == "simulation"):
         pass
     else:
-        print("Error: No valid datasource [ifcard,restapi,simulation]: ("+DATASOURCE+")")
+        print("Error: No valid datasource [ifcard,restapi,simulation]: (" + DATASOURCE + ")")
         exit(1)
     # endregion init datasources
 

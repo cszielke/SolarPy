@@ -1,1 +1,1 @@
-from pvhttpsrv.pvhttpsrv import PVHttpSrv
+from .pvhttpsrv import PVHttpSrv   # noqa

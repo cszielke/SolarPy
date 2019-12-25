@@ -38,7 +38,7 @@ class PVMySQL:
         try:
             wrfields = ""
             for wrn in range(len(self.pvdata.wr)):
-                wrfields = wrfields + "`WR{0}WNow`,`WR{0}DCVNow`,`WR{0}DCANow`,`WR{0}ACVNow`,`WR{0}ACANow`,`WR{0}ACHzNow`,`WR{0}WDay`,".format(wrn+1)
+                wrfields = wrfields + "`WR{0}WNow`,`WR{0}DCVNow`,`WR{0}DCANow`,`WR{0}ACVNow`,`WR{0}ACANow`,`WR{0}ACHzNow`,`WR{0}WDay`,".format(wrn + 1)
             wrfields = wrfields[:-1]
 
             wrvalues = ""
@@ -63,13 +63,13 @@ class PVMySQL:
                 # Commit your changes in the database
                 self.db.commit()
             except Exception as e:
-                print("Error MySQL: "+str(e))
+                print("Error MySQL: " + str(e))
                 # Rollback in case there is any error
                 self.db.rollback()
 
             print("Inserted MySQL dataset")
         except Exception as e:
-            print("Error MySQL: "+str(e))
+            print("Error MySQL: " + str(e))
 
     def close(self):
         self.db.close()

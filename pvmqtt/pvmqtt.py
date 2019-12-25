@@ -24,15 +24,15 @@ class PVMqtt:
         self.client.on_log = self.on_log
         self.client.connect(self.host)
 
-        print("Subscribing to topic", self.basetopic+'controller')
-        self.client.subscribe(self.basetopic+'controller')
+        print("Subscribing to topic", self.basetopic + 'controller')
+        self.client.subscribe(self.basetopic + 'controller')
         self.client.on_message = self.on_message        # attach function to callback
 
         self.client.loop_start()  # start the loop
 
         t = time.time()
-        print("Publishing message to topic '{}' with value '{}'".format(self.basetopic+"alive", t))
-        self.client.publish(self.basetopic+"alive", t)
+        print("Publishing message to topic '{}' with value '{}'".format(self.basetopic + "alive", t))
+        self.client.publish(self.basetopic + "alive", t)
 
     def on_log(self, client, userdata, level, buf):
         levelstr = "INFO"
@@ -53,7 +53,7 @@ class PVMqtt:
     def publishKeepAlive(self):
         t = time.time()
         print("Publishing message to topic '{}' with value '{}'".format(self.basetopic + "alive", t))
-        self.client.publish(self.basetopic+"alive", t)
+        self.client.publish(self.basetopic + "alive", t)
 
     def publishData(self):
         self._getData()

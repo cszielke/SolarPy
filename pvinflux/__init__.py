@@ -1,1 +1,1 @@
-from pvinflux.pvinflux import PVInflux
+from .pvinflux import PVInflux  # noqa

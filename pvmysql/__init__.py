@@ -1,1 +1,1 @@
-from pvmysql.pvmysql import PVMySQL
+from .pvmysql import PVMySQL  # noqa

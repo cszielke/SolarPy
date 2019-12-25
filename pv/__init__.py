@@ -1,5 +1,5 @@
-from pv.froniusig import FroniusIG
-from pv.data import PVData
-from pv.data import PVWR
-from pv.restapi import PVRestApi
-from pv.simulation import PVSimulation
+from .froniusig import FroniusIG  # noqa
+from .data import PVData  # noqa
+from .data import PVWR  # noqa
+from .restapi import PVRestApi  # noqa
+from .simulation import PVSimulation  # noqa

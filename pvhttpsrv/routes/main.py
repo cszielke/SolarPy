@@ -1,8 +1,8 @@
 routes = {
-  "/": {
-    "template": "index.html"
-  },
-  "/goodbye": {
-    "template": "goodbye.html"
-  }
+    "/": {
+        "template": "index.html"
+    },
+    "/goodbye": {
+        "template": "goodbye.html"
+    }
 }

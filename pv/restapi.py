@@ -73,7 +73,7 @@ class PVRestApi:
 
                 self.pvdata.Error = "OK"
             else:
-                self.pvdata.Error = "Http Error: "+str(x.status_code)
+                self.pvdata.Error = "Http Error: " + str(x.status_code)
         except Exception as e:
             print("Error: " + str(e))
 

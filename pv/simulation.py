@@ -14,9 +14,9 @@ class PVSimulation:
             self.pvdata.wr.append(PVWR())
             self.pvdata.wr.append(PVWR())
 
-        rnd = random()*2 - 1  # rnd=(+-)1
+        rnd = random() * 2 - 1  # rnd=(+-)1
 
-        udc = round(rnd*20+self.pvdata.wr[0].UDC, 1)
+        udc = round(rnd * 20 + self.pvdata.wr[0].UDC, 1)
         if(udc < 0):
             udc = 0
         elif(udc > 300):
@@ -36,14 +36,14 @@ class PVSimulation:
         self.pvdata.wr[0].IDC = idc
         self.pvdata.wr[1].IDC = idc * 0.75
 
-        self.pvdata.wr[0].UAC = rnd*2 + 230                  # Immer ca. 230 V
-        self.pvdata.wr[1].UAC = rnd*2 + 230
+        self.pvdata.wr[0].UAC = rnd * 2 + 230                  # Immer ca. 230 V
+        self.pvdata.wr[1].UAC = rnd * 2 + 230
 
         self.pvdata.wr[0].IAC = self.pvdata.wr[0].PNow / self.pvdata.wr[0].UAC
         self.pvdata.wr[1].IAC = self.pvdata.wr[0].PNow / self.pvdata.wr[0].UAC * 0.75
 
-        self.pvdata.wr[0].FAC = rnd*0.5 + 50                  # Immer ca. 49.5 - 50.5 Hz
-        self.pvdata.wr[1].FAC = rnd*0.5 + 50
+        self.pvdata.wr[0].FAC = rnd * 0.5 + 50                  # Immer ca. 49.5 - 50.5 Hz
+        self.pvdata.wr[1].FAC = rnd * 0.5 + 50
 
         self.pvdata.PGesamt = self.pvdata.wr[0].PNow + self.pvdata.wr[1].PNow
         self.pvdata.PDayGesamt = self.pvdata.wr[0].PDay + self.pvdata.wr[1].PDay

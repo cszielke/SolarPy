@@ -1,1 +1,1 @@
-from pvmqtt.pvmqtt import PVMqtt
+from .pvmqtt import PVMqtt  # noqa

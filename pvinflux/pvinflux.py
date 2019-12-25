@@ -57,4 +57,4 @@ class PVInflux:
             print(datapoint)
             print("Inserted InfluxDB dataset")
         except Exception as e:
-            print("Error: "+str(e))
+            print("Error: " + str(e))
