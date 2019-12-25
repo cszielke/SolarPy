@@ -143,6 +143,57 @@ class FroniusIG:
             self.ser.close()
             self.ser = None
 
+    def _parseReceived(self, ba):
+        try:
+            ret = -1
+            rest = bytearray()
+            length = -1
+            command = -1
+
+            print(ba.hex())
+
+            if(len(ba) > 6):
+                start1, start2, start3, length, device, number, command, rest = unpack(">BBBBBBB{}s".format(len(ba)-7), ba)
+            else:
+                raise ValueError('Error: To less bytes received ({})'.format(len(ba)))
+
+            if(start1 != 0x80 or start2 != 0x80 or start3 != 0x80 or length > len(ba)):
+                raise ValueError("Error: Start sequence wrong")
+            
+            if(command == 0x0e):
+                if(number > 0 and number < len(self.ERRORSTRINGS)):
+                    print("Error Nr: " + str(number) + "(" + self.ERRORSTRINGS[number] + ")")
+                else:
+                    print("Error Nr: " + str(number))
+                rest = rest[(length+1):]
+            if(command == 0x0f):
+                if(number > 0 and number < len(self.ERRORSTRINGS)):
+                    print("Status Nr: " + str(number) + "(" + self.ERRORSTRINGS[number] + ")")
+                else:
+                    print("Status Nr: " + str(number))
+                rest = rest[(length+1):]
+            else:
+                if(length == 0):
+                    ret = -1
+                    checksum, rest = unpack(">B{}s".format(len(rest) - 1), rest)
+                elif(length == 1):
+                    val, checksum, rest = unpack(">BB{}s".format(len(rest) - 2), rest)
+                    ret = val
+                elif(length == 3):
+                    msb, lsb, exp, checksum, rest = unpack(">BBbB{}s".format(len(rest) - 4), rest)
+                    ret = (msb*256+lsb) * pow(10, exp)
+                else:
+                    rest = rest[(length+1):]
+
+        except BaseException as e:
+            self.pvdata.Error = "Error _parseReceived:"+str(e)
+            ba = bytearray()
+            print(self.pvdata.Error, file=sys.stderr)
+        
+        print("Command {}, Length: {}, Value: {}, Restlength: {}".format(command, length,ret,len(rest)))
+
+        return ret, rest
+
     def SendIG(self, dev, nr, cmd, val):
         ret = -1
         if(self.ser is not None and self.ser.is_open):
@@ -158,39 +209,32 @@ class FroniusIG:
                 chksum = chksum + b
 
             ba2 = pack(">BBB{}sB".format(len(ba1)), 0x80, 0x80, 0x80, ba1, chksum)
+
+            # Flush input Buffer
+            while(self.ser.in_waiting != 0):
+                self.ser.read()
+
+            #Send Command
             self.ser.write_timeout = 1
             self.ser.write(ba2)
 
-            sleep(0.02)
             try:
                 ba = bytearray()
-                while(self.ser.in_waiting != 0):
-                    ba.append(self.ser.read()[0])
+                timeout = 10  # Max 1 Sek auf min. erste 7 Zeichen warten
+                while(self.ser.in_waiting < 7 and timeout > 0):
+                    sleep(0.1)
+                    timeout = timeout -1
+                
+                if(timeout == 0):
+                    raise ValueError('Error: Timeout receiving bytes')
+
+                while(self.ser.in_waiting > 0):
+                    ba.append(self.ser.read(size=1)[0])
                     if(self.ser.in_waiting == 0):
                         sleep(0.02)
 
-                print(ba.hex())
-
-                rest = bytearray()
-                if(len(ba) > 6):
-                    start1, start2, start3, length, device, number, command, rest = unpack(">BBBBBBB{}s".format(len(ba)-7), ba)
-
-                if(start1 != 0x80 or start2 != 0x80 or start3 != 0x80):
-                    print("Error: Start sequence wrong")
-                elif(command == 0x0e):
-                    if(number > 0 and number < len(self.ERRORSTRINGS)):
-                        print("Error Nr: ", str(number), "(", self.ERRORSTRINGS[number], ")")
-                    else:
-                        print("Error Nr: ", str(number))
-                else:
-                    if(length == 0):
-                        ret = -1
-                    elif(length == 1):
-                        val, checksum = unpack(">BB", rest)
-                        ret = val
-                    elif(length == 3):
-                        msb, lsb, exp, checksum = unpack(">BBbB", rest)
-                        ret = (msb*256+lsb) * pow(10, exp)
+                while(len(ba) > 0):
+                    ret, ba = self._parseReceived(ba)
 
             except BaseException as e:
                 self.pvdata.Error = "Error SendIG:"+str(e)
@@ -263,12 +307,12 @@ class FroniusIG:
                     self.pvdata.wr[i].UAC = self.GetData("UAC", i)
                     self.pvdata.wr[i].IAC = self.GetData("IAC", i)
                     self.pvdata.wr[i].FAC = self.GetData("FAC", i)
-                    self.pvdata.wr[i].ATMP = self.GetData("ATMP", i)
-                    self.pvdata.wr[i].FAN0 = self.GetData("FAN0", i)
-                    self.pvdata.wr[i].FAN1 = self.GetData("FAN1", i)
-                    self.pvdata.wr[i].FAN2 = self.GetData("FAN2", i)
-                    self.pvdata.wr[i].FAN3 = self.GetData("FAN3", i)
-                    self.pvdata.wr[i].STATUS = self.GetData("STATUS", i)
+                    # self.pvdata.wr[i].ATMP = self.GetData("ATMP", i)
+                    # self.pvdata.wr[i].FAN0 = self.GetData("FAN0", i)
+                    # self.pvdata.wr[i].FAN1 = self.GetData("FAN1", i)
+                    # self.pvdata.wr[i].FAN2 = self.GetData("FAN2", i)
+                    # self.pvdata.wr[i].FAN3 = self.GetData("FAN3", i)
+                    # self.pvdata.wr[i].STATUS = self.GetData("STATUS", i)
                     self.pvdata.wr[i].OHDAY = self.GetData("OHDAY", i)
                     self.pvdata.wr[i].OHYEAR = self.GetData("OHYEAR", i)
                     self.pvdata.wr[i].OHTOT = self.GetData("OHTOT", i)
