@@ -219,9 +219,9 @@ class FroniusIG:
 
             try:
                 ba = bytearray()
-                timeout = 10  # Max 1 Sek auf min. erste 7 Zeichen warten
+                timeout = 100  # Max 1 Sek auf min. erste 7 Zeichen warten
                 while(self.ser.in_waiting < 7 and timeout > 0):
-                    sleep(0.1)
+                    sleep(0.01)
                     timeout = timeout - 1
 
                 if(timeout == 0):
