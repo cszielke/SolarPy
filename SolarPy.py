@@ -19,10 +19,10 @@ from pvhttpsrv import PVHttpSrv
 from pvmqtt import PVMqtt
 
 # region defaults
-VERSION = "V0.1.0"
+VERSION = "V0.1.1"
 LOG_FILENAME = ""
 LOG_LEVEL = logging.INFO  # Could be e.g. "DEBUG" or "WARNING"
-CONFIG_FILENAME = "./fronius.cfg"
+CONFIG_FILENAME = "./solarpy.cfg"
 DATASOURCE = 'simulation'
 
 INFLUXENABLED = False
@@ -45,10 +45,10 @@ MYSQLINTERVAL = 0
 MQTTENABLED = False
 MQTTBROKER = "test.mosquitto.org"
 MQTTPORT = 1880
-MQTTSERVERCLIENTID = "foniusiginterfaceeasy1"
+MQTTSERVERCLIENTID = "SolarPyDefault1"
 MQTTUSER = ""
 MQTTPASSWORD = ""
-MQTTBASETOPIC = "fronius/"
+MQTTBASETOPIC = "solarpy/"
 MQTTINTERVAL = 0
 MQTTKEEPALIVE = 0
 
@@ -231,7 +231,7 @@ def main():
     print("try to read config file '" + CONFIG_FILENAME + "'")
     if os.path.isfile(CONFIG_FILENAME) is False:
         print("\nERROR: could not read config from '" + CONFIG_FILENAME + "'\n")
-        exit(1)
+        return 1
     config.read(CONFIG_FILENAME)
     print("config file '" + CONFIG_FILENAME + "'  readed.")
     # endregion configuration file
@@ -275,7 +275,8 @@ def main():
         sys.stderr = MyLogger(logger, logging.ERROR)
 
     # logger start message
-    print("fronius.py {} started.".format(VERSION))
+    print("SolarPy {} started.".format(VERSION))
+    print("press Ctrl-C to stop...")
     print("==================")
     # endregion Logging
 
@@ -426,11 +427,11 @@ def main():
     # endregion deinit destinations
 
     # logger stop message
-    print("fronius.py {} stopped.".format(VERSION))
+    print("SolarPy {} stopped.".format(VERSION))
     print("==================")
-    exit(0)
+    return 0
 
 
 if __name__ == "__main__":
     # execute only if run as a script
-    main()
+    sys.exit(main())

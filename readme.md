@@ -11,7 +11,9 @@ Es besteht die Möglichkeit die Daten in einer MySQL und/oder InfluxDB Datenbank
 Das Programm ist komplett in Python geschrieben und benötigt keine Oberfläche. Das Programm lässt sich umfangreich über eine CFG-Datei konfigurieren.
 
 ## Setup
+
 ### SolarPy holen
+
 ein Verzeichnis erzeugen und darin mittels
 
 ```git clone https://github.com/cszielke/SolarPy.git```
@@ -25,8 +27,10 @@ Für die Konfiguration des Programms die Datei ```./fronius-default.cfg``` nach 
 Das Programm kann mit ```python ./fronius.py``` gestartet werden.
 
 ### Start als deamon unter Linux
+
 Um SolarPy als Deamon im Hintergrund zu starten wird das Programm ```start-stop-daemon``` verwendet. SolarPy sollte im Verzeichnis ```/usr/local/bin/SolarPy``` liegen.
 Man erzeugt eine Datei ```solarpy``` im Verzeichnis ```/etc/init.d``` (Rechte nicht vergessen!) mit folgendem Inhalt:
+
 ```sh
 #!/bin/sh
 
@@ -92,7 +96,7 @@ esac
 exit 0
 ```
 
-Info von http://blog.scphillips.com/posts/2013/07/getting-a-python-script-to-run-in-the-background-as-a-service-on-boot/ 
+Info von <http://blog.scphillips.com/posts/2013/07/getting-a-python-script-to-run-in-the-background-as-a-service-on-boot/>
 
 ## Anwendung
 

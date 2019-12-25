@@ -1,4 +1,6 @@
-flake8
+requests
+pytz
+influxdb
 paho-mqtt
 argparse
 ConfigParser
