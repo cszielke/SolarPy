@@ -161,16 +161,20 @@ class FroniusIG:
                 raise ValueError("Error: Start sequence wrong")
 
             if(command == 0x0e):
-                if(number > 0 and number < len(self.ERRORSTRINGS)):
-                    print("Error Nr: " + str(number) + "(" + self.ERRORSTRINGS[number] + ")")
+                c = rest[0]
+                nr = rest[1]
+                if(nr > 0 and nr < len(self.ERRORSTRINGS)):
+                    print("Error Nr: " + str(nr) + "(" + self.ERRORSTRINGS[nr] + ") in cmd " + str(c))
                 else:
-                    print("Error Nr: " + str(number))
+                    print("Error Nr: " + str(nr))
                 rest = rest[(length + 1):]
-            if(command == 0x0f):
-                if(number > 0 and number < len(self.ERRORSTRINGS)):
-                    print("Status Nr: " + str(number) + "(" + self.ERRORSTRINGS[number] + ")")
+            elif(command == 0x0f):
+                c = rest[0]
+                nr = rest[1]
+                if(nr > 0 and nr < len(self.ERRORSTRINGS)):
+                    print("Status Nr: " + str(nr) + "(" + self.ERRORSTRINGS[nr] + ") in cmd" + str(c))
                 else:
-                    print("Status Nr: " + str(number))
+                    print("Status Nr: " + str(nr))
                 rest = rest[(length + 1):]
             else:
                 if(length == 0):
@@ -179,15 +183,25 @@ class FroniusIG:
                 elif(length == 1):
                     val, checksum, rest = unpack(">BB{}s".format(len(rest) - 2), rest)
                     ret = val
+                elif(length == 2):
+                    valh, vall, checksum, rest = unpack(">BBB{}s".format(len(rest) - 3), rest)
+                    ret = valh * 256 + vall
                 elif(length == 3):
                     msb, lsb, exp, checksum, rest = unpack(">BBbB{}s".format(len(rest) - 4), rest)
                     ret = (msb * 256 + lsb) * pow(10, exp)
+                elif(length == 6):  # IFC_GetTime!
+                    day, month, year, hour, minute, second, checksum, rest = unpack(">BBBBBBB{}s".format(len(rest) - 7), rest)
+                    ret = "{}.{}.{}T{}:{}:{}".format(day, month, year, hour, minute, second)
                 else:
+                    baval = bytearray()
+                    for i in range(length):
+                        baval.append(rest[i])
+                    ret = baval
                     rest = rest[(length + 1):]
 
         except BaseException as e:
             self.pvdata.Error = "Error _parseReceived:" + str(e)
-            ba = bytearray()
+            # ba = bytearray()
             print(self.pvdata.Error, file=sys.stderr)
 
         print("Command {}, Length: {}, Value: {}, Restlength: {}".format(command, length, ret, len(rest)))
@@ -298,6 +312,12 @@ class FroniusIG:
             self.isreadingalready = True
             try:
                 self.pvdata.Error = "OK"  # we expect everything to be ok
+                self.pvdata.VersionIFC = self.SendCommand(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_VERSION)
+                self.pvdata.DevType = self.SendCommand(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_DEVTYP)
+                self.pvdata.DevTime = self.SendCommand(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_TIME)
+                self.pvdata.ActiveInvCnt = self.SendCommand(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_ACTIVE_INVERTER_CNT)
+                self.pvdata.ActiveSensorCardCnt = self.SendCommand(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_SENSOR_CARD_CNT)
+                self.pvdata.LocalNetStatus = self.SendCommand(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_LOCALNET_STATUS)
                 for i in range(len(self.pvdata.wr)):
                     self.pvdata.wr[i].PDay = self.GetData("PDay", i)
                     self.pvdata.wr[i].PNow = self.GetData("PNow", i)
@@ -306,12 +326,12 @@ class FroniusIG:
                     self.pvdata.wr[i].UAC = self.GetData("UAC", i)
                     self.pvdata.wr[i].IAC = self.GetData("IAC", i)
                     self.pvdata.wr[i].FAC = self.GetData("FAC", i)
-                    # self.pvdata.wr[i].ATMP = self.GetData("ATMP", i)
-                    # self.pvdata.wr[i].FAN0 = self.GetData("FAN0", i)
-                    # self.pvdata.wr[i].FAN1 = self.GetData("FAN1", i)
-                    # self.pvdata.wr[i].FAN2 = self.GetData("FAN2", i)
-                    # self.pvdata.wr[i].FAN3 = self.GetData("FAN3", i)
-                    # self.pvdata.wr[i].STATUS = self.GetData("STATUS", i)
+                    self.pvdata.wr[i].ATMP = self.GetData("ATMP", i)
+                    self.pvdata.wr[i].FAN0 = self.GetData("FAN0", i)
+                    self.pvdata.wr[i].FAN1 = self.GetData("FAN1", i)
+                    self.pvdata.wr[i].FAN2 = self.GetData("FAN2", i)
+                    self.pvdata.wr[i].FAN3 = self.GetData("FAN3", i)
+                    self.pvdata.wr[i].STATUS = self.GetData("STATUS", i)
                     self.pvdata.wr[i].OHDAY = self.GetData("OHDAY", i)
                     self.pvdata.wr[i].OHYEAR = self.GetData("OHYEAR", i)
                     self.pvdata.wr[i].OHTOT = self.GetData("OHTOT", i)
@@ -322,7 +342,8 @@ class FroniusIG:
                 self.pvdata.Time = time()
 
             except BaseException as e:
-                self.pvdata.Error = "Error:" + str(e)
+                self.pvdata.Error = "Error GetAllData:" + str(e)
+                print(self.pvdata.Error, file=sys.stderr)
             finally:
                 self.isreadingalready = False
 

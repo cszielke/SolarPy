@@ -5,6 +5,10 @@ solarpy.log*
 fronius.cfg
 solarpy.cfg
 
+#Here may be Copyrighted Files in it
+Info/
+Tools/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
