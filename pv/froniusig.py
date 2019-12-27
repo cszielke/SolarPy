@@ -150,8 +150,6 @@ class FroniusIG:
             length = -1
             command = -1
 
-            print(ba.hex())
-
             if(len(ba) > 6):
                 start1, start2, start3, length, device, number, command, rest = unpack(">BBBBBBB{}s".format(len(ba) - 7), ba)
             else:
@@ -204,18 +202,19 @@ class FroniusIG:
             # ba = bytearray()
             print(self.pvdata.Error, file=sys.stderr)
 
-        print("Command {}, Length: {}, Value: {}, Restlength: {}".format(command, length, ret, len(rest)))
+        print("Received Command {}, Length: {}, Value: {}, ({}) Restlength: {}".format(command, length, ret, ba.hex(), len(rest)))
 
         return ret, rest
 
-    def SendIG(self, dev, nr, cmd, val):
+    def SendIG(self, dev, nr, cmd, val=bytearray(0)):
         ret = -1
-        if(self.ser is not None and self.ser.is_open):
-            length = 0  # len(val)
+        try:
+            length = len(val)
+
             if(length == 0):
                 ba1 = pack(">BBBB", length, dev, nr + 1, cmd)
             else:
-                ba1 = pack(">BBBB{}B".format(length), length, dev, nr + 1, cmd, val)
+                ba1 = pack(">BBBB{}s".format(length), length, dev, nr + 1, cmd, val)
 
             # Checksumme berechnen
             chksum = 0
@@ -228,113 +227,66 @@ class FroniusIG:
             self.ser.flushInput()
 
             # Send Command
+            print("Send Device {}, Nr: {}, Command: {}, val: 0x{} ({})".format(dev, nr, cmd, val.hex(), ba2.hex()))
             self.ser.write_timeout = 1
             self.ser.write(ba2)
 
-            try:
-                ba = bytearray()
-                timeout = 100  # Max 1 Sek auf min. erste 7 Zeichen warten
-                while(self.ser.in_waiting < 7 and timeout > 0):
+            ba = bytearray()
+            timeout = 100  # Max 1 Sek auf min. erste 7 Zeichen warten
+            while(self.ser.in_waiting < 7 and timeout > 0):
+                sleep(0.01)
+                timeout = timeout - 1
+
+            if(timeout == 0):
+                raise ValueError('Error: Timeout receiving bytes')
+
+            while(self.ser.in_waiting > 0):
+                ba.append(self.ser.read(size=1)[0])
+                if(self.ser.in_waiting == 0):
                     sleep(0.01)
-                    timeout = timeout - 1
 
-                if(timeout == 0):
-                    raise ValueError('Error: Timeout receiving bytes')
+            while(len(ba) > 0):
+                ret, ba = self._parseReceived(ba)
 
-                while(self.ser.in_waiting > 0):
-                    ba.append(self.ser.read(size=1)[0])
-                    if(self.ser.in_waiting == 0):
-                        sleep(0.01)
-
-                while(len(ba) > 0):
-                    ret, ba = self._parseReceived(ba)
-
-            except BaseException as e:
-                self.pvdata.Error = "Error SendIG:" + str(e)
-                print(self.pvdata.Error, file=sys.stderr)
-
-        return ret
-
-    def SendCommand(self, dev, nr, cmd):
-        # TODO: IG Interface Easy abfragen
-        ret = None
-        if(dev == Devices.DEV_IFCARD):
-            ret = self.SendIG(dev, nr, cmd, 0)
-        elif(dev == Devices.DEV_INV):
-            ret = self.SendIG(dev, nr, cmd, 0)
-        elif(dev == Devices.DEV_SENSOR):
-            ret = self.SendIG(dev, nr, cmd, 0)
-        return ret
-
-    def GetData(self, valuestr, wrnr):
-        value = 0
-        if(valuestr == "PDay"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_ENERGY_DAY)
-        elif(valuestr == "PNow"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_POWER_NOW)
-        elif(valuestr == "UDC"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_DC_VOLTAGE_NOW)
-        elif(valuestr == "IDC"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_DC_CURRENT_NOW)
-        elif(valuestr == "UAC"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_AC_VOLTAGE_NOW)
-        elif(valuestr == "IAC"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_AC_CURRENT_NOW)
-        elif(valuestr == "FAC"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_AC_FREQ_NOW)
-        elif(valuestr == "ATMP"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_AMBIENT_TEMP)
-        elif(valuestr == "FAN0"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_FAN_SPEED_0)
-        elif(valuestr == "FAN1"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_FAN_SPEED_1)
-        elif(valuestr == "FAN2"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_FAN_SPEED_2)
-        elif(valuestr == "FAN3"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_FAN_SPEED_3)
-        elif(valuestr == "STATUS"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_STATUS)
-        elif(valuestr == "OHTOT"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_OPERATING_HOURS_TOTAL)
-        elif(valuestr == "OHYEAR"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_OPERATING_HOURS_YEAR)
-        elif(valuestr == "OHDAY"):
-            value = self.SendCommand(Devices.DEV_INV, wrnr, Commands.INV_GET_OPERATING_HOURS_DAY)
-        else:
-            self.pvdata.Error = "Wrong valuestr '{}'".format(valuestr)
+        except BaseException as e:
+            self.pvdata.Error = "Error SendIG:" + str(e)
             print(self.pvdata.Error, file=sys.stderr)
-            value = -1
 
-        return value
+        return ret
 
     def GetAllData(self):
         if(not self.isreadingalready):
             self.isreadingalready = True
             try:
                 self.pvdata.Error = "OK"  # we expect everything to be ok
-                self.pvdata.VersionIFC = self.SendCommand(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_VERSION)
-                self.pvdata.DevType = self.SendCommand(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_DEVTYP)
-                self.pvdata.DevTime = self.SendCommand(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_TIME)
-                self.pvdata.ActiveInvCnt = self.SendCommand(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_ACTIVE_INVERTER_CNT)
-                self.pvdata.ActiveSensorCardCnt = self.SendCommand(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_SENSOR_CARD_CNT)
-                self.pvdata.LocalNetStatus = self.SendCommand(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_LOCALNET_STATUS)
+                self.pvdata.VersionIFC = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_VERSION)
+                self.pvdata.DevType = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_DEVTYP, val=b'\x02\x40')
+                self.pvdata.DevTime = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_TIME)
+                self.pvdata.ActiveInvCnt = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_ACTIVE_INVERTER_CNT)
+                self.pvdata.ActiveSensorCardCnt = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_SENSOR_CARD_CNT)
+                self.pvdata.LocalNetStatus = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_LOCALNET_STATUS)
+
+                self.pvdata.PGesamt = 0
+                self.pvdata.PDayGesamt = 0
+
                 for i in range(len(self.pvdata.wr)):
-                    self.pvdata.wr[i].PDay = self.GetData("PDay", i)
-                    self.pvdata.wr[i].PNow = self.GetData("PNow", i)
-                    self.pvdata.wr[i].UDC = self.GetData("UDC", i)
-                    self.pvdata.wr[i].IDC = self.GetData("IDC", i)
-                    self.pvdata.wr[i].UAC = self.GetData("UAC", i)
-                    self.pvdata.wr[i].IAC = self.GetData("IAC", i)
-                    self.pvdata.wr[i].FAC = self.GetData("FAC", i)
-                    self.pvdata.wr[i].ATMP = self.GetData("ATMP", i)
-                    self.pvdata.wr[i].FAN0 = self.GetData("FAN0", i)
-                    self.pvdata.wr[i].FAN1 = self.GetData("FAN1", i)
-                    self.pvdata.wr[i].FAN2 = self.GetData("FAN2", i)
-                    self.pvdata.wr[i].FAN3 = self.GetData("FAN3", i)
-                    self.pvdata.wr[i].STATUS = self.GetData("STATUS", i)
-                    self.pvdata.wr[i].OHDAY = self.GetData("OHDAY", i)
-                    self.pvdata.wr[i].OHYEAR = self.GetData("OHYEAR", i)
-                    self.pvdata.wr[i].OHTOT = self.GetData("OHTOT", i)
+                    self.pvdata.wr[i].DevType = self.SendIG(Devices.DEV_INV, i, Commands.IFCCMD_GET_DEVTYP)
+                    self.pvdata.wr[i].PDay = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_ENERGY_DAY)
+                    self.pvdata.wr[i].PNow = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_POWER_NOW)
+                    self.pvdata.wr[i].UDC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_DC_VOLTAGE_NOW)
+                    self.pvdata.wr[i].IDC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_DC_CURRENT_NOW)
+                    self.pvdata.wr[i].UAC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AC_VOLTAGE_NOW)
+                    self.pvdata.wr[i].IAC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AC_CURRENT_NOW)
+                    self.pvdata.wr[i].FAC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AC_FREQ_NOW)
+                    # self.pvdata.wr[i].ATMP = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AMBIENT_TEMP)
+                    # self.pvdata.wr[i].FAN0 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_0)
+                    # self.pvdata.wr[i].FAN1 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_1)
+                    # self.pvdata.wr[i].FAN2 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_2)
+                    # self.pvdata.wr[i].FAN3 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_3)
+                    # self.pvdata.wr[i].STATUS = self.SendIG(Devices.DEV_INV, i, Commands.INV_STATUS)
+                    self.pvdata.wr[i].OHDAY = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_DAY)
+                    self.pvdata.wr[i].OHYEAR = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_YEAR)
+                    self.pvdata.wr[i].OHTOT = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_DAY)
 
                     self.pvdata.PGesamt = self.pvdata.PGesamt + self.pvdata.wr[i].PNow
                     self.pvdata.PDayGesamt = self.pvdata.PDayGesamt + self.pvdata.wr[i].PDay
