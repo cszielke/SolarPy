@@ -260,7 +260,7 @@ class FroniusIG:
             try:
                 self.pvdata.Error = "OK"  # we expect everything to be ok
                 self.pvdata.VersionIFC = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_VERSION)
-                self.pvdata.DevType = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_DEVTYP, val=b'\x02\x40')
+                # self.pvdata.DevType = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_DEVTYP, val=b'\x02\x40')
                 self.pvdata.DevTime = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_TIME)
                 self.pvdata.ActiveInvCnt = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_ACTIVE_INVERTER_CNT)
                 self.pvdata.ActiveSensorCardCnt = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_SENSOR_CARD_CNT)
