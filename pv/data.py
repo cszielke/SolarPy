@@ -5,30 +5,36 @@ from dataclasses import dataclass
 
 @dataclass
 class PVWR:
-    PDay = 0
-    PNow = 0
-    UDC = 0
-    IDC = 0
-    UAC = 0
-    IAC = 0
-    FAC = 50
+    PDay = -1
+    PNow = -1
+    UDC = -1
+    IDC = -1
+    UAC = -1
+    IAC = -1
+    FAC = -1
     ATMP = -1
-    FAN0 = 0
-    FAN1 = 0
-    FAN2 = 0
-    FAN3 = 0
-    STATUS = 0
-    OHTOT = 0
-    OHYEAR = 0
-    OHDAY = 0
+    FAN0 = -1
+    FAN1 = -1
+    FAN2 = -1
+    FAN3 = -1
+    STATUS = -1
+    OHTOT = -1
+    OHYEAR = -1
+    OHDAY = -1
 
 
 @dataclass
 class PVData:
     Error = "No Data"
-    Time = 0
-    PGesamt = 0
-    PDayGesamt = 0
+    VersionIFC = -1
+    DevType = -1
+    DevTime = -1
+    ActiveInvCnt = 0
+    ActiveSensorCardCnt = 0
+    LocalNetStatus = -1
+    Time = -1
+    PGesamt = -1
+    PDayGesamt = -1
     wr = [PVWR()]
 
     def toJson(self):
