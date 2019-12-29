@@ -8,6 +8,7 @@ from datetime import datetime
 import requests
 import os
 import io
+import sys
 
 
 class PVWebCam:
@@ -35,11 +36,14 @@ class PVWebCam:
     def GetWebCam(self, withdata=False):
         ba = bytearray()
         try:
-            response = requests.get(self. url)
-            im = Image.open(io.BytesIO(response.content))
+            response = requests.get(self.url)
+            if(response.status_code >= 200 and response.status_code < 300):
+                im = Image.open(io.BytesIO(response.content))
+            else:
+                raise ValueError('Error GetWebCam: Status Code {}'.format(response.status_code))
         except Exception as e:
-            print("Error GetWebCam: " + str(e))
-            im = Image.new(mode="RGB", size=(640, 480), color=(153, 153, 153))
+            print("Error GetWebCam: " + str(e), file=sys.stderr)
+            im = self.GetErrorImage()
 
         try:
             if(withdata):
@@ -63,27 +67,49 @@ class PVWebCam:
 
             ba = self.ImageToBytearray(im)
         except Exception as e:
-            print("Error GetWebCam: " + str(e))
+            print("Error GetWebCam: " + str(e), file=sys.stderr)
 
         return ba
 
     def SaveWebCam(self):
-        webcam_ba = self.GetWebCam(withdata=True)
-        im = self.ByteArrayToImage(webcam_ba)
+        try:
+            webcam_ba = self.GetWebCam(withdata=True)
+            im = self.ByteArrayToImage(webcam_ba)
 
-        now = datetime.fromtimestamp(self.pvdata.Time)
-        fn = self.filename.format(now.strftime("%H%M%S"))
+            now = datetime.fromtimestamp(self.pvdata.Time)
+            fn = self.filename.format(now.strftime("%H%M%S"))
 
-        print("Save Webcam picture from {} to {}".format(self.url, self.savedirectory))
-        im.save(fn)  # , "JPEG", quality=80, optimize=True, progressive=True)
+            print("Save Webcam picture from {} to {}".format(self.url, self.savedirectory))
+
+            im.save(fn)  # , "JPEG", quality=80, optimize=True, progressive=True)
+        except Exception as e:
+            print("Error SaveWebCam: " + str(e), file=sys.stderr)
 
     def ImageToBytearray(self, image: Image):
         imgByteArr = io.BytesIO()
-        image.save(imgByteArr, format='JPEG')  # image.format)
-        imgByteArr = imgByteArr.getvalue()
+        try:
+            image.save(imgByteArr, format='JPEG')  # image.format)
+            imgByteArr = imgByteArr.getvalue()
+        except Exception as e:
+            print("Error ImageToBytearray: " + str(e), file=sys.stderr)
+
         return imgByteArr
 
     def ByteArrayToImage(self, ba: bytearray):
-        im = Image.open(io.BytesIO(ba))
+        try:
+            im = Image.open(io.BytesIO(ba))
+        except Exception as e:
+            print("Error ByteArrayToImage: " + str(e), file=sys.stderr)
+            im = self.GetErrorImage()
+        return im
+
+    def GetErrorImage(self):
+        im = Image.new(mode="RGB", size=(640, 480), color=(153, 153, 153))
+        im.format = 'JPEG'
+        try:
+            # Schönes Bild zeichnen :-)
+            pass
+        except Exception as e:
+            print("Error GetErrorImage: " + str(e), file=sys.stderr)
         return im
 

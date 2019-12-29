@@ -1,4 +1,7 @@
+
 # SolarPy
+
+<img src="./templates/public/favicon.svg" width="150" height="150">
 
 ## Datenerfassung für Solaranlage mit Fronius Wechselrichter und Fronius IG Interface Card/Box
 
