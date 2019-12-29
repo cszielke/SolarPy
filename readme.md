@@ -1,12 +1,12 @@
 # SolarPy
 
-## Datenerfassung für Fronius Wechselrichter mit Fronius IG Interface Card/Box
+## Datenerfassung für Solaranlage mit Fronius Wechselrichter und Fronius IG Interface Card/Box
 
 Das Programm ist gedacht, um mittels eines Raspberry Pi's die Daten der Wechselrichter über das interne Netzwerk zur Verfügung zu stellen.
 
 Es besteht die Möglichkeit die Daten in einer MySQL und/oder InfluxDB Datenbank zu archivieren.
 
-Über eine REST-API Schnittstelle oder über MQTT können die Daten abgefragt werden. Andere Ausgabeschnittstellen sind leicht implementierbar.
+Über eine REST-API Schnittstelle oder über MQTT können die Daten abgefragt werden. Andere Ein-/Ausgabeschnittstellen sind leicht implementierbar.
 
 Das Programm ist komplett in Python geschrieben und benötigt keine Oberfläche. Das Programm lässt sich umfangreich über eine CFG-Datei konfigurieren.
 
@@ -24,7 +24,7 @@ Anschließend ```setup.bat``` für Windows, oder ```setup.sh``` für linux aufru
 
 Für die Konfiguration des Programms die Datei ```./fronius-default.cfg``` nach ```./fronius.cfg``` kopieren und anpassen.
 
-Das Programm kann mit ```python ./fronius.py``` gestartet werden.
+Das Programm kann mit ```python ./SolarPy.py``` gestartet werden.
 
 ### Start als deamon unter Linux
 
@@ -46,11 +46,11 @@ Man erzeugt eine Datei ```solarpy``` im Verzeichnis ```/etc/init.d``` (Rechte ni
 
 # Change the next 3 lines to suit where you install your script and what you want to call it
 DIR=/usr/local/bin/SolarPy
-DAEMON=$DIR/fronius.py
+DAEMON=$DIR/SolarPy.py
 DAEMON_NAME=SolarPy
 
 # Add any command line options for your daemon here
-DAEMON_OPTS=" -cf /etc/fronius.cfg"
+DAEMON_OPTS=" -cf /etc/solarpy.cfg"
 
 # This next line determines what user the script runs as.
 # Root generally not recommended but necessary if you are using the Raspberry Pi GPIO from Python.
@@ -114,49 +114,50 @@ Unter ```http://localhost:8080/data.json``` können die aktuellen Daten der Sola
 
 ```JSON
 {
+    "ActiveInvCnt": 0,
+    "ActiveSensorCardCnt": 0,
+    "DevTime": -1,
     "Error": "OK",
-    "PDayGesamt": 20058.800000000003,
-    "PGesamt": 28651.899999999998,
-    "Time": 1577182434.6023476,
+    "LocalNetStatus": -1,
+    "PDayGesamt": 10000.0,
+    "PGesamt": 0.0,
+    "Time": 1577635117.0,
+    "VersionIFC": -1,
     "wr": [{
-            "ATMP": 21,
-            "FAC": 50,
-            "FAN0": 1978,
-            "FAN1": 2088,
-            "FAN2": 2058,
-            "FAN3": 3329,
-            "IAC": 5,
-            "IDC": 7,
-            "OHDAY": 202.34,
-            "OHTOT": 517660,
-            "OHYEAR": 79650,
-            "PDay": 810.2,
-            "PNow": 1206.0,
-            "STATUS": 2,
-            "UAC": 232,
-            "UDC": 179.96
+            "DevType": -1,
+            "FAC": 0.0,
+            "IAC": 0.0,
+            "IDC": 0.0,
+            "OHDAY": -1,
+            "OHTOT": -1,
+            "OHYEAR": -1,
+            "PDay": 4000.0,
+            "PNow": 0.0,
+            "UAC": 0.0,
+            "UDC": 0.0
         }, {
-            "ATMP": 21,
-            "FAC": 50,
-            "FAN0": 1977,
-            "FAN1": 2083,
-            "FAN2": 2053,
-            "FAN3": 3324,
-            "IAC": 5,
-            "IDC": 7,
-            "OHDAY": 202.41,
-            "OHTOT": 517660,
-            "OHYEAR": 79650,
-            "PDay": 809.5,
-            "PNow": 1206.3,
-            "STATUS": 2,
-            "UAC": 232,
-            "UDC": 179.96
+            "DevType": -1,
+            "FAC": 0.0,
+            "IAC": 0.0,
+            "IDC": 0.0,
+            "OHDAY": -1,
+            "OHTOT": -1,
+            "OHYEAR": -1,
+            "PDay": 6000.0,
+            "PNow": 0.0,
+            "UAC": 0.0,
+            "UDC": 0.0
         }
     ]
 }
 
 ```
+
+### Webcam
+
+Sofern das Bild der Webcam per URL abgefragt werden kann (z.B. <http://www.example.com:80/image.jpg>) , ist es möglich in das Bild die Daten der PV-Anlage zu implementieren. Das modifizierte Webcam Bild kann dann über den integrierten Webserver abgefragt werden (z.B. <http://localhost:8080/webcam.jpg)).>
+
+Wenn gewüscht kann in konfigurierbaren Intervallen ein Bild gespeichert werden. Aus dieser Bilderserie kann dann zb. mit ffmpeg ein video generiert werden, was den Tagesverlauf der Beschattung auf den Solarpanelen generiert.
 
 ### InfluxDB
 
