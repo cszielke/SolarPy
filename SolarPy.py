@@ -13,10 +13,11 @@ from pv import FroniusIG
 from pv import PVData
 from pv import PVRestApi
 from pv import PVSimulation
+from pvmqtt import PVMqtt
 from pvinflux import PVInflux
 from pvmysql import PVMySQL
 from pvhttpsrv import PVHttpSrv
-from pvmqtt import PVMqtt
+from pvwebcam import PVWebCam
 
 # region defaults
 VERSION = "V0.1.1"
@@ -62,6 +63,13 @@ HTTPSRVADDRESS = ""
 HTTPSRVPORT = 8080
 HTTPSRVDIRECTORY = "./htdocs"
 
+WEBCAMENABLED = False
+WEBCAMURL = "http://localhost/image.jpg"
+WEBCAMUSERNAME = ""
+WEBCAMPASSWORD = ""
+WEBCAMSAVEINTERVAL = 0
+WEBCAMSAVEDIRECTORY = ".htdocs/webcam"
+
 # endregion defaults
 
 config = configparser.ConfigParser()
@@ -69,7 +77,7 @@ pv = None
 influxClient = None
 mqttclient = None
 httpsrv = None
-
+webcam = None
 pvdata = PVData()
 
 
@@ -128,6 +136,11 @@ def OnDataRequest(self):
     return pvdata
 
 
+def OnWebCamRequest(self, withdata=False):
+    global webcam
+    return webcam.GetWebCam(withdata)
+
+
 def main():
     # region globals
     global CONFIG_FILENAME
@@ -170,6 +183,14 @@ def main():
     global HTTPSRVADDRESS
     global HTTPSRVPORT
     global HTTPSRVDIRECTORY
+
+    global WEBCAMENABLED
+    global WEBCAMURL
+    global WEBCAMUSERNAME
+    global WEBCAMPASSWORD
+    global WEBCAMSAVEINTERVAL
+    global WEBCAMSAVEDIRECTORY
+    global webcam
     # endregion globals
 
     # region Argument parser
@@ -215,6 +236,12 @@ def main():
     parser.add_argument('-hsp', '--httpsrvport', help='http server port', required=False)
     parser.add_argument('-hsd', '--httpsrvdirectory', help='http server directory', required=False)
 
+    parser.add_argument('-wcen', '--webcamenabled', help='webcam processing enabled', required=False)
+    parser.add_argument('-wcurl', '--webcamurl', help='webcam URL', required=False)
+    parser.add_argument('-wcu', '--webcamusername', help='webcam username', required=False)
+    parser.add_argument('-wcpw', '--webcampassword', help='webcam password', required=False)
+    parser.add_argument('-wci', '--webcamsaveinterval', help='webcam interval to save pictures', required=False)
+    parser.add_argument('-wcsd', '--webcamsavedirectory', help='webcam directory for saved pictures', required=False)
     args = parser.parse_args()
     # endregion Argument parser
 
@@ -319,6 +346,13 @@ def main():
     HTTPSRVADDRESS = CheckArgsOrConfig(HTTPSRVADDRESS, args.httpsrvaddress, "httpserver", "srvaddress")
     HTTPSRVPORT = CheckArgsOrConfig(RESTURL, args.httpsrvport, "httpserver", "port", "int")
     HTTPSRVDIRECTORY = CheckArgsOrConfig(RESTURL, args.httpsrvdirectory, "httpserver", "directory")
+
+    WEBCAMENABLED = CheckArgsOrConfig(WEBCAMENABLED, args.webcamenabled, "webcam", "enabled")
+    WEBCAMURL = CheckArgsOrConfig(WEBCAMURL, args.webcamurl, "webcam", "url")
+    WEBCAMUSERNAME = CheckArgsOrConfig(WEBCAMUSERNAME, args.webcamusername, "webcam", "username")
+    WEBCAMPASSWORD = CheckArgsOrConfig(WEBCAMPASSWORD, args.webcampassword, "webcam", "password")
+    WEBCAMSAVEINTERVAL = CheckArgsOrConfig(WEBCAMSAVEINTERVAL, args.webcamsaveinterval, "webcam", "saveinterval", "int")
+    WEBCAMSAVEDIRECTORY = CheckArgsOrConfig(WEBCAMSAVEDIRECTORY, args.webcamsavedirectory, "webcam", "savedirectory")
     # endregion default, configfile or commandline
 
     # region init datasources
@@ -366,6 +400,14 @@ def main():
             password=MYSQLPASSWORD,
             database=MYSQLDATABASE,
             tablename=MYSQLTABLENAME)
+
+    if(WEBCAMENABLED):
+        webcam = PVWebCam(
+            url=WEBCAMURL,
+            username=WEBCAMUSERNAME,
+            password=WEBCAMPASSWORD,
+            savedirectory=WEBCAMSAVEDIRECTORY,
+            onDataRequest=OnDataRequest)
     # endregion init destinations
 
     # region main loop
@@ -375,12 +417,14 @@ def main():
         mqttivalcnt = MQTTINTERVAL
         influxivalcnt = INFLUXINTERVAL
         mysqlivalcnt = MYSQLINTERVAL
+        webcamcnt = WEBCAMSAVEINTERVAL
         while(True):
             sleep(1)
             mqttkacnt = mqttkacnt - 1
             mqttivalcnt = mqttivalcnt - 1
             influxivalcnt = influxivalcnt - 1
             mysqlivalcnt = mysqlivalcnt - 1
+            webcamcnt = webcamcnt - 1
             # print("Counter: MQTT KeepAlive=",mqttkacnt,",MQTT interval=",mqttivalcnt,"InfluxDB Interval=",influxivalcnt,"\r", end = '')
 
             if(MQTTENABLED):
@@ -405,6 +449,7 @@ def main():
                         GetAllData()
                         influxClient.pvdata = pvdata
                         influxClient.SendData()
+
             if(MYSQLENABLED):
                 if(mysqlivalcnt <= 0):
                     mysqlivalcnt = MYSQLINTERVAL
@@ -413,6 +458,14 @@ def main():
                         GetAllData()
                         mysqlclient.pvdata = pvdata
                         mysqlclient.SendData()
+
+            if(WEBCAMENABLED):
+                if(webcamcnt <= 0):
+                    webcamcnt = WEBCAMSAVEINTERVAL
+                    if(WEBCAMSAVEINTERVAL != 0):
+                        print("Saving Webcam picture")
+                        webcam.SaveWebCam()
+
     except KeyboardInterrupt:
         print("Key pressed! Exiting programm")
     # endregion main loop

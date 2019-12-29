@@ -228,7 +228,7 @@ class FroniusIG:
 
             # Send Command
             print("Send Device {}, Nr: {}, Command: {}, val: 0x{} ({})".format(dev, nr, cmd, val.hex(), ba2.hex()))
-            self.ser.write_timeout = 1
+            self.ser.write_timeout = 0.5
             self.ser.write(ba2)
 
             ba = bytearray()
