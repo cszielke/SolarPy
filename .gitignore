@@ -4,6 +4,7 @@ solarpy.log*
 #This is the user config file and there may be passwords in it ....so ignore it...
 fronius.cfg
 solarpy.cfg
+templates/public/webcam/
 
 #Here may be Copyrighted Files in it
 Info/
