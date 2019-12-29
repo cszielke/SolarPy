@@ -390,7 +390,8 @@ def main():
             serveraddress=HTTPSRVADDRESS,
             port=HTTPSRVPORT,
             directory=HTTPSRVDIRECTORY,
-            onDataRequest=OnDataRequest)
+            onDataRequest=OnDataRequest,
+            onWebCamRequest=OnWebCamRequest)
         httpsrv.run()
 
     if(MYSQLENABLED):

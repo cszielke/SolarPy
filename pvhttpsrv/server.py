@@ -4,6 +4,7 @@ from http.server import BaseHTTPRequestHandler
 from pvhttpsrv.routes.main import routes
 
 from pvhttpsrv.routes.response.dataRequestHandler import DataRequestHandler
+from pvhttpsrv.routes.response.webcamRequestHandler import WebCamRequestHandler
 from pvhttpsrv.routes.response.staticHandler import StaticHandler
 from pvhttpsrv.routes.response.templateHandler import TemplateHandler
 from pvhttpsrv.routes.response.badRequestHandler import BadRequestHandler
@@ -19,6 +20,7 @@ class Server(BaseHTTPRequestHandler):
     def do_GET(self):
         split_path = os.path.splitext(self.path)
         request_extension = split_path[1]
+        request_name = os.path.basename(self.path)
 
         if request_extension == "" or request_extension == ".html":
             if self.path in routes:
@@ -31,6 +33,9 @@ class Server(BaseHTTPRequestHandler):
         elif request_extension == ".json":
             handler = DataRequestHandler()
             handler.onDataRequest = self.onDataRequest
+        elif (request_name == 'webcam.jpg'):
+            handler = WebCamRequestHandler()
+            handler.onWebCamRequest = self.onWebCamRequest
         else:
             handler = StaticHandler()
             handler.find(self.path)
