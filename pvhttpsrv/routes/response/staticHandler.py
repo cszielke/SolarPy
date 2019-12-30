@@ -5,6 +5,7 @@ from pvhttpsrv.routes.response.requestHandler import RequestHandler
 
 class StaticHandler(RequestHandler):
     def __init__(self):
+        super().__init__()
         self.filetypes = {
             ".js": "text/javascript",
             ".css": "text/css",

@@ -7,6 +7,7 @@ class WebCamRequestHandler(RequestHandler):
     pvdata = PVData()
 
     def __init__(self):
+        super().__init__()
         self.contentType = 'image/jpeg'
         self.setStatus(200)
 

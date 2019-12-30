@@ -27,6 +27,7 @@ class PVHttpSrv:
         self.handler = Server  # pvHttpRequestHandler
         self.handler.onDataRequest = onDataRequest
         self.handler.onWebCamRequest = onWebCamRequest
+        self.handler.directory = self.directory
 
         # Server settings
         # Choose port 8080, for port 80, which is normally used for a http server, you need root access
