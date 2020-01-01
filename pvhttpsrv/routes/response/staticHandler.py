@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 from pvhttpsrv.routes.response.requestHandler import RequestHandler
-
+from pathlib import Path
 
 class StaticHandler(RequestHandler):
     def __init__(self):
@@ -21,14 +21,19 @@ class StaticHandler(RequestHandler):
         extension = split_path[1]
 
         try:
-            print("./template/public{}".format(file_path))
-
-            # TODO: avoid ".." in the path
+            basedir =  os.path.join(os.path.abspath(self.directory),"public")
+            
+            filename = file_path
+            while(os.path.isabs(filename) and len(filename) > 0):  # begins with a "/"?
+                filename = filename[1:]
+            filename = os.path.join(basedir, filename.replace("..", ""))
+            
+            print("StaticHandler: '" + filename + "'")
 
             if extension in (".jpg", ".jpeg", ".png", ".ico"):
-                self.contents = open("./templates/public{}".format(file_path), 'rb')
+                self.contents = open(filename, 'rb')
             else:
-                self.contents = open("./templates/public{}".format(file_path), 'r')
+                self.contents = open(filename, 'r')
 
             self.setContentType(extension)
             self.setStatus(200)

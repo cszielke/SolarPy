@@ -25,6 +25,7 @@ class Server(BaseHTTPRequestHandler):
         if request_extension == "" or request_extension == ".html":
             if self.path in routes:
                 handler = TemplateHandler()
+                handler.directory = self.directory
                 handler.find(routes[self.path])
             else:
                 handler = BadRequestHandler()
@@ -38,6 +39,7 @@ class Server(BaseHTTPRequestHandler):
             handler.onWebCamRequest = self.onWebCamRequest
         else:
             handler = StaticHandler()
+            handler.directory = self.directory
             handler.find(self.path)
 
         self.respond({
