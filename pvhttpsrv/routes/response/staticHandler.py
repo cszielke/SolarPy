@@ -25,7 +25,7 @@ class StaticHandler(RequestHandler):
 
             # TODO: avoid ".." in the path
 
-            if extension in (".jpg", ".jpeg", ".png"):
+            if extension in (".jpg", ".jpeg", ".png", ".ico"):
                 self.contents = open("./templates/public{}".format(file_path), 'rb')
             else:
                 self.contents = open("./templates/public{}".format(file_path), 'r')
