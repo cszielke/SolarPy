@@ -34,9 +34,11 @@ class Server(BaseHTTPRequestHandler):
         elif request_extension == ".json":
             handler = DataRequestHandler()
             handler.onDataRequest = self.onDataRequest
-        elif (request_name == 'webcam.jpg'):
+            handler.find(self.path)
+        elif (request_name == 'ipcam.jpg' or request_name == 'pvipcam.jpg'):
             handler = WebCamRequestHandler()
             handler.onWebCamRequest = self.onWebCamRequest
+            handler.find(self.path)
         else:
             handler = StaticHandler()
             handler.directory = self.directory

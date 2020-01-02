@@ -41,3 +41,18 @@ class PVData:
     def toJson(self):
         jsondata = str(jsons.dump(self)).replace("'", '"')
         return jsondata
+
+
+@dataclass
+class OSData:
+    PsUtilVersion = None
+    Cpu = None
+    CpuFreq = None
+    Memory = None
+    Network = None
+    Temperatures = None
+    BootTime = None
+
+    def toJson(self):
+        jsondata = str(jsons.dump(self)).replace("'", '"')
+        return jsondata
