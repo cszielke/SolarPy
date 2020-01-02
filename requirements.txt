@@ -9,3 +9,4 @@ dataclasses
 jsons
 pymysql
 Pillow
+psutil
