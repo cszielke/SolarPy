@@ -54,5 +54,5 @@ class OSData:
     BootTime = None
 
     def toJson(self):
-        jsondata = str(jsons.dump(self)).replace("'", '"')
+        jsondata = str(jsons.dump(self)).replace("'", '"').replace('None','"None"')
         return jsondata
