@@ -2,6 +2,7 @@
 from pvhttpsrv.routes.response.requestHandler import RequestHandler
 import os
 
+
 class TemplateHandler(RequestHandler):
     def __init__(self):
         super().__init__()
@@ -9,8 +10,8 @@ class TemplateHandler(RequestHandler):
 
     def find(self, routeData):
         try:
-            basedir =  os.path.abspath(self.directory)
-            
+            basedir = os.path.abspath(self.directory)
+
             filename = routeData['template']
             while(os.path.isabs(filename) and len(filename) > 0):  # begins with a "/"?
                 filename = filename[1:]

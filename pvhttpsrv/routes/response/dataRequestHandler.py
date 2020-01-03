@@ -38,12 +38,12 @@ class DataRequestHandler(RequestHandler):
                     data.Temperatures = psutil.sensors_temperatures()
                 else:
                     data.Temperatures = 0
-                
+
                 data.BootTime = psutil.boot_time()
 
-                self.jsondata = data.toJson() 
+                self.jsondata = data.toJson()
             else:
-                raise ValueError('Error: Requested data file {} not defined'.format(request_name))
+                raise ValueError('Error: Requested data file {} not defined'.format(self.request_name))
 
             return True
         except Exception as e:

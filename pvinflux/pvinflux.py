@@ -1,29 +1,49 @@
 #!/usr/bin/env python3
 from pv.data import PVData
+from pvbasemodul import PVBaseModul
 from influxdb import InfluxDBClient
 import datetime
 import pytz
 
 
-class PVInflux:
+class PVInflux(PVBaseModul):
     local = pytz.timezone("Europe/Berlin")
     pvdata = PVData()
 
     client = None
-
+    enabled = False
     host = '127.0.0.1'
     port = 8086
     username = 'admin'
     password = ''
     database = 'pvtest'
+    interval = 300
 
-    def __init__(self, host='127.0.0.1', port=8086, username='admin', password='', database='pvtest'):
-        self.host = host
-        self.port = port
-        self.username = username
-        self.password = password
-        self.database = database
+    def __init__(self):
+        super().__init__()
 
+    def InitArguments(self, parser):
+        super().InitArguments(parser)
+        parser.add_argument('-ixen', '--influxenabled', help='influxdb enabled [True,False]', required=False)
+        parser.add_argument('-ixh', '--influxhost', help='influxdb url/hostname', required=False)
+        parser.add_argument('-ixp', '--influxport', help='influxdb port', required=False)
+        parser.add_argument('-ixu', '--influxuser', help='influxdb username', required=False)
+        parser.add_argument('-ixpw', '--influxpassword', help='influxdb password', required=False)
+        parser.add_argument('-idb', '--influxdatabase', help='influxdb database name', required=False)
+        parser.add_argument('-ii', '--influxinterval', help='influxdb data send interval', required=False)
+
+    def SetConfig(self, config, args):
+        super().SetConfig(config, args)
+        configsection = "influx"
+        self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.influxenabled, configsection, "enabled")
+        self.host = self.CheckArgsOrConfig(config, self.host, args.influxhost, configsection, "host")
+        self.port = self.CheckArgsOrConfig(config, self.port, args.influxport, configsection, "port", "int")
+        self.username = self.CheckArgsOrConfig(config, self.username, args.influxuser, configsection, "user")
+        self.password = self.CheckArgsOrConfig(config, self.password, args.influxpassword, configsection, "password")
+        self.database = self.CheckArgsOrConfig(config, self.database, args.influxdatabase, configsection, "database")
+        self.interval = self.CheckArgsOrConfig(config, self.interval, args.influxinterval, configsection, "interval", "int")
+
+    def Connect(self):
         # connect database
         self.client = InfluxDBClient(host=self.host, port=self.port, username=self.username, password=self.password)
         self.client.switch_database(self.database)

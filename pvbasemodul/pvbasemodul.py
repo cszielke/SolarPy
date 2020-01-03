@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-import argparse
-import configparser
+import sys
+
 
 class PVBaseModul():
     def __init__(self):

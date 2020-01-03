@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 import jsons
 from dataclasses import dataclass
-import requests
-import datetime
-import pytz
-from time import time, sleep
+from time import time
+
 
 @dataclass
 class WeatherData:

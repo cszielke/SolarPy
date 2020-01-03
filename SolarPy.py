@@ -18,6 +18,7 @@ from pvinflux import PVInflux
 from pvmysql import PVMySQL
 from pvhttpsrv import PVHttpSrv
 from pvwebcam import PVWebCam
+from pvweather import PVWeather
 
 # region defaults
 VERSION = "V0.1.1"
@@ -25,14 +26,6 @@ LOG_FILENAME = ""
 LOG_LEVEL = logging.INFO  # Could be e.g. "DEBUG" or "WARNING"
 CONFIG_FILENAME = "./solarpy.cfg"
 DATASOURCE = 'simulation'
-
-INFLUXENABLED = False
-INFLUXHOST = '127.0.0.1'
-INFLUXPORT = 3306
-INFLUXUSERNAME = 'admin'
-INFLUXPASSWORD = ''
-INFLUXDATABASE = 'pvtest'
-INFLUXINTERVAL = 0
 
 MYSQLENABLED = False
 MYSQLHOST = "127.0.0.1"
@@ -74,10 +67,11 @@ WEBCAMSAVEDIRECTORY = ".htdocs/webcam"
 
 config = configparser.ConfigParser()
 pv = None
-influxClient = None
+influxClient = PVInflux()
 mqttclient = None
 httpsrv = None
 webcam = None
+pvweather = PVWeather()
 pvdata = PVData()
 
 
@@ -147,13 +141,7 @@ def main():
     global LOG_FILENAME
     global DATASOURCE
 
-    global INFLUXENABLED
-    global INFLUXHOST
-    global INFLUXPORT
-    global INFLUXUSERNAME
-    global INFLUXPASSWORD
-    global INFLUXDATABASE
-    global INFLUXINTERVAL
+    global influxClient
 
     global MYSQLENABLED
     global MYSQLHOST
@@ -191,6 +179,7 @@ def main():
     global WEBCAMSAVEINTERVAL
     global WEBCAMSAVEDIRECTORY
     global webcam
+    global pvweather
     # endregion globals
 
     # region Argument parser
@@ -199,13 +188,7 @@ def main():
     parser.add_argument('-lf', '--logfile', help='Name and path for log file', required=False)
     parser.add_argument('-ds', '--datasource', help='How to get PV-Data [restapi, ifcardeasy, simulation]', required=False)
 
-    parser.add_argument('-ixen', '--influxenabled', help='influxdb enabled [True,False]', required=False)
-    parser.add_argument('-ixh', '--influxhost', help='influxdb url/hostname', required=False)
-    parser.add_argument('-ixp', '--influxport', help='influxdb port', required=False)
-    parser.add_argument('-ixu', '--influxuser', help='influxdb username', required=False)
-    parser.add_argument('-ixpw', '--influxpassword', help='influxdb password', required=False)
-    parser.add_argument('-idb', '--influxdatabase', help='influxdb database name', required=False)
-    parser.add_argument('-ii', '--influxinterval', help='influxdb data send interval', required=False)
+    influxClient.InitArguments(parser)
 
     parser.add_argument('-mysen', '--mysqlenabled', help='MySQL enabled [True, False]', required=False)
     parser.add_argument('-mysh', '--mysqlhost', help='MySQL url/host', required=False)
@@ -242,6 +225,7 @@ def main():
     parser.add_argument('-wcpw', '--webcampassword', help='webcam password', required=False)
     parser.add_argument('-wci', '--webcamsaveinterval', help='webcam interval to save pictures', required=False)
     parser.add_argument('-wcsd', '--webcamsavedirectory', help='webcam directory for saved pictures', required=False)
+    pvweather.InitArguments(parser)
     args = parser.parse_args()
     # endregion Argument parser
 
@@ -308,15 +292,10 @@ def main():
     # endregion Logging
 
     # region default, configfile or commandline
-    DATASOURCE = CheckArgsOrConfig(INFLUXHOST, args.datasource, "program", "datasource")
+    DATASOURCE = CheckArgsOrConfig(DATASOURCE, args.datasource, "program", "datasource")
 
-    INFLUXENABLED = CheckArgsOrConfig(INFLUXENABLED, args.influxenabled, "influx", "enabled")
-    INFLUXHOST = CheckArgsOrConfig(INFLUXHOST, args.influxhost, "influx", "host")
-    INFLUXPORT = CheckArgsOrConfig(INFLUXPORT, args.influxport, "influx", "port", "int")
-    INFLUXUSERNAME = CheckArgsOrConfig(INFLUXUSERNAME, args.influxuser, "influx", "user")
-    INFLUXPASSWORD = CheckArgsOrConfig(INFLUXPASSWORD, args.influxpassword, "influx", "password")
-    INFLUXDATABASE = CheckArgsOrConfig(INFLUXDATABASE, args.influxdatabase, "influx", "database")
-    INFLUXINTERVAL = CheckArgsOrConfig(INFLUXINTERVAL, args.influxinterval, "influx", "interval", "int")
+    pvweather.SetConfig(config, args)
+    influxClient.SetConfig(config, args)
 
     MYSQLENABLED = CheckArgsOrConfig(MYSQLENABLED, args.mysqlenabled, "mysql", "enabled")
     MYSQLHOST = CheckArgsOrConfig(MYSQLHOST, args.mysqlhost, "mysql", "host")
@@ -379,11 +358,8 @@ def main():
             basetopic=MQTTBASETOPIC,
             onRequestData=OnDataRequest)
 
-    if(INFLUXENABLED):
-        influxClient = PVInflux(
-            host=INFLUXHOST, port=INFLUXPORT,
-            username=INFLUXUSERNAME, password=INFLUXPASSWORD,
-            database=INFLUXDATABASE)
+    if(influxClient.enabled):
+        influxClient.Connect()
 
     if(HTTPSRVENABLED):
         httpsrv = PVHttpSrv(
@@ -416,7 +392,7 @@ def main():
         print("Program is running...")
         mqttkacnt = MQTTKEEPALIVE
         mqttivalcnt = MQTTINTERVAL
-        influxivalcnt = INFLUXINTERVAL
+        influxivalcnt = influxClient.interval
         mysqlivalcnt = MYSQLINTERVAL
         webcamcnt = WEBCAMSAVEINTERVAL
         while(True):
@@ -442,10 +418,10 @@ def main():
                         print("Sending keepalive via MQTT")
                         mqttclient.publishKeepAlive()
 
-            if(INFLUXENABLED):
+            if(influxClient.enabled):
                 if(influxivalcnt <= 0):
-                    influxivalcnt = INFLUXINTERVAL
-                    if(INFLUXINTERVAL != 0):
+                    influxivalcnt = influxClient.interval
+                    if(influxClient.interval != 0):
                         print("Saving to InfluxDB")
                         GetAllData()
                         influxClient.pvdata = pvdata

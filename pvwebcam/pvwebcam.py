@@ -112,4 +112,3 @@ class PVWebCam:
         except Exception as e:
             print("Error GetErrorImage: " + str(e), file=sys.stderr)
         return im
-

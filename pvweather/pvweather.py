@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
-import jsons
-from dataclasses import dataclass
 from pvweather import WeatherData
 from pvbasemodul import PVBaseModul
-import argparse
-import configparser
-import sys
-import os.path
+
 
 class PVWeather(PVBaseModul):
     enabled = False
@@ -33,7 +28,6 @@ class PVWeather(PVBaseModul):
         self.url = self.CheckArgsOrConfig(config, self.enabled, args.weatherurl, configsection, "url")
         self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.weatherenable, configsection, "user")
         self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.weatherenable, configsection, "password")
-
 
     def GetWeatherData(self):
         return self.weatherdata.toJson()

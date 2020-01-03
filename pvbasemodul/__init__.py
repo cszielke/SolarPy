@@ -1,1 +1,1 @@
-from .pvbasemodul import PVBaseModul
+from .pvbasemodul import PVBaseModul  # noqa
