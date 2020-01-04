@@ -40,7 +40,7 @@ class PVMqtt(PVBaseModul):
     def SetConfig(self, config, args):
         super().SetConfig(config, args)
         configsection = "mqtt"
-        self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.mqttenabled, configsection, "enabled")
+        self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.mqttenabled, configsection, "enabled", "bool")
         self.host = self.CheckArgsOrConfig(config, self.host, args.mqttbroker, configsection, "broker")
         self.port = self.CheckArgsOrConfig(config, self.port, args.mqttport, configsection, "port", "int")
         self.id = self.CheckArgsOrConfig(config, self.id, args.mqttid, configsection, "id")

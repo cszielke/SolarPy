@@ -24,7 +24,7 @@ class PVWeather(PVBaseModul):
     def SetConfig(self, config, args):
         super().SetConfig(config, args)
         configsection = "weather"
-        self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.weatherenable, configsection, "enabled")
+        self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.weatherenable, configsection, "enabled", "bool")
         self.url = self.CheckArgsOrConfig(config, self.enabled, args.weatherurl, configsection, "url")
         self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.weatherenable, configsection, "user")
         self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.weatherenable, configsection, "password")

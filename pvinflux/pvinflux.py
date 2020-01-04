@@ -35,7 +35,7 @@ class PVInflux(PVBaseModul):
     def SetConfig(self, config, args):
         super().SetConfig(config, args)
         configsection = "influx"
-        self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.influxenabled, configsection, "enabled")
+        self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.influxenabled, configsection, "enabled", "bool")
         self.host = self.CheckArgsOrConfig(config, self.host, args.influxhost, configsection, "host")
         self.port = self.CheckArgsOrConfig(config, self.port, args.influxport, configsection, "port", "int")
         self.username = self.CheckArgsOrConfig(config, self.username, args.influxuser, configsection, "user")

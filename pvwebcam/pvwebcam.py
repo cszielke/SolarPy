@@ -40,7 +40,7 @@ class PVWebCam(PVBaseModul):
     def SetConfig(self, config, args):
         super().SetConfig(config, args)
         configsection = "webcam"
-        self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.webcamenabled, configsection, "enabled")
+        self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.webcamenabled, configsection, "enabled", "bool")
         self.url = self.CheckArgsOrConfig(config, self.url, args.webcamurl, configsection, "url")
         self.username = self.CheckArgsOrConfig(config, self.username, args.webcamusername, configsection, "username")
         self.password = self.CheckArgsOrConfig(config, self.password, args.webcampassword, configsection, "password")

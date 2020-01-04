@@ -41,7 +41,7 @@ class PVMySQL(PVBaseModul):
     def SetConfig(self, config, args):
         super().SetConfig(config, args)
         configsection = "mysql"
-        self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.mysqlenabled, configsection, "enabled")
+        self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.mysqlenabled, configsection, "enabled", "bool")
         self.host = self.CheckArgsOrConfig(config, self.host, args.mysqlhost, configsection, "host")
         self.port = self.CheckArgsOrConfig(config, self.port, args.mysqlport, configsection, "port", "int")
         self.username = self.CheckArgsOrConfig(config, self.username, args.mysqluser, configsection, "user")
