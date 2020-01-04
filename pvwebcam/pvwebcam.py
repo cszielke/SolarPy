@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from pv.data import PVData
+from pvbasemodul import PVBaseModul
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
@@ -11,12 +12,16 @@ import io
 import sys
 
 
-class PVWebCam:
+class PVWebCam(PVBaseModul):
     pvdata = PVData()
+
+    enabled = False
     url = ""
     username = ""
     password = ""
     savedirectory = "./htdocs/webcam"
+    interval = 120
+
     onDataRequest = None
     filename = "pv{}.jpg"
 
@@ -25,13 +30,32 @@ class PVWebCam:
         self.username = username
         self.password = password
 
-        self.savedirectory = savedirectory
+    def InitArguments(self, parser):
+        super().InitArguments(parser)
+        parser.add_argument('-wcen', '--webcamenabled', help='webcam processing enabled', required=False)
+        parser.add_argument('-wcurl', '--webcamurl', help='webcam URL', required=False)
+        parser.add_argument('-wcu', '--webcamusername', help='webcam username', required=False)
+        parser.add_argument('-wcpw', '--webcampassword', help='webcam password', required=False)
+        parser.add_argument('-wci', '--webcamsaveinterval', help='webcam interval to save pictures', required=False)
+        parser.add_argument('-wcsd', '--webcamsavedirectory', help='webcam directory for saved pictures', required=False)
+
+    def SetConfig(self, config, args):
+        super().SetConfig(config, args)
+        configsection = "webcam"
+        self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.webcamenabled, configsection, "enabled")
+        self.url = self.CheckArgsOrConfig(config, self.url, args.webcamurl, configsection, "url")
+        self.username = self.CheckArgsOrConfig(config, self.username, args.webcamusername, configsection, "username")
+        self.password = self.CheckArgsOrConfig(config, self.password, args.webcampassword, configsection, "password")
+        self.interval = self.CheckArgsOrConfig(config, self.interval, args.webcamsaveinterval, configsection, "saveinterval", "int")
+        self.savedirectory = self.CheckArgsOrConfig(config, self.savedirectory, args.webcamsavedirectory, configsection, "savedirectory")
+
+    def Connect(self, onDataRequest=None):
         if(not os.path.exists(self.savedirectory)):
             os.makedirs(self.savedirectory)
 
-        self.onDataRequest = onDataRequest
         self.filename = os.path.join(self.savedirectory, "pv{}.jpg")
-        pass
+
+        self.onDataRequest = onDataRequest
 
     def GetWebCam(self, withdata=False):
         ba = bytearray()
