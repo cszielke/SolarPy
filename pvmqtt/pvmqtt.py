@@ -51,6 +51,8 @@ class PVMqtt(PVBaseModul):
         self.keepalive = self.CheckArgsOrConfig(config, self.keepalive, args.mqttkeepalive, configsection, "keepalive", "int")
 
     def Connect(self, onDataRequest=None):
+        print("PVMqtt.Connect() called")
+        super().Connect()
         # MQTT connect
         self.onDataRequest = onDataRequest
 

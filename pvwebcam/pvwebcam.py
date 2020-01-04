@@ -48,6 +48,7 @@ class PVWebCam(PVBaseModul):
         self.savedirectory = self.CheckArgsOrConfig(config, self.savedirectory, args.webcamsavedirectory, configsection, "savedirectory")
 
     def Connect(self, onDataRequest=None):
+        print("PVWebCam.Connect() called")
         if(not os.path.exists(self.savedirectory)):
             os.makedirs(self.savedirectory)
 

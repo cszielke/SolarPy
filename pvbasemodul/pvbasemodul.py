@@ -12,6 +12,9 @@ class PVBaseModul():
     def SetConfig(self, config, args):
         print("PVBaseModul.SetConfig() called")
 
+    def Connect(self):
+        print("PVBaseModul.Connect() called")
+
     def CheckArgsOrConfig(self, config, constantvar, argconfig, configsection, configtopic, type='str'):
         try:
             if(argconfig is not None):  # Argument has priority

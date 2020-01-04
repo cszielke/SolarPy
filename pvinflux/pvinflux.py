@@ -44,6 +44,8 @@ class PVInflux(PVBaseModul):
         self.interval = self.CheckArgsOrConfig(config, self.interval, args.influxinterval, configsection, "interval", "int")
 
     def Connect(self):
+        print("PVInflux.Connect() called")
+        super().Connect()
         # connect database
         self.client = InfluxDBClient(host=self.host, port=self.port, username=self.username, password=self.password)
         self.client.switch_database(self.database)

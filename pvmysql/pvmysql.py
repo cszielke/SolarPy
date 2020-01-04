@@ -50,6 +50,8 @@ class PVMySQL(PVBaseModul):
         self.interval = self.CheckArgsOrConfig(config, self.interval, args.mysqlinterval, configsection, "interval", "int")
 
     def Connect(self):
+        print("PVMySQL.Connect() called")
+        super().Connect()
         # connect database
         try:
             self.db = pymysql.connect(self.host, self.username, self.password, self.database)

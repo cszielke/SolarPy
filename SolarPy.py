@@ -32,11 +32,6 @@ FRONIUSCOMPORT = ""
 RESTHOST = "http://127.0.0.1"
 RESTURL = "/rawdata.html"
 
-HTTPSRVENABLED = False
-HTTPSRVADDRESS = ""
-HTTPSRVPORT = 8080
-HTTPSRVDIRECTORY = "./htdocs"
-
 # endregion defaults
 
 config = configparser.ConfigParser()
@@ -116,19 +111,15 @@ def main():
     global LOG_FILENAME
     global DATASOURCE
 
-    global influxClient
-
-    global mysqlclient
-
-    global mqttclient
-
     global FRONIUSCOMPORT
 
     global RESTHOST
     global RESTURL
 
     global httpsrv
-
+    global influxClient
+    global mysqlclient
+    global mqttclient
     global webcam
     global pvweather
     # endregion globals
@@ -139,20 +130,18 @@ def main():
     parser.add_argument('-lf', '--logfile', help='Name and path for log file', required=False)
     parser.add_argument('-ds', '--datasource', help='How to get PV-Data [restapi, ifcardeasy, simulation]', required=False)
 
-    influxClient.InitArguments(parser)
-
-    mysqlclient.InitArguments(parser)
-
-    mqttclient.InitArguments(parser)
-
     parser.add_argument('-c', '--comport', help='On witch ComPort is the IFCard connected', required=False)
 
     parser.add_argument('-rh', '--resthost', help='Host address for RESTApi', required=False)
     parser.add_argument('-ru', '--resturl', help='URL for RESTApi', required=False)
 
     httpsrv.InitArguments(parser)
+    influxClient.InitArguments(parser)
+    mysqlclient.InitArguments(parser)
+    mqttclient.InitArguments(parser)
     webcam.InitArguments(parser)
     pvweather.InitArguments(parser)
+
     args = parser.parse_args()
     # endregion Argument parser
 
@@ -162,8 +151,7 @@ def main():
         if os.path.isfile(CONFIG_FILENAME):
             print("Found config file at commandline specified position '" + CONFIG_FILENAME + "'")
         else:
-            print("ERROR: config file at commandline specified position '" + CONFIG_FILENAME + "' not found")
-            exit(1)
+            raise ValueError("ERROR: config file at commandline specified position '" + CONFIG_FILENAME + "' not found")
 
     # try to read the config file
     print("try to read config file '" + CONFIG_FILENAME + "'")
@@ -221,21 +209,17 @@ def main():
     # region default, configfile or commandline
     DATASOURCE = CheckArgsOrConfig(DATASOURCE, args.datasource, "program", "datasource")
 
-    pvweather.SetConfig(config, args)
-    influxClient.SetConfig(config, args)
-
-    mysqlclient.SetConfig(config, args)
-
-    mqttclient.SetConfig(config, args)
-
     FRONIUSCOMPORT = CheckArgsOrConfig(FRONIUSCOMPORT, args.comport, "fronius", "comport")
 
     RESTHOST = CheckArgsOrConfig(RESTHOST, args.resthost, "restapi", "host")
     RESTURL = CheckArgsOrConfig(RESTURL, args.resturl, "restapi", "url")
 
     httpsrv.SetConfig(config, args)
-
+    influxClient.SetConfig(config, args)
+    mysqlclient.SetConfig(config, args)
+    mqttclient.SetConfig(config, args)
     webcam.SetConfig(config, args)
+    pvweather.SetConfig(config, args)
     # endregion default, configfile or commandline
 
     # region init datasources
@@ -255,21 +239,24 @@ def main():
     # endregion init datasources
 
     # region init destinations
-    if(mqttclient.enabled):
-        mqttclient.Connect(onDataRequest=OnDataRequest)
-
-    if(influxClient.enabled):
-        influxClient.Connect()
-
     if(httpsrv.enabled):
         httpsrv.Connect(onDataRequest=OnDataRequest, onWebCamRequest=OnWebCamRequest)
         httpsrv.run()
 
+    if(influxClient.enabled):
+        influxClient.Connect()
+
     if(mysqlclient.enabled):
         mysqlclient.Connect()
 
+    if(mqttclient.enabled):
+        mqttclient.Connect(onDataRequest=OnDataRequest)
+
     if(webcam.enabled):
         webcam.Connect(onDataRequest=OnDataRequest)
+
+    if(pvweather.enabled):
+        pvweather.Connect()
     # endregion init destinations
 
     # region main loop

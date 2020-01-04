@@ -41,6 +41,8 @@ class PVHttpSrv(PVBaseModul):
         self.directory = self.CheckArgsOrConfig(config, self.directory, args.httpsrvdirectory, configsection, "directory")
 
     def Connect(self, onDataRequest=None, onWebCamRequest=None):
+        print("PVHttpSrv.Connect() called")
+        super().Connect()
         self.onDataRequest = onDataRequest
         self.onWebCamRequest = onWebCamRequest
 
