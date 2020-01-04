@@ -25,10 +25,8 @@ class PVWebCam(PVBaseModul):
     onDataRequest = None
     filename = "pv{}.jpg"
 
-    def __init__(self, url='', username='', password='', savedirectory="./htdocs/webcam", onDataRequest=None):
-        self.url = url
-        self.username = username
-        self.password = password
+    def __init__(self):
+        super().__init__()
 
     def InitArguments(self, parser):
         super().InitArguments(parser)

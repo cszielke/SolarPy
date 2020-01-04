@@ -27,25 +27,6 @@ LOG_LEVEL = logging.INFO  # Could be e.g. "DEBUG" or "WARNING"
 CONFIG_FILENAME = "./solarpy.cfg"
 DATASOURCE = 'simulation'
 
-MYSQLENABLED = False
-MYSQLHOST = "127.0.0.1"
-MYSQLPORT = 8086
-MYSQLUSERNAME = "admin"
-MYSQLPASSWORD = ""
-MYSQLDATABASE = "pvtest"
-MYSQLTABLENAME = "Data"
-MYSQLINTERVAL = 0
-
-MQTTENABLED = False
-MQTTBROKER = "test.mosquitto.org"
-MQTTPORT = 1880
-MQTTSERVERCLIENTID = "SolarPyDefault1"
-MQTTUSER = ""
-MQTTPASSWORD = ""
-MQTTBASETOPIC = "solarpy/"
-MQTTINTERVAL = 0
-MQTTKEEPALIVE = 0
-
 FRONIUSCOMPORT = ""
 
 RESTHOST = "http://127.0.0.1"
@@ -56,18 +37,12 @@ HTTPSRVADDRESS = ""
 HTTPSRVPORT = 8080
 HTTPSRVDIRECTORY = "./htdocs"
 
-WEBCAMENABLED = False
-WEBCAMURL = "http://localhost/image.jpg"
-WEBCAMUSERNAME = ""
-WEBCAMPASSWORD = ""
-WEBCAMSAVEINTERVAL = 0
-WEBCAMSAVEDIRECTORY = ".htdocs/webcam"
-
 # endregion defaults
 
 config = configparser.ConfigParser()
 pv = None
 influxClient = PVInflux()
+mysqlclient = PVMySQL()
 mqttclient = PVMqtt()
 httpsrv = None
 webcam = PVWebCam()
@@ -143,14 +118,7 @@ def main():
 
     global influxClient
 
-    global MYSQLENABLED
-    global MYSQLHOST
-    global MYSQLPORT
-    global MYSQLUSERNAME
-    global MYSQLPASSWORD
-    global MYSQLDATABASE
-    global MYSQLTABLENAME
-    global MYSQLINTERVAL
+    global mysqlclient
 
     global mqttclient
 
@@ -176,14 +144,7 @@ def main():
 
     influxClient.InitArguments(parser)
 
-    parser.add_argument('-mysen', '--mysqlenabled', help='MySQL enabled [True, False]', required=False)
-    parser.add_argument('-mysh', '--mysqlhost', help='MySQL url/host', required=False)
-    parser.add_argument('-mysp', '--mysqlport', help='MySQL port', required=False)
-    parser.add_argument('-mysu', '--mysqluser', help='MySQL username', required=False)
-    parser.add_argument('-myspw', '--mysqlpassword', help='MySQL password', required=False)
-    parser.add_argument('-mysdb', '--mysqldatabase', help='MySQL database name', required=False)
-    parser.add_argument('-myst', '--mysqltablename', help='MySQL Table name', required=False)
-    parser.add_argument('-mysi', '--mysqlinterval', help='MySQL send interval', required=False)
+    mysqlclient.InitArguments(parser)
 
     mqttclient.InitArguments(parser)
 
@@ -270,14 +231,7 @@ def main():
     pvweather.SetConfig(config, args)
     influxClient.SetConfig(config, args)
 
-    MYSQLENABLED = CheckArgsOrConfig(MYSQLENABLED, args.mysqlenabled, "mysql", "enabled")
-    MYSQLHOST = CheckArgsOrConfig(MYSQLHOST, args.mysqlhost, "mysql", "host")
-    MYSQLPORT = CheckArgsOrConfig(MYSQLPORT, args.mysqlport, "mysql", "port", "int")
-    MYSQLUSERNAME = CheckArgsOrConfig(MYSQLUSERNAME, args.mysqluser, "mysql", "user")
-    MYSQLPASSWORD = CheckArgsOrConfig(MYSQLPASSWORD, args.mysqlpassword, "mysql", "password")
-    MYSQLDATABASE = CheckArgsOrConfig(MYSQLDATABASE, args.mysqldatabase, "mysql", "database")
-    MYSQLTABLENAME = CheckArgsOrConfig(MYSQLTABLENAME, args.mysqltablename, "mysql", "tablename")
-    MYSQLINTERVAL = CheckArgsOrConfig(MYSQLINTERVAL, args.mysqlinterval, "mysql", "interval", "int")
+    mysqlclient.SetConfig(config, args)
 
     mqttclient.SetConfig(config, args)
 
@@ -312,7 +266,7 @@ def main():
 
     # region init destinations
     if(mqttclient.enabled):
-        mqttclient.Connect()
+        mqttclient.Connect(onDataRequest=OnDataRequest)
 
     if(influxClient.enabled):
         influxClient.Connect()
@@ -326,13 +280,8 @@ def main():
             onWebCamRequest=OnWebCamRequest)
         httpsrv.run()
 
-    if(MYSQLENABLED):
-        mysqlclient = PVMySQL(
-            host=MYSQLHOST,
-            username=MYSQLUSERNAME,
-            password=MYSQLPASSWORD,
-            database=MYSQLDATABASE,
-            tablename=MYSQLTABLENAME)
+    if(mysqlclient.enabled):
+        mysqlclient.Connect()
 
     if(webcam.enabled):
         webcam.Connect(onDataRequest=OnDataRequest)
@@ -344,7 +293,7 @@ def main():
         mqttkacnt = mqttclient.keepalive
         mqttivalcnt = mqttclient.interval
         influxivalcnt = influxClient.interval
-        mysqlivalcnt = MYSQLINTERVAL
+        mysqlivalcnt = mysqlclient.interval
         webcamcnt = webcam.interval
         while(True):
             sleep(1)
@@ -378,10 +327,10 @@ def main():
                         influxClient.pvdata = pvdata
                         influxClient.SendData()
 
-            if(MYSQLENABLED):
+            if(mysqlclient.enabled):
                 if(mysqlivalcnt <= 0):
-                    mysqlivalcnt = MYSQLINTERVAL
-                    if(MYSQLINTERVAL != 0):
+                    mysqlivalcnt = mysqlclient.interval
+                    if(mysqlclient.interval != 0):
                         print("Saving to MySQL")
                         GetAllData()
                         mysqlclient.pvdata = pvdata

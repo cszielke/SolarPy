@@ -1,38 +1,62 @@
 #!/usr/bin/env python3
 from pv.data import PVData
+from pvbasemodul import PVBaseModul
+import sys
 import pymysql
 import pytz
 
 # infos: https://www.tutorialspoint.com/python3/python_database_access.htm
 
 
-class PVMySQL:
+class PVMySQL(PVBaseModul):
     local = pytz.timezone("Europe/Berlin")
     pvdata = PVData()
-
     db = None
     cursor = None
+
+
+    enabled = False
     host = '127.0.0.1'
     port = 3306
     username = 'admin'
     password = ''
     database = 'pvtest'
+    tableName = 'Data'
+    interval = 0
 
-    def __init__(self, host='127.0.0.1', port=3306, username='admin', password='', database='pvtest', tablename='Data'):
-        self.host = host
-        self.port = port
-        self.username = username
-        self.password = password
-        self.database = database
+    def __init__(self):
+        super().__init__()
 
-        self.tableName = tablename
+    def InitArguments(self, parser):
+        super().InitArguments(parser)
+        parser.add_argument('-mysen', '--mysqlenabled', help='MySQL enabled [True, False]', required=False)
+        parser.add_argument('-mysh', '--mysqlhost', help='MySQL url/host', required=False)
+        parser.add_argument('-mysp', '--mysqlport', help='MySQL port', required=False)
+        parser.add_argument('-mysu', '--mysqluser', help='MySQL username', required=False)
+        parser.add_argument('-myspw', '--mysqlpassword', help='MySQL password', required=False)
+        parser.add_argument('-mysdb', '--mysqldatabase', help='MySQL database name', required=False)
+        parser.add_argument('-myst', '--mysqltablename', help='MySQL Table name', required=False)
+        parser.add_argument('-mysi', '--mysqlinterval', help='MySQL send interval', required=False)
 
+    def SetConfig(self, config, args):
+        super().SetConfig(config, args)
+        configsection = "mysql"
+        self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.mysqlenabled, configsection, "enabled")
+        self.host = self.CheckArgsOrConfig(config, self.host, args.mysqlhost, configsection, "host")
+        self.port = self.CheckArgsOrConfig(config, self.port, args.mysqlport, configsection, "port", "int")
+        self.username = self.CheckArgsOrConfig(config, self.username, args.mysqluser, configsection, "user")
+        self.password = self.CheckArgsOrConfig(config, self.password, args.mysqlpassword, configsection, "password")
+        self.database = self.CheckArgsOrConfig(config, self.database, args.mysqldatabase, configsection, "database")
+        self.tableName = self.CheckArgsOrConfig(config, self.tableName, args.mysqltablename, configsection, "tablename")
+        self.interval = self.CheckArgsOrConfig(config, self.interval, args.mysqlinterval, configsection, "interval", "int")
+
+    def Connect(self):
         # connect database
         try:
             self.db = pymysql.connect(self.host, self.username, self.password, self.database)
             self.cursor = self.db.cursor()
         except Exception as e:
-            print("Error MySQL: ", str(e))
+            print("Error MySQL: ", str(e), file=sys.stderr)
 
     def SendData(self):
         try:

@@ -18,7 +18,7 @@ class PVMqtt(PVBaseModul):
     user = ''
     pw = ''
     basetopic = 'solarpy/pv000001/'
-    onRequestData = None
+    onDataRequest = None
     interval = 10
     keepalive = 120
 
@@ -50,8 +50,10 @@ class PVMqtt(PVBaseModul):
         self.interval = self.CheckArgsOrConfig(config, self.interval, args.mqttinterval, configsection, "interval", "int")
         self.keepalive = self.CheckArgsOrConfig(config, self.keepalive, args.mqttkeepalive, configsection, "keepalive", "int")
 
-    def Connect(self):
+    def Connect(self, onDataRequest=None):
         # MQTT connect
+        self.onDataRequest = onDataRequest
+
         print("connecting to mqttbroker '{}' with client ID '{}'".format(self.host, self.id))
         self.client = mqtt.Client(client_id=self.id)
         self.client.username_pw_set(self.user, self.pw)
@@ -105,5 +107,5 @@ class PVMqtt(PVBaseModul):
         self.client.disconnect()
 
     def _getData(self):
-        if(self.onRequestData is not None):
-            self.pvdata = self.onRequestData(self)
+        if(self.onDataRequest is not None):
+            self.pvdata = self.onDataRequest(self)
