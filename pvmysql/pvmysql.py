@@ -14,7 +14,6 @@ class PVMySQL(PVBaseModul):
     db = None
     cursor = None
 
-
     enabled = False
     host = '127.0.0.1'
     port = 3306
