@@ -1,22 +1,56 @@
 #!/usr/bin/env python3
 from pv.data import PVData
+from pvbasemodul import PVBaseModul
+import sys
 import time
 # Infos: http://www.steves-internet-guide.com/into-mqtt-python-client/
 import paho.mqtt.client as mqtt
 
 
-class PVMqtt:
+class PVMqtt(PVBaseModul):
     pvdata = PVData()
     client = None
 
-    def __init__(self, host='127.0.0.1', id='foniusiginterfaceeasy1', user='', pw='', basetopic='fronius', onRequestData=None):
-        self.host = host
-        self.id = id
-        self.user = user
-        self.pw = pw
-        self.basetopic = basetopic
-        self.onRequestData = onRequestData
+    enabled = False
+    host = '127.0.0.1'
+    port = 1880
+    id = 'foniusiginterfaceeasy1'
+    user = ''
+    pw = ''
+    basetopic = 'solarpy/pv000001/'
+    onRequestData = None
+    interval = 10
+    keepalive = 120
 
+    def __init__(self):
+        pass
+
+    def InitArguments(self, parser):
+        super().InitArguments(parser)
+        parser.add_argument('-men', '--mqttenabled', help='mqtt enabled [True,False]', required=False)
+        parser.add_argument('-mb', '--mqttbroker', help='url for mqttbroker', required=False)
+        parser.add_argument('-mp', '--mqttport', help='port for mqttbroker', required=False)
+        parser.add_argument('-mid', '--mqttid', help='id for mqttbroker', required=False)
+        parser.add_argument('-mu', '--mqttuser', help='user for mqttbroker', required=False)
+        parser.add_argument('-mpw', '--mqttpassword', help='password for mqttbroker', required=False)
+        parser.add_argument('-mbt', '--mqttbasetopic', help='basetopic for mqtt', required=False)
+        parser.add_argument('-mbi', '--mqttinterval', help='data send interval for mqtt', required=False)
+        parser.add_argument('-mka', '--mqttkeepalive', help='keepalive time for mqtt', required=False)
+
+    def SetConfig(self, config, args):
+        super().SetConfig(config, args)
+        configsection = "mqtt"
+        self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.mqttenabled, configsection, "enabled")
+        self.host = self.CheckArgsOrConfig(config, self.host, args.mqttbroker, configsection, "broker")
+        self.port = self.CheckArgsOrConfig(config, self.port, args.mqttport, configsection, "port", "int")
+        self.id = self.CheckArgsOrConfig(config, self.id, args.mqttid, configsection, "id")
+        self.user = self.CheckArgsOrConfig(config, self.user, args.mqttuser, configsection, "user")
+        self.pw = self.CheckArgsOrConfig(config, self.pw, args.mqttpassword, configsection, "password")
+        self.basetopic = self.CheckArgsOrConfig(config, self.basetopic, args.mqttbasetopic, configsection, "basetopic")
+        self.interval = self.CheckArgsOrConfig(config, self.interval, args.mqttinterval, configsection, "interval", "int")
+        self.keepalive = self.CheckArgsOrConfig(config, self.keepalive, args.mqttkeepalive, configsection, "keepalive", "int")
+
+    def Connect(self):
         # MQTT connect
         print("connecting to mqttbroker '{}' with client ID '{}'".format(self.host, self.id))
         self.client = mqtt.Client(client_id=self.id)
@@ -35,11 +69,12 @@ class PVMqtt:
         self.client.publish(self.basetopic + "alive", t)
 
     def on_log(self, client, userdata, level, buf):
-        levelstr = "INFO"
         if(level == 0x08):
             levelstr = "Error"
-
-        print("MQTT log: {}: {}".format(levelstr, buf))
+            print("MQTT log: {}: {}".format(levelstr, buf), file=sys.stderr)
+        else:
+            levelstr = "INFO"
+            print("MQTT log: {}: {}".format(levelstr, buf))
 
     def on_message(self, client, userdata, message):
 

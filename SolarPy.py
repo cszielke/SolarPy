@@ -68,7 +68,7 @@ WEBCAMSAVEDIRECTORY = ".htdocs/webcam"
 config = configparser.ConfigParser()
 pv = None
 influxClient = PVInflux()
-mqttclient = None
+mqttclient = PVMqtt()
 httpsrv = None
 webcam = None
 pvweather = PVWeather()
@@ -152,15 +152,7 @@ def main():
     global MYSQLTABLENAME
     global MYSQLINTERVAL
 
-    global MQTTENABLED
-    global MQTTBROKER
-    global MQTTPORT
-    global MQTTSERVERCLIENTID
-    global MQTTUSER
-    global MQTTPASSWORD
-    global MQTTBASETOPIC
-    global MQTTINTERVAL
-    global MQTTKEEPALIVE
+    global mqttclient
 
     global FRONIUSCOMPORT
 
@@ -199,15 +191,7 @@ def main():
     parser.add_argument('-myst', '--mysqltablename', help='MySQL Table name', required=False)
     parser.add_argument('-mysi', '--mysqlinterval', help='MySQL send interval', required=False)
 
-    parser.add_argument('-men', '--mqttenabled', help='mqtt enabled [True,False]', required=False)
-    parser.add_argument('-mb', '--mqttbroker', help='url for mqttbroker', required=False)
-    parser.add_argument('-mp', '--mqttport', help='port for mqttbroker', required=False)
-    parser.add_argument('-mid', '--mqttid', help='id for mqttbroker', required=False)
-    parser.add_argument('-mu', '--mqttuser', help='user for mqttbroker', required=False)
-    parser.add_argument('-mpw', '--mqttpassword', help='password for mqttbroker', required=False)
-    parser.add_argument('-mbt', '--mqttbasetopic', help='basetopic for mqtt', required=False)
-    parser.add_argument('-mbi', '--mqttinterval', help='data send interval for mqtt', required=False)
-    parser.add_argument('-mka', '--mqttkeepalive', help='keepalive time for mqtt', required=False)
+    mqttclient.InitArguments(parser)
 
     parser.add_argument('-c', '--comport', help='On witch ComPort is the IFCard connected', required=False)
 
@@ -306,15 +290,7 @@ def main():
     MYSQLTABLENAME = CheckArgsOrConfig(MYSQLTABLENAME, args.mysqltablename, "mysql", "tablename")
     MYSQLINTERVAL = CheckArgsOrConfig(MYSQLINTERVAL, args.mysqlinterval, "mysql", "interval", "int")
 
-    MQTTENABLED = CheckArgsOrConfig(MQTTBROKER, args.mqttenabled, "mqtt", "enabled")
-    MQTTBROKER = CheckArgsOrConfig(MQTTBROKER, args.mqttbroker, "mqtt", "broker")
-    MQTTPORT = CheckArgsOrConfig(MQTTPORT, args.mqttport, "mqtt", "port", "int")
-    MQTTSERVERCLIENTID = CheckArgsOrConfig(MQTTSERVERCLIENTID, args.mqttid, "mqtt", "id")
-    MQTTUSER = CheckArgsOrConfig(MQTTUSER, args.mqttuser, "mqtt", "user")
-    MQTTPASSWORD = CheckArgsOrConfig(MQTTPASSWORD, args.mqttpassword, "mqtt", "password")
-    MQTTBASETOPIC = CheckArgsOrConfig(MQTTBASETOPIC, args.mqttbasetopic, "mqtt", "basetopic")
-    MQTTINTERVAL = CheckArgsOrConfig(MQTTINTERVAL, args.mqttinterval, "mqtt", "interval", "int")
-    MQTTKEEPALIVE = CheckArgsOrConfig(MQTTKEEPALIVE, args.mqttkeepalive, "mqtt", "keepalive", "int")
+    mqttclient.SetConfig(config, args)
 
     FRONIUSCOMPORT = CheckArgsOrConfig(FRONIUSCOMPORT, args.comport, "fronius", "comport")
 
@@ -351,12 +327,8 @@ def main():
     # endregion init datasources
 
     # region init destinations
-    if(MQTTENABLED):
-        mqttclient = PVMqtt(
-            host=MQTTBROKER, id=MQTTSERVERCLIENTID,
-            user=MQTTUSER, pw=MQTTPASSWORD,
-            basetopic=MQTTBASETOPIC,
-            onRequestData=OnDataRequest)
+    if(mqttclient.enabled):
+        mqttclient.Connect()
 
     if(influxClient.enabled):
         influxClient.Connect()
@@ -390,8 +362,8 @@ def main():
     # region main loop
     try:
         print("Program is running...")
-        mqttkacnt = MQTTKEEPALIVE
-        mqttivalcnt = MQTTINTERVAL
+        mqttkacnt = mqttclient.keepalive
+        mqttivalcnt = mqttclient.interval
         influxivalcnt = influxClient.interval
         mysqlivalcnt = MYSQLINTERVAL
         webcamcnt = WEBCAMSAVEINTERVAL
@@ -404,17 +376,17 @@ def main():
             webcamcnt = webcamcnt - 1
             # print("Counter: MQTT KeepAlive=",mqttkacnt,",MQTT interval=",mqttivalcnt,"InfluxDB Interval=",influxivalcnt,"\r", end = '')
 
-            if(MQTTENABLED):
+            if(mqttclient.enabled):
                 if(mqttivalcnt <= 0):
-                    mqttivalcnt = MQTTINTERVAL
-                    if(MQTTINTERVAL != 0):
+                    mqttivalcnt = mqttclient.interval
+                    if(mqttclient.interval != 0):
                         print("Sending data via MQTT")
                         mqttclient.publishData()
                         mqttkacnt = 0  # do a keepalive!
 
                 if(mqttkacnt <= 0):
-                    mqttkacnt = MQTTKEEPALIVE
-                    if(MQTTKEEPALIVE != 0):
+                    mqttkacnt = mqttclient.keepalive
+                    if(mqttclient.keepalive != 0):
                         print("Sending keepalive via MQTT")
                         mqttclient.publishKeepAlive()
 
@@ -448,7 +420,7 @@ def main():
     # endregion main loop
 
     # region deinit destinations
-    if(MQTTENABLED):
+    if(mqttclient.enabled):
         mqttclient.close()
 
     if(HTTPSRVENABLED):
