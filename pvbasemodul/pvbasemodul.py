@@ -26,6 +26,9 @@ class PVBaseModul():
                     elif(type == 'int'):
                         v = config.getint(configsection, configtopic)
                         print("Var '{}.{}' from config set to {} (int)".format(configsection, configtopic, v))
+                    elif(type == 'bool'):
+                        v = config.getboolean(configsection, configtopic)
+                        print("Var '{}.{}' from config set to {} (boolean)".format(configsection, configtopic, v))
                     else:
                         print("Error CheckArgsOrConfig: unknown type")
 

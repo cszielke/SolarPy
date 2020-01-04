@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 import argparse
-from time import sleep
+import configparser
 
 import logging
 import logging.handlers
 
 import sys
-import configparser
 import os.path
+from time import sleep
 
 from pv import FroniusIG
 from pv import PVData
@@ -44,7 +44,7 @@ pv = None
 influxClient = PVInflux()
 mysqlclient = PVMySQL()
 mqttclient = PVMqtt()
-httpsrv = None
+httpsrv = PVHttpSrv()
 webcam = PVWebCam()
 pvweather = PVWeather()
 pvdata = PVData()
@@ -127,10 +127,7 @@ def main():
     global RESTHOST
     global RESTURL
 
-    global HTTPSRVENABLED
-    global HTTPSRVADDRESS
-    global HTTPSRVPORT
-    global HTTPSRVDIRECTORY
+    global httpsrv
 
     global webcam
     global pvweather
@@ -153,11 +150,7 @@ def main():
     parser.add_argument('-rh', '--resthost', help='Host address for RESTApi', required=False)
     parser.add_argument('-ru', '--resturl', help='URL for RESTApi', required=False)
 
-    parser.add_argument('-hse', '--httpsrvenabled', help='http server enabled', required=False)
-    parser.add_argument('-hsa', '--httpsrvaddress', help='http server address', required=False)
-    parser.add_argument('-hsp', '--httpsrvport', help='http server port', required=False)
-    parser.add_argument('-hsd', '--httpsrvdirectory', help='http server directory', required=False)
-
+    httpsrv.InitArguments(parser)
     webcam.InitArguments(parser)
     pvweather.InitArguments(parser)
     args = parser.parse_args()
@@ -240,10 +233,7 @@ def main():
     RESTHOST = CheckArgsOrConfig(RESTHOST, args.resthost, "restapi", "host")
     RESTURL = CheckArgsOrConfig(RESTURL, args.resturl, "restapi", "url")
 
-    HTTPSRVENABLED = CheckArgsOrConfig(RESTURL, args.httpsrvenabled, "httpserver", "enabled")
-    HTTPSRVADDRESS = CheckArgsOrConfig(HTTPSRVADDRESS, args.httpsrvaddress, "httpserver", "srvaddress")
-    HTTPSRVPORT = CheckArgsOrConfig(RESTURL, args.httpsrvport, "httpserver", "port", "int")
-    HTTPSRVDIRECTORY = CheckArgsOrConfig(RESTURL, args.httpsrvdirectory, "httpserver", "directory")
+    httpsrv.SetConfig(config, args)
 
     webcam.SetConfig(config, args)
     # endregion default, configfile or commandline
@@ -271,13 +261,8 @@ def main():
     if(influxClient.enabled):
         influxClient.Connect()
 
-    if(HTTPSRVENABLED):
-        httpsrv = PVHttpSrv(
-            serveraddress=HTTPSRVADDRESS,
-            port=HTTPSRVPORT,
-            directory=HTTPSRVDIRECTORY,
-            onDataRequest=OnDataRequest,
-            onWebCamRequest=OnWebCamRequest)
+    if(httpsrv.enabled):
+        httpsrv.Connect(onDataRequest=OnDataRequest, onWebCamRequest=OnWebCamRequest)
         httpsrv.run()
 
     if(mysqlclient.enabled):
@@ -351,7 +336,7 @@ def main():
     if(mqttclient.enabled):
         mqttclient.close()
 
-    if(HTTPSRVENABLED):
+    if(httpsrv.enabled):
         httpsrv.stop()
 
     # endregion deinit destinations

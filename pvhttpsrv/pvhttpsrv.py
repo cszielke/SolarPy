@@ -5,24 +5,44 @@
 #        https://stackabuse.com/serving-files-with-pythons-simplehttpserver-module/
 
 from pv.data import PVData
+from pvbasemodul import PVBaseModul
 import threading
 from http.server import HTTPServer
 from pvhttpsrv.server import Server
 
 
-class PVHttpSrv:
-    serveraddress = ""
-    port = 8080
-    directory = ""
+class PVHttpSrv(PVBaseModul):
+    pvdata = PVData()
+
     handler = None
     httpd = None
 
-    pvdata = PVData()
+    enabled = False
+    serveraddress = ""
+    port = 8080
+    directory = ""
 
     def __init__(self, serveraddress="", port=8080, directory="", onDataRequest=None, onWebCamRequest=None):
-        self.port = port
-        self.directory = directory
-        self.serveraddress = serveraddress
+        super().__init__()
+
+    def InitArguments(self, parser):
+        super().InitArguments(parser)
+        parser.add_argument('-hse', '--httpsrvenabled', help='http server enabled', required=False)
+        parser.add_argument('-hsa', '--httpsrvaddress', help='http server address', required=False)
+        parser.add_argument('-hsp', '--httpsrvport', help='http server port', required=False)
+        parser.add_argument('-hsd', '--httpsrvdirectory', help='http server directory', required=False)
+
+    def SetConfig(self, config, args):
+        super().SetConfig(config, args)
+        configsection = "httpserver"
+        self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.httpsrvenabled, configsection, "enabled", "bool")
+        self.serveraddress = self.CheckArgsOrConfig(config, self.serveraddress, args.httpsrvaddress, configsection, "srvaddress")
+        self.port = self.CheckArgsOrConfig(config, self.port, args.httpsrvport, configsection, "port", "int")
+        self.directory = self.CheckArgsOrConfig(config, self.directory, args.httpsrvdirectory, configsection, "directory")
+
+    def Connect(self, onDataRequest=None, onWebCamRequest=None):
+        self.onDataRequest=onDataRequest
+        self.onWebCamRequest = onWebCamRequest
 
         self.handler = Server  # pvHttpRequestHandler
         self.handler.onDataRequest = onDataRequest
