@@ -2,12 +2,15 @@
 from pvhttpsrv.routes.response.requestHandler import RequestHandler
 from pv.data import PVData
 from pv.data import OSData
+from pvweather import PVWeather
 import os
 import psutil
 
 
 class DataRequestHandler(RequestHandler):
     pvdata = PVData()
+    weatherdata = PVWeather()
+
     request_name = ""
     jsondata = "{}"
 
@@ -24,7 +27,7 @@ class DataRequestHandler(RequestHandler):
             if(self.request_name == "pvdata.json"):
                 self.setStatus(200)
                 if(self.onDataRequest is not None):
-                    self.pvdata = self.onDataRequest()
+                    self.pvdata, self.weatherdata = self.onDataRequest()
                 self.jsondata = self.pvdata.toJson()
 
             elif(self.request_name == "osdata.json"):
@@ -42,6 +45,11 @@ class DataRequestHandler(RequestHandler):
                 data.BootTime = psutil.boot_time()
 
                 self.jsondata = data.toJson()
+            elif(self.request_name == "wsdata.json"):
+                self.setStatus(200)
+                if(self.onDataRequest is not None):
+                    self.pvdata, self.weatherdata = self.onDataRequest()
+                self.jsondata = self.weatherdata.toJson()
             else:
                 raise ValueError('Error: Requested data file {} not defined'.format(self.request_name))
 

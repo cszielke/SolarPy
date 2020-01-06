@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from pv.data import PVData
+from pvweather import PVWeather
 from pvbasemodul import PVBaseModul
 from PIL import Image
 from PIL import ImageFont
@@ -14,7 +15,7 @@ import sys
 
 class PVWebCam(PVBaseModul):
     pvdata = PVData()
-
+    weatherdata = PVWeather()
     enabled = False
     url = ""
     username = ""
@@ -70,23 +71,30 @@ class PVWebCam(PVBaseModul):
 
         try:
             if(withdata):
-                self.pvdata = self.onDataRequest(self)
+                self.pvdata,self.weatherdata = self.onDataRequest(self)
                 # now = datetime.now()
                 now = datetime.fromtimestamp(self.pvdata.Time)
 
-                text = "{}, PDay: {} Wh, PNow: {} W, PNow1: {} W, PNow2: {} W".format(
+                textpv = "{}, PDay: {} Wh, PNow: {} W, PNow1: {} W, PNow2: {} W".format(
                     now.strftime("%d.%m.%Y %H:%M:%S"),
                     int(self.pvdata.PDayGesamt),
                     int(self.pvdata.PGesamt),
                     int(self.pvdata.wr[0].PNow),
                     int(self.pvdata.wr[1].PNow))
 
+                textw = "{}, Tout: {} Wind {}".format(
+                    now.strftime("%d.%m.%Y %H:%M:%S"),
+                    round(self.weatherdata.Tout,1),
+                    round(self.weatherdata.Wind,1))
+
                 width, height = im.size
 
                 draw = ImageDraw.Draw(im)
                 font = ImageFont.truetype("./Roboto-Regular.ttf", 16)
-                draw.text((4, height - 18), text, (0, 0, 0), font=font)
-                draw.text((2, height - 20), text, (255, 255, 255), font=font)
+                draw.text((4, height - 18), textpv, (0, 0, 0), font=font)
+                draw.text((2, height - 20), textpv, (255, 255, 255), font=font)
+                draw.text((4, height - 38), textw, (0, 0, 0), font=font)
+                draw.text((2, height - 40), textw, (255, 255, 255), font=font)
 
             ba = self.ImageToBytearray(im)
         except Exception as e:

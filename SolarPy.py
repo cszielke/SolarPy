@@ -68,6 +68,9 @@ def GetAllData():
         pvdata.Error = "Error: No valid datasource [ifcard,restapi,simulation]: (" + DATASOURCE + ")"
         print(pvdata.Error)
         exit(1)
+    
+    if(pvweather.enabled):
+        pvweather.GetWeatherData()
 
 
 def CheckArgsOrConfig(constantvar, argconfig, configsection, configtopic, type='str'):
@@ -97,7 +100,7 @@ def CheckArgsOrConfig(constantvar, argconfig, configsection, configtopic, type='
 def OnDataRequest(self):
     global pvdata
     GetAllData()
-    return pvdata
+    return pvdata, pvweather.weatherdata
 
 
 def OnWebCamRequest(self, withdata=False):

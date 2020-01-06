@@ -110,4 +110,4 @@ class PVMqtt(PVBaseModul):
 
     def _getData(self):
         if(self.onDataRequest is not None):
-            self.pvdata = self.onDataRequest(self)
+            self.pvdata, self.weatherdata = self.onDataRequest(self)

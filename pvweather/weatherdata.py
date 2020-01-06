@@ -3,10 +3,14 @@ import jsons
 from dataclasses import dataclass
 from time import time
 
+# http://192.168.15.252/webcam/currdat.php
+# http://192.168.15.252/webcam/camstr.txt
+# http://192.168.15.252/webcam/wsdata.txt
+# http://192.168.15.252/webcam/data.json
 
 @dataclass
 class WeatherData:
-    DateTime = time()
+    MeasureTime = time()
     Tout = -257.2
     Tin = -257.2
     Hout = 0
@@ -20,7 +24,8 @@ class WeatherData:
     WindAvg = 0
     WindGust = 0
     WindDir = 0
-    Status = ""
+    State = ""
+    Error = ""
 
     def toJson(self):
         jsondata = str(jsons.dump(self)).replace("'", '"')
