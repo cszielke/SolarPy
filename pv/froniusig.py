@@ -207,7 +207,7 @@ class FroniusIG:
         return ret, rest
 
     def SendIG(self, dev, nr, cmd, val=bytearray(0)):
-        ret = -1
+        ret = 0
         try:
             length = len(val)
 
@@ -263,11 +263,11 @@ class FroniusIG:
                 # self.pvdata.DevType = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_DEVTYP, val=b'\x02\x40')
                 self.pvdata.DevTime = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_TIME)
                 self.pvdata.ActiveInvCnt = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_ACTIVE_INVERTER_CNT)
+                self.pvdata.ActiveSensorCardCnt = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_SENSOR_CARD_CNT)
+                self.pvdata.LocalNetStatus = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_LOCALNET_STATUS)
 
                 # Nur wenn mindestens 1 Inverter aktiv ist 
                 if(self.pvdata.ActiveInvCnt != 0):
-                    self.pvdata.ActiveSensorCardCnt = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_SENSOR_CARD_CNT)
-                    self.pvdata.LocalNetStatus = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_LOCALNET_STATUS)
 
                     self.pvdata.PTotal = 0
                     self.pvdata.PDayTotal = 0

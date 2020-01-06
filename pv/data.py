@@ -5,23 +5,23 @@ from dataclasses import dataclass
 
 @dataclass
 class PVWR:
-    DevType = -1
-    PDay = -1
-    PNow = -1
-    UDC = -1
-    IDC = -1
-    UAC = -1
-    IAC = -1
-    FAC = -1
+    DevType = 0
+    PDay = 0
+    PNow = 0
+    UDC = 0
+    IDC = 0
+    UAC = 0
+    IAC = 0
+    FAC = 0
     # ATMP = -1
     # FAN0 = -1
     # FAN1 = -1
     # FAN2 = -1
     # FAN3 = -1
     # STATUS = -1
-    OHTOT = -1
-    OHYEAR = -1
-    OHDAY = -1
+    OHTOT = 0
+    OHYEAR = 0
+    OHDAY = 0
 
 
 @dataclass
