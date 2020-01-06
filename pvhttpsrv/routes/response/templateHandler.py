@@ -45,7 +45,7 @@ class TemplateHandler(RequestHandler):
         desttext = self.__replaceObjTags(desttext, self.pvdata, "pvdata.")
         desttext = self.__replaceObjTags(desttext, self.weatherdata, "weatherdata.")
         #Spezielle Tags
-        dtstr = datetime.fromtimestamp(self.pvdata.Time).strftime("%Y-%m-%d %H:%M:%S")
+        dtstr = datetime.fromtimestamp(self.pvdata.Time).strftime("%d.%m.%Y %H:%M:%S")
         desttext = desttext.replace('{{pvdata.Time.text}}', dtstr)
         dest = io.StringIO(desttext)
         return dest
