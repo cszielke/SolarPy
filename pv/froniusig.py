@@ -145,7 +145,7 @@ class FroniusIG:
 
     def _parseReceived(self, ba):
         try:
-            ret = -1
+            ret = 0
             rest = bytearray()
             length = -1
             command = -1
@@ -263,35 +263,38 @@ class FroniusIG:
                 # self.pvdata.DevType = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_DEVTYP, val=b'\x02\x40')
                 self.pvdata.DevTime = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_TIME)
                 self.pvdata.ActiveInvCnt = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_ACTIVE_INVERTER_CNT)
-                self.pvdata.ActiveSensorCardCnt = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_SENSOR_CARD_CNT)
-                self.pvdata.LocalNetStatus = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_LOCALNET_STATUS)
 
-                self.pvdata.PTotal = 0
-                self.pvdata.PDayTotal = 0
+                # Nur wenn mindestens 1 Inverter aktiv ist 
+                if(self.pvdata.ActiveInvCnt != 0):
+                    self.pvdata.ActiveSensorCardCnt = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_SENSOR_CARD_CNT)
+                    self.pvdata.LocalNetStatus = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_LOCALNET_STATUS)
 
-                for i in range(len(self.pvdata.wr)):
-                    self.pvdata.wr[i].DevType = self.SendIG(Devices.DEV_INV, i, Commands.IFCCMD_GET_DEVTYP)
-                    self.pvdata.wr[i].PDay = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_ENERGY_DAY)
-                    self.pvdata.wr[i].PNow = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_POWER_NOW)
-                    self.pvdata.wr[i].UDC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_DC_VOLTAGE_NOW)
-                    self.pvdata.wr[i].IDC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_DC_CURRENT_NOW)
-                    self.pvdata.wr[i].UAC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AC_VOLTAGE_NOW)
-                    self.pvdata.wr[i].IAC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AC_CURRENT_NOW)
-                    self.pvdata.wr[i].FAC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AC_FREQ_NOW)
-                    # self.pvdata.wr[i].ATMP = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AMBIENT_TEMP)
-                    # self.pvdata.wr[i].FAN0 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_0)
-                    # self.pvdata.wr[i].FAN1 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_1)
-                    # self.pvdata.wr[i].FAN2 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_2)
-                    # self.pvdata.wr[i].FAN3 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_3)
-                    # self.pvdata.wr[i].STATUS = self.SendIG(Devices.DEV_INV, i, Commands.INV_STATUS)
-                    self.pvdata.wr[i].OHDAY = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_DAY)
-                    self.pvdata.wr[i].OHYEAR = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_YEAR)
-                    self.pvdata.wr[i].OHTOT = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_DAY)
+                    self.pvdata.PTotal = 0
+                    self.pvdata.PDayTotal = 0
 
-                    self.pvdata.PTotal = self.pvdata.PTotal + self.pvdata.wr[i].PNow
-                    self.pvdata.PDayTotal = self.pvdata.PDayTotal + self.pvdata.wr[i].PDay
+                    for i in range(len(self.pvdata.wr)):
+                        self.pvdata.wr[i].DevType = self.SendIG(Devices.DEV_INV, i, Commands.IFCCMD_GET_DEVTYP)
+                        self.pvdata.wr[i].PDay = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_ENERGY_DAY)
+                        self.pvdata.wr[i].PNow = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_POWER_NOW)
+                        self.pvdata.wr[i].UDC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_DC_VOLTAGE_NOW)
+                        self.pvdata.wr[i].IDC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_DC_CURRENT_NOW)
+                        self.pvdata.wr[i].UAC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AC_VOLTAGE_NOW)
+                        self.pvdata.wr[i].IAC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AC_CURRENT_NOW)
+                        self.pvdata.wr[i].FAC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AC_FREQ_NOW)
+                        # self.pvdata.wr[i].ATMP = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AMBIENT_TEMP)
+                        # self.pvdata.wr[i].FAN0 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_0)
+                        # self.pvdata.wr[i].FAN1 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_1)
+                        # self.pvdata.wr[i].FAN2 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_2)
+                        # self.pvdata.wr[i].FAN3 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_3)
+                        # self.pvdata.wr[i].STATUS = self.SendIG(Devices.DEV_INV, i, Commands.INV_STATUS)
+                        self.pvdata.wr[i].OHDAY = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_DAY)
+                        self.pvdata.wr[i].OHYEAR = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_YEAR)
+                        self.pvdata.wr[i].OHTOT = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_DAY)
 
-                self.pvdata.Time = time()
+                        self.pvdata.PTotal = self.pvdata.PTotal + self.pvdata.wr[i].PNow
+                        self.pvdata.PDayTotal = self.pvdata.PDayTotal + self.pvdata.wr[i].PDay
+
+                    self.pvdata.Time = time()
 
             except BaseException as e:
                 self.pvdata.Error = "Error GetAllData:" + str(e)
