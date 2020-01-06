@@ -114,6 +114,7 @@ Per default ist das:
 Der Inhalt dieser Seite kann den eigenen Bedürfnissen angepasst werden (template/index.html).
 
 Folgende Tags werden durch aktuelle Daten ersetzt:
+
 | Tag                            | Beschreibung                                               |
 |--------------------------------|------------------------------------------------------------|
 | {{pvdata.ActiveInvCnt}}        | tbd.                                                       |
@@ -163,7 +164,6 @@ Folgende Tags werden durch aktuelle Daten ersetzt:
 | {{weatherdata.WindAvg}}        | tbd.                                                       |
 | {{weatherdata.WindDir}}        | tbd.                                                       |
 | {{weatherdata.WindGust}}       | tbd.                                                       |
-
 
 
 Unter ```http://localhost:8080/data.json``` können die aktuellen Daten der Solaranlage abgefragt werden. Man erhält eine JSON-Datei mit dieser Struktur:
