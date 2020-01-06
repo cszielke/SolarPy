@@ -68,7 +68,7 @@ def GetAllData():
         pvdata.Error = "Error: No valid datasource [ifcard,restapi,simulation]: (" + DATASOURCE + ")"
         print(pvdata.Error)
         exit(1)
-    
+
     if(pvweather.enabled):
         pvweather.GetWeatherData()
 

@@ -8,6 +8,7 @@ import requests
 
 local = pytz.timezone("Europe/Berlin")
 
+
 class PVWeather(PVBaseModul):
     enabled = False
     url = "http://127.0.0.1/weatherdata.json"

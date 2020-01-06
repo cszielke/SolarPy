@@ -266,8 +266,8 @@ class FroniusIG:
                 self.pvdata.ActiveSensorCardCnt = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_SENSOR_CARD_CNT)
                 self.pvdata.LocalNetStatus = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_LOCALNET_STATUS)
 
-                self.pvdata.PGesamt = 0
-                self.pvdata.PDayGesamt = 0
+                self.pvdata.PTotal = 0
+                self.pvdata.PDayTotal = 0
 
                 for i in range(len(self.pvdata.wr)):
                     self.pvdata.wr[i].DevType = self.SendIG(Devices.DEV_INV, i, Commands.IFCCMD_GET_DEVTYP)
@@ -288,8 +288,8 @@ class FroniusIG:
                     self.pvdata.wr[i].OHYEAR = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_YEAR)
                     self.pvdata.wr[i].OHTOT = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_DAY)
 
-                    self.pvdata.PGesamt = self.pvdata.PGesamt + self.pvdata.wr[i].PNow
-                    self.pvdata.PDayGesamt = self.pvdata.PDayGesamt + self.pvdata.wr[i].PDay
+                    self.pvdata.PTotal = self.pvdata.PTotal + self.pvdata.wr[i].PNow
+                    self.pvdata.PDayTotal = self.pvdata.PDayTotal + self.pvdata.wr[i].PDay
 
                 self.pvdata.Time = time()
 

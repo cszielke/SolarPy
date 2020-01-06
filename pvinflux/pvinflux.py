@@ -70,8 +70,8 @@ class PVInflux(PVBaseModul):
                     "WR2ACANow": float(self.pvdata.wr[1].IAC),
                     "WR2ACHzNow": float(self.pvdata.wr[1].FAC),
                     "WR2WDay": float(self.pvdata.wr[1].PDay),
-                    "PNow": float(self.pvdata.PGesamt),
-                    "PDay": float(self.pvdata.PDayGesamt)
+                    "PNow": float(self.pvdata.PTotal),
+                    "PDay": float(self.pvdata.PDayTotal)
                 }
             }]
 

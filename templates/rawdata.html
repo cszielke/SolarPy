@@ -1,0 +1,37 @@
+<HTML>
+    <LINK REL="stylesheet" TYPE="text/css" HREF="Styles/Styles.css">
+  <HEAD>
+  <TITLE>Daten der Photovoltarik Anlage Zielke - Aktuelle Daten</TITLE>
+  <meta http-equiv="refresh" content="5"; URL="C:\PVData\WebServData\Template\rawdata.html">
+  </HEAD>
+  <BODY>
+  Messzeit: {{pvdata.Time}}<br>
+  Quelle: C:\PVData\WebServData\Template\rawdata.html<br>
+  Programmversion:&nbsp;{{replacetags.version}}<br>
+  <br>
+  Gesamtleistung AC:&nbsp;{{pvdata.PTotal}}<br>
+  Gesamtstrom AC:&nbsp;0,0<br>
+  Gesamtleistung DC:&nbsp;0,0<br>
+  Wirkungsgrad:&nbsp;0,0<br>
+  Tagesenerie AC:&nbsp;{{pvdata.PDayTotal}}<br>
+  <br>
+  Leistung WR 1:&nbsp;{{pvdata.wr0.PNow}}<br>
+  Strom AC WR 1:&nbsp;{{pvdata.wr0.IAC}}<br>
+  Spannung AC WR 1:&nbsp;{{pvdata.wr0.UAC}}<br>
+  Freq. AC WR 1:&nbsp;{{pvdata.wr0.FAC}}<br>
+  Strom DC WR 1:&nbsp;{{pvdata.wr0.IDC}}<br>
+  Spannung DC WR 1:&nbsp;{{pvdata.wr0.UDC}}<br>
+  Wirkungsgrad WR 1:&nbsp;0,0<br>
+  Tagesenerie WR 1:&nbsp;{{pvdata.wr0.PDay}}<br>
+  <br>
+  Leistung WR 2:&nbsp;{{pvdata.wr1.PNow}}<br>
+  Strom AC WR 2:&nbsp;{{pvdata.wr1.IAC}}<br>
+  Spannung AC WR 2:&nbsp;{{pvdata.wr1.UAC}}<br>
+  Freq. AC WR 2:&nbsp;{{pvdata.wr1.FAC}}<br>
+  Strom DC WR 2:&nbsp;{{pvdata.wr1.IDC}}<br>
+  Spannung DC WR 2:&nbsp;{{pvdata.wr1.UDC}}<br>
+  Wirkungsgrad WR 2:&nbsp;0,0<br>
+  Tagesenerie WR 2:&nbsp;{{pvdata.wr1.PDay}}<br>
+  </BODY>
+  </HTML>
+  

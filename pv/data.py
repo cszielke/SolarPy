@@ -30,12 +30,12 @@ class PVData:
     VersionIFC = -1
     # DevType = -1
     DevTime = -1
-    ActiveInvCnt = 0
+    ActiveInvCnt = 1
     ActiveSensorCardCnt = 0
     LocalNetStatus = -1
     Time = -1
-    PGesamt = -1
-    PDayGesamt = -1
+    PTotal = -1
+    PDayTotal = -1
     wr = [PVWR()]
 
     def toJson(self):

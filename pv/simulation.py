@@ -45,8 +45,8 @@ class PVSimulation:
         self.pvdata.wr[0].FAC = rnd * 0.5 + 50                  # Immer ca. 49.5 - 50.5 Hz
         self.pvdata.wr[1].FAC = rnd * 0.5 + 50
 
-        self.pvdata.PGesamt = self.pvdata.wr[0].PNow + self.pvdata.wr[1].PNow
-        self.pvdata.PDayGesamt = self.pvdata.wr[0].PDay + self.pvdata.wr[1].PDay
+        self.pvdata.PTotal = self.pvdata.wr[0].PNow + self.pvdata.wr[1].PNow
+        self.pvdata.PDayTotal = self.pvdata.wr[0].PDay + self.pvdata.wr[1].PDay
         self.pvdata.Time = time()
         self.pvdata.Error = "OK"
 

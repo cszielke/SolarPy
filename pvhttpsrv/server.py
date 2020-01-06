@@ -25,6 +25,7 @@ class Server(BaseHTTPRequestHandler):
         if request_extension == "" or request_extension == ".html":
             if self.path in routes:
                 handler = TemplateHandler()
+                handler.onDataRequest = self.onDataRequest
                 handler.directory = self.directory
                 handler.find(routes[self.path])
             else:

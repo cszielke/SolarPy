@@ -113,6 +113,59 @@ Per default ist das:
 
 Der Inhalt dieser Seite kann den eigenen Bedürfnissen angepasst werden (template/index.html).
 
+Folgende Tags werden durch aktuelle Daten ersetzt:
+| Tag                            | Beschreibung                                               |
+|--------------------------------|------------------------------------------------------------|
+| {{pvdata.ActiveInvCnt}}        | tbd.                                                       |
+| {{pvdata.ActiveSensorCardCnt}} | tbd.                                                       |
+| {{pvdata.DevTime}}             | tbd.                                                       |
+| {{pvdata.Error}}               | tbd.                                                       |
+| {{pvdata.LocalNetStatus}}      | tbd.                                                       |
+| {{pvdata.PDayTotal}}           | tbd.                                                       |
+| {{pvdata.PTotal}}              | tbd.                                                       |
+| {{pvdata.Time}}                | tbd.                                                       |
+| {{pvdata.VersionIFC}}          | tbd.                                                       |
+| {{pvdata.wr0.DevType}}         | tbd.                                                       |
+| {{pvdata.wr0.FAC}}             | tbd.                                                       |
+| {{pvdata.wr0.IAC}}             | tbd.                                                       |
+| {{pvdata.wr0.IDC}}             | tbd.                                                       |
+| {{pvdata.wr0.OHDAY}}           | tbd.                                                       |
+| {{pvdata.wr0.OHTOT}}           | tbd.                                                       |
+| {{pvdata.wr0.OHYEAR}}          | tbd.                                                       |
+| {{pvdata.wr0.PDay}}            | tbd.                                                       |
+| {{pvdata.wr0.PNow}}            | tbd.                                                       |
+| {{pvdata.wr0.UAC}}             | tbd.                                                       |
+| {{pvdata.wr0.UDC}}             | tbd.                                                       |
+| {{pvdata.wr1.DevType}}         | tbd.                                                       |
+| {{pvdata.wr1.FAC}}             | tbd.                                                       |
+| {{pvdata.wr1.IAC}}             | tbd.                                                       |
+| {{pvdata.wr1.IDC}}             | tbd.                                                       |
+| {{pvdata.wr1.OHDAY}}           | tbd.                                                       |
+| {{pvdata.wr1.OHTOT}}           | tbd.                                                       |
+| {{pvdata.wr1.OHYEAR}}          | tbd.                                                       |
+| {{pvdata.wr1.PDay}}            | tbd.                                                       |
+| {{pvdata.wr1.PNow}}            | tbd.                                                       |
+| {{pvdata.wr1.UAC}}             | tbd.                                                       |
+| {{pvdata.wr1.UDC}}             | tbd.                                                       |
+| {{weatherdata.Error}}          | tbd.                                                       |
+| {{weatherdata.Hin}}            | tbd.                                                       |
+| {{weatherdata.Hout}}           | tbd.                                                       |
+| {{weatherdata.MeasureTime}}    | tbd.                                                       |
+| {{weatherdata.PressureAbs}}    | tbd.                                                       |
+| {{weatherdata.PressureRel}}    | tbd.                                                       |
+| {{weatherdata.Rain1h}}         | tbd.                                                       |
+| {{weatherdata.Rain24h}}        | tbd.                                                       |
+| {{weatherdata.RainTotal}}      | tbd.                                                       |
+| {{weatherdata.State}}          | tbd.                                                       |
+| {{weatherdata.Tin}}            | tbd.                                                       |
+| {{weatherdata.Tout}}           | tbd.                                                       |
+| {{weatherdata.Wind}}           | tbd.                                                       |
+| {{weatherdata.WindAvg}}        | tbd.                                                       |
+| {{weatherdata.WindDir}}        | tbd.                                                       |
+| {{weatherdata.WindGust}}       | tbd.                                                       |
+
+
+
 Unter ```http://localhost:8080/data.json``` können die aktuellen Daten der Solaranlage abgefragt werden. Man erhält eine JSON-Datei mit dieser Struktur:
 
 ```JSON
@@ -122,8 +175,8 @@ Unter ```http://localhost:8080/data.json``` können die aktuellen Daten der Sola
     "DevTime": -1,
     "Error": "OK",
     "LocalNetStatus": -1,
-    "PDayGesamt": 10000.0,
-    "PGesamt": 0.0,
+    "PDayTotal": 10000.0,
+    "PTotal": 0.0,
     "Time": 1577635117.0,
     "VersionIFC": -1,
     "wr": [{

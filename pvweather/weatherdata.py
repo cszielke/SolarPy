@@ -8,6 +8,7 @@ from time import time
 # http://192.168.15.252/webcam/wsdata.txt
 # http://192.168.15.252/webcam/data.json
 
+
 @dataclass
 class WeatherData:
     MeasureTime = time()

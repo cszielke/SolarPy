@@ -51,8 +51,8 @@ class PVRestApi:
                         # print("Key: "+str(key)+" Value: "+str(value) )
                         kvp[key] = value
 
-                self.pvdata.PGesamt = float(kvp["Gesamtleistung_AC"])
-                self.pvdata.PDayGesamt = float(kvp["Tagesenerie_AC"])
+                self.pvdata.PTotal = float(kvp["Gesamtleistung_AC"])
+                self.pvdata.PDayTotal = float(kvp["Tagesenerie_AC"])
                 self.pvdata.Time = self.LocalToUTC(datetime.datetime.strptime(kvp["Messzeit"], ' %d.%m.%Y %H:%M:%S')).timestamp()
 
                 self.pvdata.wr[0].IAC = float(kvp["Strom_AC_WR_1"])

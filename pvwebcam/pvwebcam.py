@@ -71,21 +71,21 @@ class PVWebCam(PVBaseModul):
 
         try:
             if(withdata):
-                self.pvdata,self.weatherdata = self.onDataRequest(self)
+                self.pvdata, self.weatherdata = self.onDataRequest(self)
                 # now = datetime.now()
                 now = datetime.fromtimestamp(self.pvdata.Time)
 
                 textpv = "{}, PDay: {} Wh, PNow: {} W, PNow1: {} W, PNow2: {} W".format(
                     now.strftime("%d.%m.%Y %H:%M:%S"),
-                    int(self.pvdata.PDayGesamt),
-                    int(self.pvdata.PGesamt),
+                    int(self.pvdata.PDayTotal),
+                    int(self.pvdata.PTotal),
                     int(self.pvdata.wr[0].PNow),
                     int(self.pvdata.wr[1].PNow))
 
                 textw = "{}, Tout: {} Wind {}".format(
                     now.strftime("%d.%m.%Y %H:%M:%S"),
-                    round(self.weatherdata.Tout,1),
-                    round(self.weatherdata.Wind,1))
+                    round(self.weatherdata.Tout, 1),
+                    round(self.weatherdata.Wind, 1))
 
                 width, height = im.size
 

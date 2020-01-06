@@ -13,5 +13,11 @@ routes = {
     },
     "/goodbye.html": {
         "template": "goodbye.html"
+    },
+    "/rawdata": {
+        "template": "rawdata.html"
+    },
+    "/rawdata.html": {
+        "template": "rawdata.html"
     }
 }
