@@ -259,6 +259,8 @@ class FroniusIG:
             self.isreadingalready = True
             try:
                 self.pvdata.Error = "OK"  # we expect everything to be ok
+                self.pvdata.Time = time()
+
                 self.pvdata.VersionIFC = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_VERSION)
                 # self.pvdata.DevType = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_DEVTYP, val=b'\x02\x40')
                 self.pvdata.DevTime = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_TIME)
@@ -294,7 +296,7 @@ class FroniusIG:
                         self.pvdata.PTotal = self.pvdata.PTotal + self.pvdata.wr[i].PNow
                         self.pvdata.PDayTotal = self.pvdata.PDayTotal + self.pvdata.wr[i].PDay
 
-                    self.pvdata.Time = time()
+                    
 
             except BaseException as e:
                 self.pvdata.Error = "Error GetAllData:" + str(e)
