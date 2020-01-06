@@ -22,7 +22,7 @@ class Server(BaseHTTPRequestHandler):
         request_extension = split_path[1]
         request_name = os.path.basename(self.path)
 
-        if request_extension == "" or request_extension == ".html":
+        if request_extension == "" or request_extension == ".html" or request_extension == ".txt":
             if self.path in routes:
                 handler = TemplateHandler()
                 handler.onDataRequest = self.onDataRequest
