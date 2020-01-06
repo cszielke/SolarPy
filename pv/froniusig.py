@@ -176,7 +176,7 @@ class FroniusIG:
                 rest = rest[(length + 1):]
             else:
                 if(length == 0):
-                    ret = -1
+                    ret = 0
                     checksum, rest = unpack(">B{}s".format(len(rest) - 1), rest)
                 elif(length == 1):
                     val, checksum, rest = unpack(">BB{}s".format(len(rest) - 2), rest)
