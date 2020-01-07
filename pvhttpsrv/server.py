@@ -70,3 +70,6 @@ class Server(BaseHTTPRequestHandler):
     def respond(self, opts):
         response = self.handle_http(opts['handler'])
         self.wfile.write(response)
+
+    def log_message(self, format, *args):
+        print("%s - - [%s] %s\n" % (self.address_string(),self.log_date_time_string(),format%args))

@@ -124,6 +124,7 @@ class FroniusIG:
             self.pvdata.wr.append(PVWR())
 
     def open(self):
+        print("Open COM-Port")
         if(self.ser is None):
             self.ser = serial.Serial(
                 port=self.port,
@@ -139,6 +140,7 @@ class FroniusIG:
                 inter_byte_timeout=self.inter_byte_timeout)  # open COM-Port
 
     def close(self):
+        print("Close COM-Port")
         if(self.ser is not None):
             self.ser.close()
             self.ser = None
@@ -238,6 +240,9 @@ class FroniusIG:
                 timeout = timeout - 1
 
             if(timeout == 0):
+                self.close()
+                sleep(0.5)
+                self.open()
                 raise ValueError('Error: Timeout receiving bytes')
 
             while(self.ser.in_waiting > 0):
