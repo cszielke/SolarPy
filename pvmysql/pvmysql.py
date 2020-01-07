@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pv.data import PVData
+from pvweather import WeatherData
 from pvbasemodul import PVBaseModul
 import sys
 import pymysql
@@ -11,6 +12,8 @@ import pytz
 class PVMySQL(PVBaseModul):
     local = pytz.timezone("Europe/Berlin")
     pvdata = PVData()
+    weatherdata = WeatherData()
+
     db = None
     cursor = None
 
@@ -61,6 +64,38 @@ class PVMySQL(PVBaseModul):
 
     def SendData(self):
         try:
+            weatherfields = "`Windspeed`,`Winddirection`,`Outdoortemp`,`Outdoorhumidity`,"
+            weatherfields = weatherfields + "`Drewpoint`,`Windchill`,`Indoortemp`,`Indoorhumidity`,"
+            weatherfields = weatherfields + "`Rain1h`,`Rain24h`,`RainTotal`,`PressureRelativ`,`PressureAbsolut`,"
+            weatherfields = weatherfields + "`ExtraValue1`,`ExtraValue2`,`ExtraValue3`,"
+            weatherfields = weatherfields + "`Tendency`,`Forecast`,`Storm`,"
+            weathervalues = "{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},'{}','{}','{}',".format(
+                self.weatherdata.Wind,
+                self.weatherdata.WindDir,
+                self.weatherdata.Tout,
+                self.weatherdata.Hout,
+                self.weatherdata.Drewpoint,
+                self.weatherdata.Windchill,
+                self.weatherdata.Tin,
+                self.weatherdata.Hin,
+                self.weatherdata.Rain1h,
+                self.weatherdata.Rain24h,
+                self.weatherdata.RainTotal,
+                self.weatherdata.PressureRel,
+                self.weatherdata.PressureAbs,
+                0,
+                0, 
+                0,
+                self.weatherdata.Tendency,
+                self.weatherdata.Forecast,
+                self.weatherdata.Storm
+                )
+                # self.weatherdata.WindAvg,
+                # self.weatherdata.WindGust,
+                # self.weatherdata.State,
+                # self.weatherdata.Error
+                # self.weatherdata.MeasureTime,
+
             wrfields = ""
             for wrn in range(len(self.pvdata.wr)):
                 wrfields = wrfields + "`WR{0}WNow`,`WR{0}DCVNow`,`WR{0}DCANow`,`WR{0}ACVNow`,`WR{0}ACANow`,`WR{0}ACHzNow`,`WR{0}WDay`,".format(wrn + 1)
@@ -80,7 +115,8 @@ class PVMySQL(PVBaseModul):
             wrvalues = wrvalues[:-1]
 
             sql = "INSERT INTO {} ".format(self.tableName)
-            sql = sql + "(`Index`,`Station`," + wrfields + ") VALUES('','PVAnlage'," + wrvalues + ")"
+            sql = sql + " (`Index`,`Station`," + weatherfields + wrfields + ")"
+            sql = sql + " VALUES('','PVAnlage'," + weathervalues + wrvalues + ")"
 
             try:
                 # Execute the SQL command
@@ -88,7 +124,7 @@ class PVMySQL(PVBaseModul):
                 # Commit your changes in the database
                 self.db.commit()
             except Exception as e:
-                print("Error MySQL: " + str(e))
+                print("Error MySQL: " + str(e), file = sys.stderr)
                 # Rollback in case there is any error
                 self.db.rollback()
 
@@ -105,6 +141,25 @@ class PVMySQL(PVBaseModul):
             `Index` BIGINT NOT NULL AUTO_INCREMENT ,
             `Station` VARCHAR( 30 ) NOT NULL ,
             `TimeStamp` TIMESTAMP NOT NULL ,
+            `Windspeed` double NOT NULL DEFAULT '0',
+            `Winddirection` double NOT NULL DEFAULT '0',
+            `Outdoortemp` double NOT NULL DEFAULT '0',
+            `Outdoorhumidity` double NOT NULL DEFAULT '0',
+            `Drewpoint` double NOT NULL DEFAULT '0',
+            `Windchill` double NOT NULL DEFAULT '0',
+            `Indoortemp` double NOT NULL DEFAULT '0',
+            `Indoorhumidity` double NOT NULL DEFAULT '0',
+            `Rain1h` double NOT NULL DEFAULT '0',
+            `Rain24h` double NOT NULL DEFAULT '0',
+            `RainTotal` double NOT NULL DEFAULT '0',
+            `PressureRelativ` double NOT NULL DEFAULT '0',
+            `PressureAbsolut` double NOT NULL DEFAULT '0',
+            `ExtraValue1` double NOT NULL DEFAULT '0',
+            `ExtraValue2` double NOT NULL DEFAULT '0',
+            `ExtraValue3` double NOT NULL DEFAULT '0',
+            `Tendency` varchar(20) NOT NULL DEFAULT '',
+            `Forecast` varchar(20) NOT NULL DEFAULT '',
+            `Storm` varchar(20) NOT NULL DEFAULT '',
             `WR1WNow` DOUBLE NOT NULL ,
             `WR1DCVNow` DOUBLE NOT NULL ,
             `WR1DCANow` DOUBLE NOT NULL ,
@@ -120,7 +175,8 @@ class PVMySQL(PVBaseModul):
             `WR2ACHzNow` DOUBLE NOT NULL ,
             `WR2WDay` DOUBLE NOT NULL ,
             PRIMARY KEY ( `Index` )
-            )"""
+            )
+            """
         try:
             # Execute the SQL command
             self.cursor.execute(createTableStr)

@@ -309,6 +309,7 @@ def main():
                         print("Saving to MySQL")
                         GetAllData()
                         mysqlclient.pvdata = pvdata
+                        mysqlclient.weatherdata = pvweather.weatherdata
                         mysqlclient.SendData()
 
             if(webcam.enabled):

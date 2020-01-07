@@ -12,21 +12,27 @@ from time import time
 @dataclass
 class WeatherData:
     MeasureTime = time()
-    Tout = -257.2
-    Tin = -257.2
-    Hout = 0
-    Hin = 0
-    Rain1h = 0
-    Rain24h = 0
-    RainTotal = 0
-    PressureAbs = 0
-    PressureRel = 0
-    Wind = 0
-    WindAvg = 0
-    WindGust = 0
-    WindDir = 0
+    Tout = -273.15
+    Tin = -273.15
+    Hout = 0.0
+    Hin = 0.0
+    Rain1h = 0.0
+    Rain24h = 0.0
+    RainTotal = 0.0
+    PressureAbs = 0.0
+    PressureRel = 0.0
+    Wind = 0.0
+    WindAvg = 0.0
+    WindGust = 0.0
+    WindDir = 0.0
     State = ""
     Error = ""
+    # extra Values
+    Tendency = ""
+    Forecast = ""
+    Storm = ""
+    Drewpoint = 0.0
+    Windchill = 0.0
 
     def toJson(self):
         jsondata = str(jsons.dump(self)).replace("'", '"')
