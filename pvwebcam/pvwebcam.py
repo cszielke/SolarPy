@@ -50,10 +50,8 @@ class PVWebCam(PVBaseModul):
 
     def Connect(self, onDataRequest=None):
         print("PVWebCam.Connect() called")
-        if(not os.path.exists(self.savedirectory)):
-            os.makedirs(self.savedirectory)
 
-        self.filename = os.path.join(self.savedirectory, "pv{}.jpg")
+        self.filename = "pv{}.jpg"
 
         self.onDataRequest = onDataRequest
 
@@ -108,9 +106,16 @@ class PVWebCam(PVBaseModul):
             im = self.ByteArrayToImage(webcam_ba)
 
             now = datetime.fromtimestamp(self.pvdata.Time)
-            fn = self.filename.format(now.strftime("%H%M%S"))
 
-            print("Save Webcam picture from {} to {}".format(self.url, self.savedirectory))
+            fnpath = os.path.join(self.savedirectory, now.strftime("%Y%m%d"))
+            name = "pv{}.jpg".format(now.strftime("%H%M%S"))
+
+            fn = os.path.join(fnpath, name)
+
+            if(not os.path.exists(fnpath)):
+                os.makedirs(fnpath)
+
+            print("Save Webcam picture from {} to {}".format(self.url, fn))
 
             im.save(fn)  # , "JPEG", quality=80, optimize=True, progressive=True)
         except Exception as e:

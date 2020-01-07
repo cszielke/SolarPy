@@ -72,4 +72,4 @@ class Server(BaseHTTPRequestHandler):
         self.wfile.write(response)
 
     def log_message(self, format, *args):
-        print("%s - - [%s] %s\n" % (self.address_string(),self.log_date_time_string(),format%args))
+        print("%s - - [%s] %s\n" % (self.address_string(), self.log_date_time_string(), format % args))

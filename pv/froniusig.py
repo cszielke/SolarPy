@@ -188,7 +188,7 @@ class FroniusIG:
                     ret = valh * 256 + vall
                 elif(length == 3):
                     msb, lsb, exp, checksum, rest = unpack(">BBbB{}s".format(len(rest) - 4), rest)
-                    ret = round((msb * 256 + lsb) * pow(10, exp),3)
+                    ret = round((msb * 256 + lsb) * pow(10, exp), 3)
                 elif(length == 6):  # IFC_GetTime!
                     day, month, year, hour, minute, second, checksum, rest = unpack(">BBBBBBB{}s".format(len(rest) - 7), rest)
                     ret = "{}.{}.{}T{}:{}:{}".format(day, month, year, hour, minute, second)
@@ -264,7 +264,7 @@ class FroniusIG:
             self.isreadingalready = True
             try:
                 self.pvdata = PVData()  # Alles löschen
-                
+
                 self.pvdata.Error = "OK"  # we expect everything to be ok
                 self.pvdata.Time = time()
 
@@ -275,7 +275,7 @@ class FroniusIG:
                 self.pvdata.ActiveSensorCardCnt = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_SENSOR_CARD_CNT)
                 self.pvdata.LocalNetStatus = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_LOCALNET_STATUS)
 
-                # Nur wenn mindestens 1 Inverter aktiv ist 
+                # Nur wenn mindestens 1 Inverter aktiv ist
                 if(self.pvdata.ActiveInvCnt != 0):
 
                     self.pvdata.PTotal = 0
@@ -302,9 +302,12 @@ class FroniusIG:
 
                         self.pvdata.PTotal = self.pvdata.PTotal + self.pvdata.wr[i].PNow
                         self.pvdata.PDayTotal = self.pvdata.PDayTotal + self.pvdata.wr[i].PDay
-                        self.pvdata.wr[i].EFF = round((self.pvdata.wr[i].UAC * self.pvdata.wr[i].IAC)/(self.pvdata.wr[i].UDC * self.pvdata.wr[i].IDC),3)
-
-                    
+                        pab = (self.pvdata.wr[i].UAC * self.pvdata.wr[i].IAC)
+                        pzu = (self.pvdata.wr[i].UDC * self.pvdata.wr[i].IDC)
+                        if(pzu == 0):
+                            self.pvdata.wr[i].EFF = 0
+                        else:
+                            self.pvdata.wr[i].EFF = round(pab / pzu, 3)
 
             except BaseException as e:
                 self.pvdata.Error = "Error GetAllData:" + str(e)

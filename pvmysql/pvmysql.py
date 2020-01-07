@@ -84,17 +84,17 @@ class PVMySQL(PVBaseModul):
                 self.weatherdata.PressureRel,
                 self.weatherdata.PressureAbs,
                 0,
-                0, 
+                0,
                 0,
                 self.weatherdata.Tendency,
                 self.weatherdata.Forecast,
                 self.weatherdata.Storm
-                )
-                # self.weatherdata.WindAvg,
-                # self.weatherdata.WindGust,
-                # self.weatherdata.State,
-                # self.weatherdata.Error
-                # self.weatherdata.MeasureTime,
+            )
+            # self.weatherdata.WindAvg,
+            # self.weatherdata.WindGust,
+            # self.weatherdata.State,
+            # self.weatherdata.Error
+            # self.weatherdata.MeasureTime,
 
             wrfields = ""
             for wrn in range(len(self.pvdata.wr)):
@@ -124,7 +124,7 @@ class PVMySQL(PVBaseModul):
                 # Commit your changes in the database
                 self.db.commit()
             except Exception as e:
-                print("Error MySQL: " + str(e), file = sys.stderr)
+                print("Error MySQL: " + str(e), file=sys.stderr)
                 # Rollback in case there is any error
                 self.db.rollback()
 
