@@ -300,7 +300,7 @@ class FroniusIG:
 
                         self.pvdata.PTotal = self.pvdata.PTotal + self.pvdata.wr[i].PNow
                         self.pvdata.PDayTotal = self.pvdata.PDayTotal + self.pvdata.wr[i].PDay
-                        self.pvdata.wr[i].EFF = (self.pvdata.wr[i].UAC * self.pvdata.wr[i].IAC)/(self.pvdata.wr[i].UDC * self.pvdata.wr[i].IDC)
+                        self.pvdata.wr[i].EFF = round((self.pvdata.wr[i].UAC * self.pvdata.wr[i].IAC)/(self.pvdata.wr[i].UDC * self.pvdata.wr[i].IDC),3)
 
                     
 
