@@ -188,7 +188,7 @@ class FroniusIG:
                     ret = valh * 256 + vall
                 elif(length == 3):
                     msb, lsb, exp, checksum, rest = unpack(">BBbB{}s".format(len(rest) - 4), rest)
-                    ret = (msb * 256 + lsb) * pow(10, exp)
+                    ret = round((msb * 256 + lsb) * pow(10, exp),3)
                 elif(length == 6):  # IFC_GetTime!
                     day, month, year, hour, minute, second, checksum, rest = unpack(">BBBBBBB{}s".format(len(rest) - 7), rest)
                     ret = "{}.{}.{}T{}:{}:{}".format(day, month, year, hour, minute, second)
