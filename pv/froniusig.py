@@ -263,6 +263,8 @@ class FroniusIG:
         if(not self.isreadingalready):
             self.isreadingalready = True
             try:
+                self.pvdata = PVData()  # Alles löschen
+                
                 self.pvdata.Error = "OK"  # we expect everything to be ok
                 self.pvdata.Time = time()
 
