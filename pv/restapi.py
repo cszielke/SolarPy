@@ -62,6 +62,7 @@ class PVRestApi:
                 self.pvdata.wr[0].UDC = float(kvp["Spannung_DC_WR_1"])
                 self.pvdata.wr[0].PDay = float(kvp["Tagesenerie_WR_1"])
                 self.pvdata.wr[0].PNow = float(kvp["Leistung_WR_1"])
+                self.pvdata.wr[0].EFF = float(kvp["Wirkungsgrad_WR_1"])
 
                 self.pvdata.wr[1].IAC = float(kvp["Strom_AC_WR_2"])
                 self.pvdata.wr[1].UAC = float(kvp["Spannung_AC_WR_2"])
@@ -70,6 +71,7 @@ class PVRestApi:
                 self.pvdata.wr[1].UDC = float(kvp["Spannung_DC_WR_2"])
                 self.pvdata.wr[1].PDay = float(kvp["Tagesenerie_WR_2"])
                 self.pvdata.wr[1].PNow = float(kvp["Leistung_WR_2"])
+                self.pvdata.wr[1].EFF = float(kvp["Wirkungsgrad_WR_2"])
 
                 self.pvdata.Error = "OK"
             else:

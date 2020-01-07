@@ -13,6 +13,7 @@ class PVWR:
     UAC = 0
     IAC = 0
     FAC = 0
+    EFF = 0
     # ATMP = -1
     # FAN0 = -1
     # FAN1 = -1
@@ -27,15 +28,15 @@ class PVWR:
 @dataclass
 class PVData:
     Error = "No Data"
-    VersionIFC = -1
+    VersionIFC = 0
     # DevType = -1
     DevTime = -1
-    ActiveInvCnt = 1
+    ActiveInvCnt = 0
     ActiveSensorCardCnt = 0
     LocalNetStatus = -1
-    Time = -1
-    PTotal = -1
-    PDayTotal = -1
+    Time = 0
+    PTotal = 0
+    PDayTotal = 0
     wr = [PVWR()]
 
     def toJson(self):
