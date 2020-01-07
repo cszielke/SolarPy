@@ -252,7 +252,7 @@ Unter ```http://localhost:8080/osdata.json``` können die aktuellen Daten des Ho
 }
 ```
 
-Die Struktur kann unter Linus etwas anders aussehen
+Die Struktur kann unter Linux etwas anders aussehen
 
 #### Wetterdaten
 
