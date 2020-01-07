@@ -25,7 +25,7 @@ das Repository klonen.
 
 Anschließend ```setup.bat``` für Windows, oder ```setup.sh``` für linux aufrufen um die Abhängigkeiten zu installieren.
 
-Für die Konfiguration des Programms die Datei ```./fronius-default.cfg``` nach ```./fronius.cfg``` kopieren und anpassen.
+Für die Konfiguration des Programms die Datei ```./solarpy-default.cfg``` nach ```./solarpy.cfg``` kopieren und anpassen.
 
 Das Programm kann mit ```python ./SolarPy.py``` gestartet werden.
 
@@ -105,6 +105,8 @@ Info von <http://blog.scphillips.com/posts/2013/07/getting-a-python-script-to-ru
 
 ### Http-Server mit REST-API
 
+#### Templates
+
 Der interne Webserver kann - sofern enabled - über die konfigurierte Adresse aufgerufen werden:
 
 Per default ist das:
@@ -167,52 +169,121 @@ Folgende Tags werden durch aktuelle Daten ersetzt:
 | {{pvdata.Time.text}}           | pvdata.Time als Text                |'2020-01-23 08:43:07' |
 | {{replacetags.version}}        | Version der Tag Ersetzung           |'1.0.0'               |
 
-Unter ```http://localhost:8080/data.json``` können die aktuellen Daten der Solaranlage abgefragt werden. Man erhält eine JSON-Datei mit dieser Struktur:
+#### Daten
+
+##### Photovoltaik Anlage
+
+Unter ```http://localhost:8080/pvdata.json``` können die aktuellen Daten der Solaranlage abgefragt werden. Man erhält eine JSON-Datei mit dieser Struktur:
 
 ```JSON
 {
-    "ActiveInvCnt": 0,
+    "ActiveInvCnt": 258,
     "ActiveSensorCardCnt": 0,
-    "DevTime": -1,
+    "DevTime": "7.1.20T13:56:29",
     "Error": "OK",
-    "LocalNetStatus": -1,
-    "PDayTotal": 10000.0,
-    "PTotal": 0.0,
-    "Time": 1577635117.0,
-    "VersionIFC": -1,
+    "LocalNetStatus": 1,
+    "PDayTotal": 2000,
+    "PTotal": 859,
+    "Time": 1578401760.712453,
+    "VersionIFC": [1, 1, 1, 0],
     "wr": [{
-            "DevType": -1,
-            "FAC": 0.0,
-            "IAC": 0.0,
-            "IDC": 0.0,
-            "OHDAY": -1,
-            "OHTOT": -1,
-            "OHYEAR": -1,
-            "PDay": 4000.0,
-            "PNow": 0.0,
-            "UAC": 0.0,
-            "UDC": 0.0
+            "DevType": 250,
+            "EFF": 0.903,
+            "FAC": 50.0,
+            "IAC": 1.58,
+            "IDC": 1.52,
+            "OHDAY": 272,
+            "OHTOT": 272,
+            "OHYEAR": 2706,
+            "PDay": 1000,
+            "PNow": 367,
+            "UAC": 232,
+            "UDC": 267
         }, {
-            "DevType": -1,
-            "FAC": 0.0,
-            "IAC": 0.0,
-            "IDC": 0.0,
-            "OHDAY": -1,
-            "OHTOT": -1,
-            "OHYEAR": -1,
-            "PDay": 6000.0,
-            "PNow": 0.0,
-            "UAC": 0.0,
-            "UDC": 0.0
+            "DevType": 250,
+            "EFF": 0.907,
+            "FAC": 50.0,
+            "IAC": 2.14,
+            "IDC": 2.18,
+            "OHDAY": 283,
+            "OHTOT": 283,
+            "OHYEAR": 2777,
+            "PDay": 1000,
+            "PNow": 492,
+            "UAC": 230,
+            "UDC": 249
         }
     ]
 }
-
 ```
+
+#### Daten des Hostsystems
+
+Unter ```http://localhost:8080/osdata.json``` können die aktuellen Daten des Host Systems abgefragt werden. Man erhält eine JSON-Datei mit dieser Struktur:
+
+```JSON
+{
+    "BootTime": 1578298334.0,
+    "Cpu": 17.6,
+    "CpuFreq": {
+        "current": 1596.0,
+        "min": 0.0,
+        "max": 1596.0
+    },
+    "Memory": {
+        "total": 1064689664,
+        "available": 286121984,
+        "percent": 73.1,
+        "used": 778567680,
+        "free": 286121984
+    },
+    "Network": {
+        "bytes_sent": 3558595771,
+        "bytes_recv": 958812200,
+        "packets_sent": 4336624,
+        "packets_recv": 4099384,
+        "errin": 0,
+        "errout": 0,
+        "dropin": 0,
+        "dropout": 0
+    },
+    "PsUtilVersion": [5, 6, 7],
+    "Temperatures": 0
+}
+```
+
+Die Struktur kann unter Linus etwas anders aussehen
+
+#### Wetterdaten
+
+Unter ```http://localhost:8080/wsdata.json``` können die aktuellen Daten der Wetterstation abgefragt werden. Man erhält eine JSON-Datei mit dieser Struktur:
+
+```JSON
+{
+    "Error": "OK",
+    "Hin": 37.0,
+    "Hout": 94.0,
+    "MeasureTime": 1578402134.0,
+    "PressureAbs": 1033.3,
+    "PressureRel": 1033.3,
+    "Rain1h": 0.0,
+    "Rain24h": 0.0,
+    "RainTotal": 3.9,
+    "State": 0.0,
+    "Tin": 23.5,
+    "Tout": 5.5,
+    "Wind": 1.4,
+    "WindAvg": 0,
+    "WindDir": 180.0,
+    "WindGust": 2.0
+}
+```
+
+Die Daten werde per Http von einem anderen System abgefragt.
 
 ### Webcam
 
-Sofern das Bild der Webcam per URL abgefragt werden kann (z.B. <http://www.example.com:80/image.jpg>) , ist es möglich in das Bild die Daten der PV-Anlage zu implementieren. Das modifizierte Webcam Bild kann dann über den integrierten Webserver abgefragt werden (z.B. <http://localhost:8080/webcam.jpg)).>
+Sofern das Bild der Webcam per URL abgefragt werden kann (z.B. <http://www.example.com:80/img/ipcam.jpg>) , ist es möglich in das Bild die Daten der PV-Anlage zu implementieren. Das modifizierte Webcam Bild kann dann über den integrierten Webserver abgefragt werden (z.B. <http://localhost:8080/img/pvipcam.jpg)).>
 
 Wenn gewüscht kann in konfigurierbaren Intervallen ein Bild gespeichert werden. Aus dieser Bilderserie kann dann zb. mit ffmpeg ein video generiert werden, was den Tagesverlauf der Beschattung auf den Solarpanelen generiert.
 
