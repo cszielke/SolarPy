@@ -321,7 +321,7 @@ class FroniusIG:
             # Warte max. 10 Sek bis Daten gelesen wurden
             print("Wait for busy Fronius data ready")
             timeout = 10
-            while(not self.isreadingalready and timeout > 0):
+            while(self.isreadingalready and timeout > 0):
                 sleep(1)
                 timeout = timeout - 1
             if(timeout <= 0):
