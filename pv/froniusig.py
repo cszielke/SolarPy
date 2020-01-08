@@ -302,6 +302,7 @@ class FroniusIG:
 
                         self.pvdata.PTotal = self.pvdata.PTotal + self.pvdata.wr[i].PNow
                         self.pvdata.PDayTotal = self.pvdata.PDayTotal + self.pvdata.wr[i].PDay
+
                         pab = (self.pvdata.wr[i].UAC * self.pvdata.wr[i].IAC)
                         pzu = (self.pvdata.wr[i].UDC * self.pvdata.wr[i].IDC)
                         if(pzu == 0):
@@ -316,6 +317,14 @@ class FroniusIG:
                 print(self.pvdata.Error, file=sys.stderr)
             finally:
                 self.isreadingalready = False
+        else:
+            # Warte max. 10 Sek bis Daten gelesen wurden
+            timeout = 10
+            while(not self.isreadingalready and timeout > 0):
+                sleep(1)
+                timeout = timeout - 1
+            if(timeout <= 0):
+                print("Timeout Busy Fonius wait for data ready", file=sys.stderr)
 
         return self.pvdata
 
