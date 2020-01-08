@@ -245,6 +245,9 @@ class FroniusIG:
                 self.open()
                 raise ValueError('Error: Timeout receiving bytes')
 
+            # TODO: Ermittle zu erwartende Anzahl an Bytes (length Byte) und
+            # warte dann nur bis diese Anzal da ist
+
             while(self.ser.in_waiting > 0):
                 ba.append(self.ser.read(size=1)[0])
                 if(self.ser.in_waiting == 0):
@@ -320,9 +323,9 @@ class FroniusIG:
         else:
             # Warte max. 10 Sek bis Daten gelesen wurden
             print("Wait for busy Fronius data ready")
-            timeout = 10
+            timeout = 100
             while(self.isreadingalready and timeout > 0):
-                sleep(1)
+                sleep(0.1)
                 timeout = timeout - 1
             if(timeout <= 0):
                 print("Timeout busy Fronius wait for data ready", file=sys.stderr)
