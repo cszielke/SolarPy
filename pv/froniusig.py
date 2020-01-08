@@ -263,9 +263,9 @@ class FroniusIG:
         if(not self.isreadingalready):
             self.isreadingalready = True
             try:
-                self.pvdata = PVData()  # Alles löschen
+                self.pvdata = PVData()  # Clear everything
 
-                self.pvdata.Error = "OK"  # we expect everything to be ok
+                self.pvdata.Error = "unknown Error"  # we expect an Error
                 self.pvdata.Time = time()
 
                 self.pvdata.VersionIFC = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_VERSION)
@@ -275,11 +275,11 @@ class FroniusIG:
                 self.pvdata.ActiveSensorCardCnt = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_SENSOR_CARD_CNT)
                 self.pvdata.LocalNetStatus = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_LOCALNET_STATUS)
 
+                self.pvdata.PTotal = 0
+                self.pvdata.PDayTotal = 0
+
                 # Nur wenn mindestens 1 Inverter aktiv ist
                 if(self.pvdata.ActiveInvCnt != 0):
-
-                    self.pvdata.PTotal = 0
-                    self.pvdata.PDayTotal = 0
 
                     for i in range(len(self.pvdata.wr)):
                         self.pvdata.wr[i].DevType = self.SendIG(Devices.DEV_INV, i, Commands.IFCCMD_GET_DEVTYP)
@@ -308,6 +308,8 @@ class FroniusIG:
                             self.pvdata.wr[i].EFF = 0
                         else:
                             self.pvdata.wr[i].EFF = round(pab / pzu, 3)
+
+                self.pvdata.Error = "OK"  # everything ok, if we reach this line
 
             except BaseException as e:
                 self.pvdata.Error = "Error GetAllData:" + str(e)
