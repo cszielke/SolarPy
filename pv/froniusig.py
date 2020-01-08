@@ -319,12 +319,14 @@ class FroniusIG:
                 self.isreadingalready = False
         else:
             # Warte max. 10 Sek bis Daten gelesen wurden
+            print("Wait for busy Fronius data ready")
             timeout = 10
             while(not self.isreadingalready and timeout > 0):
                 sleep(1)
                 timeout = timeout - 1
             if(timeout <= 0):
-                print("Timeout Busy Fonius wait for data ready", file=sys.stderr)
+                print("Timeout busy Fronius wait for data ready", file=sys.stderr)
+            print("Data ready from busy Fronius")
 
         return self.pvdata
 
