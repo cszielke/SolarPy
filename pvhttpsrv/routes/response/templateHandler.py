@@ -61,6 +61,6 @@ class TemplateHandler(RequestHandler):
             else:
                 tag = '{{' + tagprefix + key + '}}'
                 value = str(getattr(obj, key))
-                # print("replace {}={}".format(tag, value))
+                print("replace {}={}".format(tag, value))
                 text = text.replace(tag, value)
         return text

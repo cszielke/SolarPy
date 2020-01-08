@@ -19,8 +19,8 @@ class WeatherData:
     Rain1h = 0.0
     Rain24h = 0.0
     RainTotal = 0.0
-    PressureAbs = 0.0
     PressureRel = 0.0
+    PressureAbs = 0.0
     Wind = 0.0
     WindAvg = 0.0
     WindGust = 0.0
@@ -28,11 +28,12 @@ class WeatherData:
     State = ""
     Error = ""
     # extra Values
-    Tendency = ""
-    Forecast = ""
-    Storm = ""
+    Tendency = "notvalid"
+    Forecast = "notvalid"
+    Storm = "notvalid"
     Drewpoint = 0.0
     Windchill = 0.0
+    WindDirName = ""
 
     def toJson(self):
         jsondata = str(jsons.dump(self)).replace("'", '"')

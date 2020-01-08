@@ -5,6 +5,7 @@ import datetime
 import pytz
 import sys
 import requests
+import math
 
 local = pytz.timezone("Europe/Berlin")
 
@@ -14,6 +15,8 @@ class PVWeather(PVBaseModul):
     url = "http://127.0.0.1/weatherdata.json"
     user = ""
     password = ""
+    wsheight = 0
+
     weatherdata = WeatherData()
 
     def __init__(self):
@@ -27,14 +30,16 @@ class PVWeather(PVBaseModul):
         parser.add_argument('-wturl', '--weatherurl', help='Get weather data url', required=False)
         parser.add_argument('-wtuser', '--weatheruser', help='Get weather username', required=False)
         parser.add_argument('-wtpw', '--weatherpassword', help='Get weather password', required=False)
+        parser.add_argument('-wtheight', '--weatherstationheight', help='Height of the weatherstation over NN', required=False)
 
     def SetConfig(self, config, args):
         super().SetConfig(config, args)
         configsection = "weather"
         self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.weatherenable, configsection, "enabled", "bool")
-        self.url = self.CheckArgsOrConfig(config, self.enabled, args.weatherurl, configsection, "url")
-        self.user = self.CheckArgsOrConfig(config, self.enabled, args.weatherenable, configsection, "user")
-        self.password = self.CheckArgsOrConfig(config, self.enabled, args.weatherenable, configsection, "password")
+        self.url = self.CheckArgsOrConfig(config, self.url, args.weatherurl, configsection, "url")
+        self.user = self.CheckArgsOrConfig(config, self.user, args.weatherenable, configsection, "user")
+        self.password = self.CheckArgsOrConfig(config, self.password, args.weatherenable, configsection, "password")
+        self.wsheight = self.CheckArgsOrConfig(config, self.wsheight, args.weatherenable, configsection, "wsheight", "int")
 
     def LocalToUTC(self, naive):
         try:
@@ -78,7 +83,16 @@ class PVWeather(PVBaseModul):
                 self.weatherdata.WindGust = float(kvp["WG"])
                 self.weatherdata.WindDir = float(kvp["DIR"])
                 # self.weatherdata. = float(kvp["WDT"])
-                self.weatherdata.State = float(kvp["state"])
+                self.weatherdata.State = kvp["state"]
+
+                # Berechnete Werte
+                self.weatherdata.PressureAbs = self.GetAbsolutPressure(self.weatherdata.PressureRel, self.wsheight)
+                self.weatherdata.Drewpoint = self.GetDrewPoint(self.weatherdata.Tout, self.weatherdata.Hout)
+                self.weatherdata.Windchill = self.GetWindChill(self.weatherdata.Tout, self.weatherdata.Wind)
+                self.weatherdata.WindDirName = self.GetWindDirName(self.weatherdata.WindDir)
+                self.weatherdata.Tendency = "notvalid"
+                self.weatherdata.Forecast = "notvalid"
+                self.weatherdata.Storm = "notvalid"
 
                 self.weatherdata.Error = "OK"
             else:
@@ -89,4 +103,67 @@ class PVWeather(PVBaseModul):
             self.weatherdata.Error = "Error:" + str(e)
             print(self.weatherdata.Error, file=sys.stderr)
 
-        return self.weatherdata  # .toJson()
+        return self.weatherdata
+
+    def GetWindDirName(self, degree):
+        # Info von http://climate.umn.edu/snow_fence/Components/winddirectionanddegreeswithouttable3.htm
+        if(degree <   0): return "Deg. negativ"  # noqa
+        if(degree > 360): return "Deg > 360"  # noqa
+
+        if((degree > 348.75) or (degree <=  11.25) ): return "N"  # noqa
+        if((degree >  11.25) and (degree <=  33.75)): return "NNE"  # noqa
+        if((degree >  33.75) and (degree <=  56.25)): return "NE"  # noqa
+        if((degree >  56.25) and (degree <=  78.75)): return "ENE"  # noqa
+        if((degree >  78.75) and (degree <= 101.25)): return "E"  # noqa
+        if((degree > 101.25) and (degree <= 123.75)): return "ESE"  # noqa
+        if((degree > 123.75) and (degree <= 146.25)): return "SE"  # noqa
+        if((degree > 146.25) and (degree <= 168.75)): return "SSE"  # noqa
+        if((degree > 168.75) and (degree <= 191.25)): return "S"  # noqa
+        if((degree > 191.25) and (degree <= 213.75)): return "SSW"  # noqa
+        if((degree > 213.75) and (degree <= 236.25)): return "SW"  # noqa
+        if((degree > 236.25) and (degree <= 258.75)): return "WSW"  # noqa
+        if((degree > 258.75) and (degree <= 281.25)): return "W"  # noqa
+        if((degree > 281.25) and (degree <= 303.75)): return "WNW"  # noqa
+        if((degree > 303.75) and (degree <= 326.25)): return "NW"  # noqa
+        if((degree > 326.25) and (degree <= 348.75)): return "NNW"  # noqa
+
+    def GetWindChill(self, temp, wind):
+        # Calc Windchill (http://de.wikipedia.org/wiki/Windchill
+        if (wind >= 5):
+            windchill = round(13.12 + 0.6215 * temp - 11.37 * pow(wind, 0.16) + 0.3965 * temp * pow(wind, 0.16), 1)
+        else:
+            windchill = temp
+
+        return windchill
+
+    def GetDrewPoint(self, temp, humidity):
+        # R = 287  # Gaskonstante Luft
+
+        # Sättingungsdampfdruck in Abhängigkeit von der Temperatur
+
+        if(temp >= 0):   # Sättigungsdampfdruck über Wasser
+            a = 7.5
+            b = 237.3
+        else:
+            a = 7.6
+            b = 240.7
+
+        sdd = 6.1078 * pow(10, ((a * temp) / (b + temp)))
+
+        # Dampfdruck in Abhängigkeit von der Temperatur und der relativen Feuchte
+        dd = humidity / 100 * sdd
+        if(temp >= 0):
+            a = 7.5
+            b = 237.3
+        else:
+            a = 7.6
+            b = 240.7
+
+        c = math.log10(dd / 6.1078)
+
+        drewpoint = round((b * c) / (a - c), 1)
+
+        return drewpoint
+
+    def GetAbsolutPressure(self, relpress, height):
+        return round(((relpress * 100) / pow(1.0 - height / 44330.0, 5.255)) / 100, 1)
