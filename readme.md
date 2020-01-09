@@ -135,9 +135,9 @@ Sollte kein Zugriff auf reale Daten vorhanden sein, kann mit diesen simulierten 
 
 ### Wetter Daten
 
-Um in den Ausgabe Modulen Wetter Daten zur Verfügung zu stellen, werden diese via REST-Api von einer Wetterstation geholt. Folgende Datenstruktur wird erwartet:
+Um in den Ausgabe Modulen Wetter Daten zur Verfügung zu stellen, werden diese via REST-Api von einer Wetterstation geholt. Die Datenstruktur entspricht der Datei [rawdata.html](./templates/rawdata.html) im Verzeichnis "template". 
 
-tbd.
+Eine Anpassung an andere HTML Formate ist durch eine Programmänderung in der Datei [restapi.py](./pv/restapi.py) möglich. Dazu muss lediglich die Funktion "GetPVDataRestApi" angepasst werden.
 
 ### Daten des Host-Systems
 
