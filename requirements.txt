@@ -10,4 +10,3 @@ jsons
 pymysql
 Pillow
 psutil
-math
