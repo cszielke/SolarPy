@@ -276,7 +276,7 @@ Unter ```http://localhost:8080/pvdata.json``` können die aktuellen Daten der So
 }
 ```
 
-#### Daten des Hostsystems
+##### Daten des Hostsystems
 
 Unter ```http://localhost:8080/osdata.json``` können die aktuellen Daten des Host Systems abgefragt werden. Man erhält eine JSON-Datei mit dieser Struktur:
 
@@ -313,7 +313,7 @@ Unter ```http://localhost:8080/osdata.json``` können die aktuellen Daten des Ho
 
 Die Struktur kann unter Linux etwas anders aussehen
 
-#### Wetterdaten
+##### Wetterdaten
 
 Unter ```http://localhost:8080/wsdata.json``` können die aktuellen Daten der Wetterstation abgefragt werden. Man erhält eine JSON-Datei mit dieser Struktur:
 
