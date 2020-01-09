@@ -109,17 +109,27 @@ SolarPy kann sich die Daten der PV Anlage aus verschiedenen Quellen holen. Für 
 
 ## Quellen
 
-### Fronius
+### Daten der Photovoltaik Anlage
+
+Folgende Quellen für die PV-Daten sind Möglich:
+
+* Fronius
+* REST-Api
+* Simulation
+
+Es darf nur eine der Möglichkeiten aktiv sein. Welche das ist, kann in der Konfiguration angegeben werden.
+
+#### Fronius
 
 Über eine Serielle Schnittstelle werden die Daten direkt von der InterfaceCard der Fronius Anlage geholt.
 
-### REST-API
+#### REST-Api
 
 Die Daten werden mittels Http-GET von einem anderen Server geholt. Die kann auch z.B. eine laufende Instanz auf einem Raspberry sein, die die Daten von der Fronius Anlage per Serieller Schnittstelle holt sein. Folgende Struktur wird erwartet:
 
 tbd.
 
-### Simulation
+#### Simulation
 
 Sollte kein Zugriff auf reale Daten vorhanden sein, kann mit diesen simulierten Daten zumindest das Programm getestet werden
 
@@ -315,14 +325,14 @@ Die Daten werde per Http von einem anderen System abgefragt.
 
 ### Webcam
 
-Sofern das Bild der Webcam per URL abgefragt werden kann (z.B. <http://www.example.com:80/img/ipcam.jpg>) , ist es möglich in das Bild die Daten der PV-Anlage zu implementieren. Das modifizierte Webcam Bild kann dann über den integrierten Webserver abgefragt werden (z.B. <http://localhost:8080/img/pvipcam.jpg)).>
+Sofern das Bild einer Webcam per URL abgefragt werden kann (z.B. <http://www.example.com:80/img/ipcam.jpg>) , ist es möglich in das Bild die Daten der PV-Anlage zu implementieren. Das modifizierte Webcam Bild kann dann über den integrierten Webserver abgefragt werden (url: <http://localhost:8080/img/pvipcam.jpg)).>
 
 Wenn gewüscht kann in konfigurierbaren Intervallen ein Bild gespeichert werden. Aus dieser Bilderserie kann dann zb. mit ffmpeg ein Video generiert werden, was den Tagesverlauf der Beschattung auf den Solarpanelen zeigt.
 
 ### InfluxDB
 
-tbd.
+In konfigurierbaren Intervallen können die ermittelten Daten in einer Influx Datenbank gespeichert werden.
 
 ### MySQL
 
-tbd.
+In konfigurierbaren Intervallen können die ermittelten Daten in einer MySQL / MariaDB Datenbank gespeichert werden.
