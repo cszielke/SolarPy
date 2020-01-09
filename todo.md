@@ -1,14 +1,18 @@
-## Todo's
+# Todo's
 
-### Allgemein
+## Allgemein
+
 * Eventuell PV- Daten zyklisch holen und nicht auf Anforderung (schnellere Antwortzeit)
+* Zu erwartende Anzahl an Bytes auf der seriellen Schnittstelle (length Byte) ermittlen und bei Erhalt sofort weiter im Programm. Erhöht die Geschwindigkeit des Lesens.
+* Konfigurierbarkeit über MQTT und Http (Sicherheit?)
+* Http-Server auch über https
 
-### PVData
+## PVData
 
-* Wirkungsgrade der Inverter berechnen
+* ~~Wirkungsgrade der Inverter berechnen~~ **Implementiert**
 
-### WeatherData
+## WeatherData
 
-* Taupunktberechnung
-* Richtungstext Wind
+* ~~Taupunktberechnung~~ **Implementiert**
+* ~~Richtungstext Wind~~ **Implementiert**
 * Windrichtungshistorie (Dir1-5)
