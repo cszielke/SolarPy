@@ -3,6 +3,7 @@ from pv.data import PVData, PVWR
 import requests
 import datetime
 import pytz
+import sys
 
 local = pytz.timezone("Europe/Berlin")
 
@@ -76,7 +77,10 @@ class PVRestApi:
                 self.pvdata.Error = "OK"
             else:
                 self.pvdata.Error = "Http Error: " + str(x.status_code)
+                print(self.pvdata.Error, file=sys.stderr)
+
         except Exception as e:
-            print("Error: " + str(e))
+            self.pvdata.Error = "Error: " + str(e)
+            print(self.pvdata.Error, file=sys.stderr)
 
         return self.pvdata

@@ -5,7 +5,7 @@
 
 ## Datenerfassung für Solaranlage mit Fronius Wechselrichter und Fronius IG Interface Card/Box
 
-Das Programm ist gedacht, um mittels eines Raspberry Pi's die Daten der Wechselrichter über das interne Netzwerk zur Verfügung zu stellen.
+Das Programm ist gedacht, um mittels eines Raspberry Pi's die Daten der Wechselrichter über das interne Netzwerk zur Verfügung zu stellen. Es kann aber im Prinzip jeder Rechner -ob Linux oder Windows - verwendet werden.
 
 Es besteht die Möglichkeit die Daten in einer MySQL und/oder InfluxDB Datenbank zu archivieren.
 
@@ -125,9 +125,9 @@ Es darf nur eine der Möglichkeiten aktiv sein. Welche das ist, kann in der Konf
 
 #### REST-Api
 
-Die Daten werden mittels Http-GET von einem anderen Server geholt. Die kann auch z.B. eine laufende Instanz auf einem Raspberry sein, die die Daten von der Fronius Anlage per Serieller Schnittstelle holt sein. Folgende Struktur wird erwartet:
+Die Daten werden mittels Http-GET von einem anderen Server geholt. Die kann auch z.B. eine laufende Instanz auf einem Raspberry sein, die die Daten von der Fronius Anlage per Serieller Schnittstelle holt sein. Die Datenstruktur entspricht der Datei [rawdata.html](./templates/rawdata.html) im Verzeichnis "template".
 
-tbd.
+Eine Anpassung an andere HTML Formate ist durch eine Programmänderung in der Datei [restapi.py](./pv/restapi.py) möglich. Dazu muss lediglich die Funktion "GetPVDataRestApi" angepasst werden.
 
 #### Simulation
 
@@ -135,9 +135,26 @@ Sollte kein Zugriff auf reale Daten vorhanden sein, kann mit diesen simulierten 
 
 ### Wetter Daten
 
-Um in den Ausgabe Modulen Wetter Daten zur Verfügung zu stellen, werden diese via REST-Api von einer Wetterstation geholt. Die Datenstruktur entspricht der Datei [rawdata.html](./templates/rawdata.html) im Verzeichnis "template". 
+Um in den Ausgabe Modulen Wetter Daten zur Verfügung zu stellen, werden diese via REST-Api von einer Wetterstation geholt. Es wird eine Textdatei mit folgendem Inhalt erwartet:
 
-Eine Anpassung an andere HTML Formate ist durch eine Programmänderung in der Datei [restapi.py](./pv/restapi.py) möglich. Dazu muss lediglich die Funktion "GetPVDataRestApi" angepasst werden.
+```TEXT
+DTime 2020-01-09 12:56:55
+RHi 40
+Ti 23.6
+RHo 98
+To 9.6
+RP 1020.1
+WS 1.4
+WG 2.0
+DIR 180
+WDT S
+Rtot 15.0
+R24 10.2
+R1H 1.1
+state 00
+```
+
+Jede Zeile wird am ersten Leerzeichen in Key und Value getrennt. Welcher Key was bedeutet sollte offensichtlich sein.
 
 ### Daten des Host-Systems
 
