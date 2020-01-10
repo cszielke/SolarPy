@@ -6,6 +6,7 @@
 * Zu erwartende Anzahl an Bytes auf der seriellen Schnittstelle (length Byte) ermittlen und bei Erhalt sofort weiter im Programm. Erhöht die Geschwindigkeit des Lesens.
 * Konfigurierbarkeit über MQTT und Http (Sicherheit?)
 * Http-Server auch über https
+* Logging via MQTT/Http
 
 ## PVData
 
