@@ -289,7 +289,7 @@ class FroniusIG:
 
                 self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_TIME)
                 day, month, year, hour, minute, second = unpack(">BBBBBB", self.RecvIG())
-                self.pvdata.DevTime = "{}.{}.{}T{}:{}:{}".format(day, month, year, hour, minute, second)
+                self.pvdata.DevTime = "{:02}.{:02}.{:02}T{:02}:{:02}:{:02}".format(day, month, year, hour, minute, second)
 
                 self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_ACTIVE_INVERTER_CNT)
                 self.pvdata.ActiveInvCnt = self.RecvIG()  # Len = 0-Inverter count
