@@ -155,11 +155,13 @@ class FroniusIG:
                 ba1 = pack(">BBBB{}s".format(length), length, dev, nr + 1, cmd, val)
 
             # Checksumme berechnen
-            chksum = 0
-            for b in ba1:
-                chksum = chksum + b
+            chksum = 0 # Dummy checksum
 
             ba2 = pack(">BBB{}sB".format(len(ba1)), 0x80, 0x80, 0x80, ba1, chksum)
+
+            ba = bytearray(ba2)
+            # set correct checksum
+            ba[len(ba)-1] = self.CalcChkSum(ba)
 
             # Flush input Buffer
             self.ser.flushInput()
@@ -167,7 +169,7 @@ class FroniusIG:
             # Send Command
             print("Send Device {}, Nr: {}, Command: {}, val: 0x{} ({})".format(dev, nr, cmd, val.hex(), ba2.hex()))
             self.ser.write_timeout = 0.5
-            self.ser.write(ba2)
+            self.ser.write(ba)
 
         except BaseException as e:
             self.pvdata.Error = "Error SendIG:" + str(e)
@@ -187,9 +189,17 @@ class FroniusIG:
 
         return True
 
+    def CalcChkSum(self, ba):
+        chksumcalced = 0
+        for b in ba[3:len(ba)-1]:
+            chksumcalced = chksumcalced + b
+
+        return chksumcalced & 0xff
+
     def CheckChkSum(self, chksum, ba):
-        # TODO: tbd.
-        return True
+        chksumcalced = self.CalcChkSum(ba)
+
+        return chksum == chksumcalced
 
     def RecvIG(self):
         data = bytearray()
