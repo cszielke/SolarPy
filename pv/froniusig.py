@@ -145,71 +145,7 @@ class FroniusIG:
             self.ser.close()
             self.ser = None
 
-    def _parseReceived(self, ba):
-        try:
-            ret = 0
-            rest = bytearray()
-            length = -1
-            command = -1
-
-            if(len(ba) > 6):
-                start1, start2, start3, length, device, number, command, rest = unpack(">BBBBBBB{}s".format(len(ba) - 7), ba)
-            else:
-                raise ValueError('Error: To less bytes received ({})'.format(len(ba)))
-
-            if(start1 != 0x80 or start2 != 0x80 or start3 != 0x80 or length > len(ba)):
-                raise ValueError("Error: Start sequence wrong")
-
-            if(command == 0x0e):
-                c = rest[0]
-                nr = rest[1]
-                if(nr > 0 and nr < len(self.ERRORSTRINGS)):
-                    print("Error Nr: " + str(nr) + "(" + self.ERRORSTRINGS[nr] + ") in cmd " + str(c))
-                else:
-                    print("Error Nr: " + str(nr))
-                rest = rest[(length + 1):]
-            elif(command == 0x0f):
-                c = rest[0]
-                nr = rest[1]
-                if(nr > 0 and nr < len(self.ERRORSTRINGS)):
-                    print("Status Nr: " + str(nr) + "(" + self.ERRORSTRINGS[nr] + ") in cmd" + str(c))
-                else:
-                    print("Status Nr: " + str(nr))
-                rest = rest[(length + 1):]
-            else:
-                if(length == 0):
-                    ret = 0
-                    checksum, rest = unpack(">B{}s".format(len(rest) - 1), rest)
-                elif(length == 1):
-                    val, checksum, rest = unpack(">BB{}s".format(len(rest) - 2), rest)
-                    ret = val
-                elif(length == 2):
-                    valh, vall, checksum, rest = unpack(">BBB{}s".format(len(rest) - 3), rest)
-                    ret = valh * 256 + vall
-                elif(length == 3):
-                    msb, lsb, exp, checksum, rest = unpack(">BBbB{}s".format(len(rest) - 4), rest)
-                    ret = round((msb * 256 + lsb) * pow(10, exp), 3)
-                elif(length == 6):  # IFC_GetTime!
-                    day, month, year, hour, minute, second, checksum, rest = unpack(">BBBBBBB{}s".format(len(rest) - 7), rest)
-                    ret = "{}.{}.{}T{}:{}:{}".format(day, month, year, hour, minute, second)
-                else:
-                    baval = bytearray()
-                    for i in range(length):
-                        baval.append(rest[i])
-                    ret = baval
-                    rest = rest[(length + 1):]
-
-        except BaseException as e:
-            self.pvdata.Error = "Error _parseReceived:" + str(e)
-            # ba = bytearray()
-            print(self.pvdata.Error, file=sys.stderr)
-
-        print("Received Command {}, Length: {}, Value: {}, ({}) Restlength: {}".format(command, length, ret, ba.hex(), len(rest)))
-
-        return ret, rest
-
     def SendIG(self, dev, nr, cmd, val=bytearray(0)):
-        ret = 0
         try:
             length = len(val)
 
@@ -233,34 +169,107 @@ class FroniusIG:
             self.ser.write_timeout = 0.5
             self.ser.write(ba2)
 
+        except BaseException as e:
+            self.pvdata.Error = "Error SendIG:" + str(e)
+            print(self.pvdata.Error, file=sys.stderr)
+
+    def WaitForBytesAvail(self, cnt=1):
+        timeout = 50  # Max 0,5 Sek auf min. cnt Zeichen warten
+        while(self.ser.in_waiting < cnt and timeout > 0):
+            sleep(0.01)
+            timeout = timeout - 1
+
+        if(timeout == 0):
+            self.close()
+            sleep(0.5)
+            self.open()
+            return False
+
+        return True
+
+    def CheckChkSum(self, chksum, ba):
+        # TODO: tbd.
+        return True
+
+    def RecvIG(self):
+        data = bytearray()
+        try:
             ba = bytearray()
-            timeout = 100  # Max 1 Sek auf min. erste 7 Zeichen warten
-            while(self.ser.in_waiting < 7 and timeout > 0):
-                sleep(0.01)
-                timeout = timeout - 1
+            if( not self.WaitForBytesAvail(cnt=7)):
+                raise ValueError('Timeout receiving bytes')
 
-            if(timeout == 0):
-                self.close()
-                sleep(0.5)
-                self.open()
-                raise ValueError('Error: Timeout receiving bytes')
+            # Get available bytes
+            ba += self.ser.read(size=7)
 
-            # TODO: Ermittle zu erwartende Anzahl an Bytes (length Byte) und
-            # warte dann nur bis diese Anzal da ist
+            # Check length again
+            if(len(ba) < 7):
+                raise ValueError('To less bytes received ({})'.format(len(ba)))
 
-            while(self.ser.in_waiting > 0):
-                ba.append(self.ser.read(size=1)[0])
-                if(self.ser.in_waiting == 0):
-                    sleep(0.01)
+            # Startsequenz OK?
+            if(ba[0] != 0x80 or ba[1] != 0x80 or ba[2] != 0x80):
+                raise ValueError("Start sequence wrong")
 
-            while(len(ba) > 0):
-                ret, ba = self._parseReceived(ba)
+            # get parameter
+            datalength = ba[3]
+            device = ba[4]
+            number = ba[5]
+            command = ba[6]
+
+            # 3xStart + length + device + number + command + data[datalength] + checksum
+            baLenNeeded = 3 + 1 + 1 + 1 + 1 + datalength + 1
+            restbytescnt = baLenNeeded-len(ba)
+            if( not self.WaitForBytesAvail(cnt=restbytescnt)):
+                raise ValueError('Timeout receiving rest bytes')
+
+            # Get available bytes
+            ba += self.ser.read(size=restbytescnt)
+
+            if(len(ba) < baLenNeeded):
+                raise ValueError('To less rest bytes received ({})'.format(len(ba)))
+            
+            # we are here, so we have a complete sequence
+            data += ba[7:(7+datalength)]
+            checksum = ba[baLenNeeded-1]
+
+            if(not self.CheckChkSum(checksum, ba)):
+                raise ValueError('Checksum Error received')
+
+            if(command == 0x0e):  # Error?
+                c = data[0]
+                nr = data[1]
+                if(nr > 0 and nr < len(self.ERRORSTRINGS)):
+                    print("Error Nr: " + str(nr) + "(" + self.ERRORSTRINGS[nr] + ") in cmd " + str(c))
+                else:
+                    print("Error Nr: " + str(nr))
+                data = bytearray()  # clear Data
+
+            elif(command == 0x0f):  # Status?
+                c = rest[0]
+                nr = rest[1]
+                if(nr > 0 and nr < len(self.ERRORSTRINGS)):
+                    print("Status Nr: " + str(nr) + "(" + self.ERRORSTRINGS[nr] + ") in cmd" + str(c))
+                else:
+                    print("Status Nr: " + str(nr))
+                data = bytearray()  # clear Data
+
+            # Check for another chunk of bytes available (Status or Error)
+            if(self.ser.in_waiting > 0):
+                self.RecvIG()  # recursive
 
         except BaseException as e:
             self.pvdata.Error = "Error SendIG:" + str(e)
             print(self.pvdata.Error, file=sys.stderr)
 
-        return ret
+        print("Received Command {}, Length: {}, Value: {}, ({}) Incnt: {}".format(command, datalength, data, data.hex(), self.ser.in_waiting))
+
+        return data
+
+    def parseFloatValue(self, ba):
+        val = 0
+        if(len(ba) == 3):
+            val = round((ba[0] * 256 + ba[1]) * pow(10, ba[2]), 3)
+        return val
+
 
     def GetAllData(self):
         if(not self.isreadingalready):
@@ -271,37 +280,72 @@ class FroniusIG:
                 self.pvdata.Error = "unknown Error"  # we expect an Error
                 self.pvdata.Time = time()
 
-                self.pvdata.VersionIFC = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_VERSION)
-                # self.pvdata.DevType = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_DEVTYP, val=b'\x02\x40')
-                self.pvdata.DevTime = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_TIME)
-                self.pvdata.ActiveInvCnt = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_ACTIVE_INVERTER_CNT)
-                self.pvdata.ActiveSensorCardCnt = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_SENSOR_CARD_CNT)
-                self.pvdata.LocalNetStatus = self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_LOCALNET_STATUS)
+                self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_VERSION)
+                self.pvdata.VersionIFC = self.RecvIG()  # Array of 4 bytes: IFC-Type, Maj, Min, Release
+
+                # self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_DEVTYP, val=b'\x02\x40')
+                # self.pvdata.DevType = RecvIG()
+
+                self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_TIME)
+                day, month, year, hour, minute, second = unpack(">BBBBBB", self.RecvIG())
+                self.pvdata.DevTime = "{}.{}.{}T{}:{}:{}".format(day, month, year, hour, minute, second)
+
+                self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_ACTIVE_INVERTER_CNT)
+                self.pvdata.ActiveInvCnt = self.RecvIG()  # Len = 0-Inverter count
+
+                self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_SENSOR_CARD_CNT)
+                self.pvdata.ActiveSensorCardCnt = self.RecvIG()  # Len = 0 - Sensorcard Count
+
+                self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_LOCALNET_STATUS)
+                val = self.RecvIG()
+                if(len(val) > 0):
+                    self.pvdata.LocalNetStatus = val[0]  # 1 byte
 
                 self.pvdata.PTotal = 0
                 self.pvdata.PDayTotal = 0
 
                 # Nur wenn mindestens 1 Inverter aktiv ist
-                if(self.pvdata.ActiveInvCnt != 0):
+                if(len(self.pvdata.ActiveInvCnt) != 0):
 
                     for i in range(len(self.pvdata.wr)):
-                        self.pvdata.wr[i].DevType = self.SendIG(Devices.DEV_INV, i, Commands.IFCCMD_GET_DEVTYP)
-                        self.pvdata.wr[i].PDay = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_ENERGY_DAY)
-                        self.pvdata.wr[i].PNow = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_POWER_NOW)
-                        self.pvdata.wr[i].UDC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_DC_VOLTAGE_NOW)
-                        self.pvdata.wr[i].IDC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_DC_CURRENT_NOW)
-                        self.pvdata.wr[i].UAC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AC_VOLTAGE_NOW)
-                        self.pvdata.wr[i].IAC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AC_CURRENT_NOW)
-                        self.pvdata.wr[i].FAC = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AC_FREQ_NOW)
+                        self.SendIG(Devices.DEV_INV, i, Commands.IFCCMD_GET_DEVTYP)
+                        self.pvdata.wr[i].DevType = self.RecvIG()[0]  # 1 byte
+
+                        self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_ENERGY_DAY)
+                        self.pvdata.wr[i].PDay = self.parseFloatValue(self.RecvIG())
+
+                        self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_POWER_NOW)
+                        self.pvdata.wr[i].PNow = self.parseFloatValue(self.RecvIG())
+
+                        self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_DC_VOLTAGE_NOW)
+                        self.pvdata.wr[i].UDC = self.parseFloatValue(self.RecvIG())
+
+                        self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_DC_CURRENT_NOW)
+                        self.pvdata.wr[i].IDC = self.parseFloatValue(self.RecvIG())
+
+                        self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AC_VOLTAGE_NOW)
+                        self.pvdata.wr[i].UAC = self.parseFloatValue(self.RecvIG())
+
+                        self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AC_CURRENT_NOW)
+                        self.pvdata.wr[i].IAC = self.parseFloatValue(self.RecvIG())
+
+                        self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AC_FREQ_NOW)
+                        self.pvdata.wr[i].FAC = self.parseFloatValue(self.RecvIG())
+
+                        self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_DAY)
+                        self.pvdata.wr[i].OHDAY = self.parseFloatValue(self.RecvIG())
+
+                        self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_YEAR)
+                        self.pvdata.wr[i].OHYEAR = self.parseFloatValue(self.RecvIG())
+
+                        self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_DAY)
+                        self.pvdata.wr[i].OHTOT = self.parseFloatValue(self.RecvIG())
                         # self.pvdata.wr[i].ATMP = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_AMBIENT_TEMP)
                         # self.pvdata.wr[i].FAN0 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_0)
                         # self.pvdata.wr[i].FAN1 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_1)
                         # self.pvdata.wr[i].FAN2 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_2)
                         # self.pvdata.wr[i].FAN3 = self.SendIG(Devices.DEV_INV, i, Commands.INV_FAN_SPEED_3)
                         # self.pvdata.wr[i].STATUS = self.SendIG(Devices.DEV_INV, i, Commands.INV_STATUS)
-                        self.pvdata.wr[i].OHDAY = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_DAY)
-                        self.pvdata.wr[i].OHYEAR = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_YEAR)
-                        self.pvdata.wr[i].OHTOT = self.SendIG(Devices.DEV_INV, i, Commands.INV_GET_OPERATING_HOURS_DAY)
 
                         self.pvdata.PTotal = self.pvdata.PTotal + self.pvdata.wr[i].PNow
                         self.pvdata.PDayTotal = self.pvdata.PDayTotal + self.pvdata.wr[i].PDay
