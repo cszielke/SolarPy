@@ -267,7 +267,8 @@ class FroniusIG:
     def parseFloatValue(self, ba):
         val = 0
         if(len(ba) == 3):
-            val = round((ba[0] * 256 + ba[1]) * pow(10, ba[2]), 3)
+            m, exp = unpack(">Hb",ba)
+            val = round(m * pow(10, exp), 3)
         return val
 
 
