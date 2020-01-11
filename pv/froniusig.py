@@ -195,7 +195,7 @@ class FroniusIG:
         data = bytearray()
         try:
             ba = bytearray()
-            if( not self.WaitForBytesAvail(cnt=7)):
+            if(not self.WaitForBytesAvail(cnt=7)):
                 raise ValueError('Timeout receiving bytes')
 
             # Get available bytes
@@ -217,8 +217,8 @@ class FroniusIG:
 
             # 3xStart + length + device + number + command + data[datalength] + checksum
             baLenNeeded = 3 + 1 + 1 + 1 + 1 + datalength + 1
-            restbytescnt = baLenNeeded-len(ba)
-            if( not self.WaitForBytesAvail(cnt=restbytescnt)):
+            restbytescnt = baLenNeeded - len(ba)
+            if(not self.WaitForBytesAvail(cnt=restbytescnt)):
                 raise ValueError('Timeout receiving rest bytes')
 
             # Get available bytes
@@ -226,10 +226,10 @@ class FroniusIG:
 
             if(len(ba) < baLenNeeded):
                 raise ValueError('To less rest bytes received ({})'.format(len(ba)))
-            
+
             # we are here, so we have a complete sequence
-            data += ba[7:(7+datalength)]
-            checksum = ba[baLenNeeded-1]
+            data += ba[7:(7 + datalength)]
+            checksum = ba[baLenNeeded - 1]
 
             if(not self.CheckChkSum(checksum, ba)):
                 raise ValueError('Checksum Error received')
@@ -244,8 +244,8 @@ class FroniusIG:
                 data = bytearray()  # clear Data
 
             elif(command == 0x0f):  # Status?
-                c = rest[0]
-                nr = rest[1]
+                c = data[0]
+                nr = data[1]
                 if(nr > 0 and nr < len(self.ERRORSTRINGS)):
                     print("Status Nr: " + str(nr) + "(" + self.ERRORSTRINGS[nr] + ") in cmd" + str(c))
                 else:
@@ -260,17 +260,16 @@ class FroniusIG:
             self.pvdata.Error = "Error SendIG:" + str(e)
             print(self.pvdata.Error, file=sys.stderr)
 
-        print("Received Command {}, Length: {}, Value: {}, ({}) Incnt: {}".format(command, datalength, data, data.hex(), self.ser.in_waiting))
+        print("Received Device {}, Number {}, Command {}, Length: {}, Value: {}, ({}) Incnt: {}".format(device, number, command, datalength, data, data.hex(), self.ser.in_waiting))
 
         return data
 
     def parseFloatValue(self, ba):
         val = 0
         if(len(ba) == 3):
-            m, exp = unpack(">Hb",ba)
+            m, exp = unpack(">Hb", ba)
             val = round(m * pow(10, exp), 3)
         return val
-
 
     def GetAllData(self):
         if(not self.isreadingalready):
