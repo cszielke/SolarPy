@@ -24,6 +24,27 @@ class PVWR:
     OHYEAR = 0
     OHDAY = 0
 
+    def Clear(self):
+
+        self.DevType = 0
+        self.PDay = 0
+        self.PNow = 0
+        self.UDC = 0
+        self.IDC = 0
+        self.UAC = 0
+        self.IAC = 0
+        self.FAC = 0
+        self.EFF = 0
+        # self.ATMP = -1
+        # self.FAN0 = -1
+        # self.FAN1 = -1
+        # self.FAN2 = -1
+        # self.FAN3 = -1
+        # self.STATUS = -1
+        self.OHTOT = 0
+        self.OHYEAR = 0
+        self.OHDAY = 0
+
 
 @dataclass
 class PVData:
@@ -42,6 +63,22 @@ class PVData:
     def toJson(self):
         jsondata = str(jsons.dump(self)).replace("'", '"')
         return jsondata
+
+    def Clear(self):
+        self.Error = "No Data"
+        self.VersionIFC = 0
+        # self.# DevType = -1
+        self.DevTime = -1
+        self.ActiveInvCnt = 0
+        self.ActiveSensorCardCnt = 0
+        self.LocalNetStatus = -1
+        self.Time = 0
+        self.PTotal = 0
+        self.PDayTotal = 0
+
+        for w in self.wr:
+            w.Clear()
+
 
 
 @dataclass
