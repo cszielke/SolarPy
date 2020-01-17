@@ -155,13 +155,13 @@ class FroniusIG:
                 ba1 = pack(">BBBB{}s".format(length), length, dev, nr + 1, cmd, val)
 
             # Checksumme berechnen
-            chksum = 0 # Dummy checksum
+            chksum = 0  # Dummy checksum
 
             ba2 = pack(">BBB{}sB".format(len(ba1)), 0x80, 0x80, 0x80, ba1, chksum)
 
             ba = bytearray(ba2)
             # set correct checksum
-            ba[len(ba)-1] = self.CalcChkSum(ba)
+            ba[len(ba) - 1] = self.CalcChkSum(ba)
 
             # Flush input Buffer
             self.ser.flushInput()
@@ -191,7 +191,7 @@ class FroniusIG:
 
     def CalcChkSum(self, ba):
         chksumcalced = 0
-        for b in ba[3:len(ba)-1]:
+        for b in ba[3:len(ba) - 1]:
             chksumcalced = chksumcalced + b
 
         return chksumcalced & 0xff

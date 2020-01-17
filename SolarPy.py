@@ -22,8 +22,11 @@ from pvweather import PVWeather
 
 # region defaults
 VERSION = "V0.1.1"
+
 LOG_FILENAME = ""
+LOG_BACKUP_COUNT = 3
 LOG_LEVEL = logging.INFO  # Could be e.g. "DEBUG" or "WARNING"
+
 CONFIG_FILENAME = "./solarpy.cfg"
 DATASOURCE = 'simulation'
 
@@ -112,6 +115,7 @@ def main():
     # region globals
     global CONFIG_FILENAME
     global LOG_FILENAME
+    global LOG_BACKUP_COUNT
     global DATASOURCE
 
     global FRONIUSCOMPORT
@@ -131,6 +135,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-cf', '--configfile', help='Name and path for config file', required=False)
     parser.add_argument('-lf', '--logfile', help='Name and path for log file', required=False)
+    parser.add_argument('-lbc', '--logbackupcount', help='How much logfiles to keep', required=False)
+
     parser.add_argument('-ds', '--datasource', help='How to get PV-Data [restapi, ifcardeasy, simulation]', required=False)
 
     parser.add_argument('-c', '--comport', help='On witch ComPort is the IFCard connected', required=False)
@@ -167,14 +173,15 @@ def main():
 
     # region Logging
     LOG_FILENAME = CheckArgsOrConfig(LOG_FILENAME, args.logfile, "program", "logfile")
+    LOG_BACKUP_COUNT = CheckArgsOrConfig(LOG_BACKUP_COUNT, args.logbackupcount, "program", "logbackupcount")
     if(LOG_FILENAME != ""):
         # Configure logging to log to a file, making a new file at midnight and keeping the last 3 day's data
         # Give the logger a unique name (good practice)
         logger = logging.getLogger(__name__)
         # Set the log level to LOG_LEVEL
         logger.setLevel(LOG_LEVEL)
-        # Make a handler that writes to a file, making a new file at midnight and keeping 3 backups
-        handler = logging.handlers.TimedRotatingFileHandler(LOG_FILENAME, when="midnight", backupCount=3)
+        # Make a handler that writes to a file, making a new file at midnight and keeping 3 (default) backups
+        handler = logging.handlers.TimedRotatingFileHandler(LOG_FILENAME, when="midnight", backupCount=LOG_BACKUP_COUNT)
         # Format each log message like this
         formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s')
         # Attach the formatter to the handler

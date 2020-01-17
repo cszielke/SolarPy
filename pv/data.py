@@ -80,7 +80,6 @@ class PVData:
             w.Clear()
 
 
-
 @dataclass
 class OSData:
     PsUtilVersion = None
