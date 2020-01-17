@@ -15,6 +15,22 @@ class Server(BaseHTTPRequestHandler):
         return
 
     def do_POST(self):
+        request_name = os.path.basename(self.path)
+        if request_name == "config":
+            content_length = int(self.headers['Content-Length'])  # <--- Gets the size of data
+            post_data = self.rfile.read(content_length)  # <--- Gets the data itself
+            print("POST request,\nPath: {}\nHeaders:\n{}\n\nBody:\n{}\n".format(
+                str(self.path), str(self.headers), post_data.decode('utf-8')))
+
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
+        else:
+            self.send_response(404)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write("404 Not Found {}".format(self.path).encode('utf-8'))
         return
 
     def do_GET(self):

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-# Infos: https://www.afternerd.com/blog/python-http-server/
+# Infos: https://medium.com/@andrewklatzke/creating-a-python3-webserver-from-the-ground-up-4ff8933ecb96
+#
+# Aditional Infos:
+#        https://www.afternerd.com/blog/python-http-server/
 #        https://daanlenaerts.com/blog/2015/06/03/create-a-simple-http-server-with-python-3/
 #        https://stackabuse.com/serving-files-with-pythons-simplehttpserver-module/
 
