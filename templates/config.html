@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang=de>
 <head>
  <meta charset="utf-8" />
  <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,17 +9,31 @@
  <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    <h1>SolarPy Konfiguration</h1>
+    <h1>SolarPy configuration</h1>
     <div class="full">
         <div class="left">
+            <h3>Program parameter</h3>
             <form action="/config" method="post">
-                First name: <input type="text" name="fname"><br>
-                Last name: <input type="text" name="lname"><br>
+                Logfile Name: <input type="text" name="logfilename" value="./solarpy.log"><br>
+                Logfile backup count: <input type="text" name="logfilebakcount" value=3><br>
                 <input type="submit" value="Submit">
             </form> 
         </div>
         <div class="right">
-            <img src="favicon.svg" alt="SolarPy" width="150" height="150"></img>
+            <img src="Preferences-desktop.svg" alt="SolarPy" width="48" height="48">
+        </div>
+    </div>
+    <div class="full">
+        <div class="left">
+            <h3>Execute command</h3>
+            <form action="/service" method="post">
+                Command: <input type="text" name="cmd" value="restart"><br>
+                Parameter: <input type="text" name="param" value="now"><br>
+                <input type="submit" value="Submit">
+            </form> 
+        </div>
+        <div class="right">
+            <img src="Preferences-system.svg" alt="SolarPy" width="48" height="48">
         </div>
     </div>
 </body>

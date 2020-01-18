@@ -8,14 +8,8 @@ routes = {
     "/index.html": {
         "template": "index.html"
     },
-    "/goodbye": {
-        "template": "goodbye.html"
-    },
-    "/goodbye.html": {
-        "template": "goodbye.html"
-    },
-    "/config": {
-        "template": "config.html"
+    "/second.html": {
+        "template": "second.html"
     },
     "/config.html": {
         "template": "config.html"

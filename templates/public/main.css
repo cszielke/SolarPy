@@ -9,16 +9,16 @@ a:hover {color: yellow; }
 .full {
     display:table;
     width: 100%;
-    height: 150px;
+/*   height: 150px; */
 }
 .left {
     display: table-cell;
     width: 300px;
-    height: 150px;
+/*    height: 150px;*/
     vertical-align: top;
 }
 .right {
     display: table-cell;
-    height: 150px;
+/*    height: 150px;*/
     vertical-align: top;
 }

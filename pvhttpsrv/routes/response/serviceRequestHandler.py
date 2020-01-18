@@ -3,7 +3,7 @@ from pvhttpsrv.routes.response.requestHandler import RequestHandler
 import os
 
 
-class ConfigRequestHandler(RequestHandler):
+class ServiceRequestHandler(RequestHandler):
     def __init__(self):
         super().__init__()
         self.contentType = 'application/json'
@@ -14,13 +14,13 @@ class ConfigRequestHandler(RequestHandler):
         self.request_name = os.path.basename(file_path)
 
         try:
-            print("ConfigRequestHandler processPost: '" + self.request_name + "'")
+            print("ServiceRequestHandler processPost: '" + self.request_name + "'")
 
             if(not(None is post_data or len(post_data) == 0)):
                 print("POST request,\nPath: '{}' Body:\n{}\n".format(
                     str(file_path), post_data.decode('utf-8')))
 
-                # TODO: Modify config here
+                # TODO: Do something with service data here
 
                 self.setStatus(200)
                 self.returncontent = '{"result":"OK"}'
@@ -30,7 +30,7 @@ class ConfigRequestHandler(RequestHandler):
 
             return True
         except Exception as e:
-            print("Warning ConfigRequestHandler processPost: " + str(e))
+            print("Warning ServiceRequestHandler processPost: " + str(e))
             self.setContentType('notfound')
             self.setStatus(404)
             return False

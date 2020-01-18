@@ -4,6 +4,8 @@ from http.server import BaseHTTPRequestHandler
 from pvhttpsrv.routes.main import routes
 
 from pvhttpsrv.routes.response.dataRequestHandler import DataRequestHandler
+from pvhttpsrv.routes.response.configRequestHandler import ConfigRequestHandler
+from pvhttpsrv.routes.response.serviceRequestHandler import ServiceRequestHandler
 from pvhttpsrv.routes.response.webcamRequestHandler import WebCamRequestHandler
 from pvhttpsrv.routes.response.staticHandler import StaticHandler
 from pvhttpsrv.routes.response.templateHandler import TemplateHandler
@@ -16,22 +18,23 @@ class Server(BaseHTTPRequestHandler):
 
     def do_POST(self):
         request_name = os.path.basename(self.path)
-        if request_name == "config":
-            content_length = int(self.headers['Content-Length'])  # <--- Gets the size of data
-            post_data = self.rfile.read(content_length)  # <--- Gets the data itself
-            print("POST request,\nPath: {}\nHeaders:\n{}\n\nBody:\n{}\n".format(
-                str(self.path), str(self.headers), post_data.decode('utf-8')))
 
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
+        content_length = int(self.headers['Content-Length'])  # <--- Gets the size of data
+        if(content_length > 0):
+            post_data = self.rfile.read(content_length)  # <--- Gets the data itself
+
+        if request_name == "config":
+            handler = ConfigRequestHandler()
+            handler.processPost(self.path, post_data)
+        elif request_name == "service":
+            handler = ServiceRequestHandler()
+            handler.processPost(self.path, post_data)
         else:
-            self.send_response(404)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write("404 Not Found {}".format(self.path).encode('utf-8'))
-        return
+            handler = BadRequestHandler()
+
+        self.respond({
+            'handler': handler
+        })
 
     def do_GET(self):
         split_path = os.path.splitext(self.path)
