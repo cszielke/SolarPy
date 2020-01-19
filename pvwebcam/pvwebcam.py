@@ -20,7 +20,8 @@ class PVWebCam(PVBaseModul):
     url = ""
     username = ""
     password = ""
-    savedirectory = "./htdocs/webcam"
+    ttffile = "./Roboto-Regular.ttf"
+    savedirectory = "./template/webcam"
     interval = 120
 
     onDataRequest = None
@@ -36,6 +37,7 @@ class PVWebCam(PVBaseModul):
         parser.add_argument('-wcu', '--webcamusername', help='webcam username', required=False)
         parser.add_argument('-wcpw', '--webcampassword', help='webcam password', required=False)
         parser.add_argument('-wci', '--webcamsaveinterval', help='webcam interval to save pictures', required=False)
+        parser.add_argument('-wct', '--webcamttffile', help='webcam True-Type font file', required=False)
         parser.add_argument('-wcsd', '--webcamsavedirectory', help='webcam directory for saved pictures', required=False)
 
     def SetConfig(self, config, args):
@@ -46,6 +48,7 @@ class PVWebCam(PVBaseModul):
         self.username = self.CheckArgsOrConfig(config, self.username, args.webcamusername, configsection, "username")
         self.password = self.CheckArgsOrConfig(config, self.password, args.webcampassword, configsection, "password")
         self.interval = self.CheckArgsOrConfig(config, self.interval, args.webcamsaveinterval, configsection, "saveinterval", "int")
+        self.ttffile = self.CheckArgsOrConfig(config, self.interval, args.webcamsaveinterval, configsection, "ttffile")
         self.savedirectory = self.CheckArgsOrConfig(config, self.savedirectory, args.webcamsavedirectory, configsection, "savedirectory")
 
     def Connect(self, onDataRequest=None):
@@ -64,7 +67,7 @@ class PVWebCam(PVBaseModul):
             else:
                 raise ValueError('Error GetWebCam: Status Code {}'.format(response.status_code))
         except Exception as e:
-            print("Error GetWebCam: " + str(e), file=sys.stderr)
+            print("Error GetWebCam request: " + str(e), file=sys.stderr)
             im = self.GetErrorImage()
 
         try:
@@ -87,8 +90,12 @@ class PVWebCam(PVBaseModul):
 
                 width, height = im.size
 
+                # Check for Font file
+                if(not os.path.isfile(self.ttffile)):
+                    raise ValueError('TTF-File not exist {}'.format(self.ttffile))
+                font = ImageFont.truetype(self.ttffile, 16)
+
                 draw = ImageDraw.Draw(im)
-                font = ImageFont.truetype("./Roboto-Regular.ttf", 16)
                 draw.text((4, height - 18), textpv, (0, 0, 0), font=font)
                 draw.text((2, height - 20), textpv, (255, 255, 255), font=font)
                 draw.text((4, height - 38), textw, (0, 0, 0), font=font)
@@ -96,7 +103,7 @@ class PVWebCam(PVBaseModul):
 
             ba = self.ImageToBytearray(im)
         except Exception as e:
-            print("Error GetWebCam: " + str(e), file=sys.stderr)
+            print("Error GetWebCam withdata: " + str(e), file=sys.stderr)
 
         return ba
 

@@ -99,7 +99,28 @@ esac
 exit 0
 ```
 
+Um das Script zur richtigen Zeit automatisch zu starten, muss noch folgender Befehl ausgeführt werden:
+```
+sudo update-rc.d myservice.sh defaults
+```
+
+Dieser Befehl fügt die entsprechenden symbolischen Links in ```/etc/rc?.d``` Verzeichnissen hinzu.
+
 Info von <http://blog.scphillips.com/posts/2013/07/getting-a-python-script-to-run-in-the-background-as-a-service-on-boot/>
+
+### Raspberry mit read-only Filesystem
+
+Wenn das System, auf dem SolayPy läuft, ein read-only Filesystem hat, dann kann kein Log-File geschrieben werden. Auch das Speichern von Webcam Bildern funktioniert dann nicht.
+
+Man kann natürlich ein freigegebenes Verzeichnis einer externen NAS oder eines externen Servers in das Filesystem des Raspberrys einbinden.
+
+Dazu muss das externe Verzeichnis in ein locales Verzeichnis gemountet werden. Dazu wird in die Datei ```/etc/fstab``` an das Ende folgendes eingetragen:
+
+```
+//192.168.15.107/web /var/nas cifs defaults,uid=1000,username=pi,password=<MeinPasswortFuerDenUserPi> 0 0
+```
+Das bewirkt, dass bereits beim Start des Raspberry in das Verzeichnis ```/var/nas``` die externe Netzwerkfreigabe ```//192.168.15.107/web``` 
+eingebunden wird. Hier können jetzt Webcambilder und Log-File geschrieben werden.
 
 ## Anwendung
 
