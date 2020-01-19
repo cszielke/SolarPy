@@ -29,6 +29,18 @@ Für die Konfiguration des Programms die Datei ```./solarpy-default.cfg``` nach 
 
 Das Programm kann mit ```python ./SolarPy.py``` gestartet werden.
 
+### Upate
+
+Um das Programm upzudaten folgende Befehle eingeben:
+
+```sh
+git fetch origin
+git reset --hard origin/master
+sudo /etc/init.d/solarpy restart
+```
+
+Die Datei ```solarpy.cfg``` wird nicht überschrieben.
+
 ### Start als deamon unter Linux
 
 Um SolarPy als Deamon im Hintergrund zu starten wird das Programm ```start-stop-daemon``` verwendet. SolarPy sollte im Verzeichnis ```/usr/local/bin/SolarPy``` liegen.
