@@ -192,6 +192,7 @@ def main():
         # Make a class we can use to capture stdout and sterr in the log
         class MyLogger(object):
             islogging = False
+
             def __init__(self, logger, level, originalprint):
                 """Needs a logger and a logger level."""
                 self.logger = logger
@@ -206,7 +207,7 @@ def main():
                     # Only log if there is a message (not just a new line)
                     if message.rstrip() != "":
                         self.logger.log(self.level, message.rstrip())
-                        raise ValueError("test")
+
                 except BaseException as e:
                     backup = sys.stdout  # backup output
                     sys.stdout = self.originalprint  # set stdout to prevent recursion and stack overflow
