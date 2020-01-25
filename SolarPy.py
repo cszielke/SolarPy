@@ -173,7 +173,7 @@ def main():
 
     # region Logging
     LOG_FILENAME = CheckArgsOrConfig(LOG_FILENAME, args.logfile, "program", "logfile")
-    LOG_BACKUP_COUNT = CheckArgsOrConfig(LOG_BACKUP_COUNT, args.logbackupcount, "program", "logbackupcount",type='int')
+    LOG_BACKUP_COUNT = CheckArgsOrConfig(LOG_BACKUP_COUNT, args.logbackupcount, "program", "logbackupcount", type='int')
     if(LOG_FILENAME != ""):
         # Configure logging to log to a file, making a new file at midnight and keeping the last 3 day's data
         # Give the logger a unique name (good practice)
