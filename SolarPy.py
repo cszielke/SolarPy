@@ -173,7 +173,7 @@ def main():
 
     # region Logging
     LOG_FILENAME = CheckArgsOrConfig(LOG_FILENAME, args.logfile, "program", "logfile")
-    LOG_BACKUP_COUNT = CheckArgsOrConfig(LOG_BACKUP_COUNT, args.logbackupcount, "program", "logbackupcount")
+    LOG_BACKUP_COUNT = CheckArgsOrConfig(LOG_BACKUP_COUNT, args.logbackupcount, "program", "logbackupcount",type='int')
     if(LOG_FILENAME != ""):
         # Configure logging to log to a file, making a new file at midnight and keeping the last 3 day's data
         # Give the logger a unique name (good practice)
@@ -211,7 +211,7 @@ def main():
                 except BaseException as e:
                     backup = sys.stdout  # backup output
                     sys.stdout = self.originalprint  # set stdout to prevent recursion and stack overflow
-                    print("LoggerError: {} Msg: {}".format(str(e),message.rstrip()))
+                    print("LoggerError: {} Msg: {}".format(str(e), message.rstrip()))
                     sys.stdout = backup  # restore output
                     pass
                 self.islogging = False
