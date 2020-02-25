@@ -383,6 +383,153 @@ Wenn gewüscht kann in konfigurierbaren Intervallen ein Bild gespeichert werden.
 
 In konfigurierbaren Intervallen können die ermittelten Daten in einer Influx Datenbank gespeichert werden.
 
+#### Allgemein
+
+Starten der influxdb shell
+```
+influx
+```
+Authentifizieren und Datenbank selektieren
+```
+> auth
+username: admin
+password:
+>
+> show databases
+name: databases
+name
+----
+_internal
+MeteringData
+WeatherData
+telegraf
+iobroker
+Energie
+PVAnlage
+pvtest
+>
+```
+
+#### Datenbankstruktur
+
+Für die PV-Anlage existieren 2 Datenbanken:
+
+    MeteringData
+    PVAnlage
+
+In der Datenbank "MeteringData" werden die Echtzeitdaten gespeichert. Die Datenbank "PVAnlage" beinhaltet die Akkumulierten Werte
+
+##### MeteringData
+
+```
+> use MeteringData
+Using database MeteringData
+>
+> show measurements
+name: measurements
+name
+----
+PVAnlage
+> show field keys
+name: PVAnlage
+fieldKey   fieldType
+--------   ---------
+PDay       float
+PNow       float
+WR1ACANow  float
+WR1ACHzNow float
+WR1ACVNow  float
+WR1DCANow  float
+WR1DCVNow  float
+WR1WDay    float
+WR1WNow    float
+WR2ACANow  float
+WR2ACHzNow float
+WR2ACVNow  float
+WR2DCANow  float
+WR2DCVNow  float
+WR2WDay    float
+WR2WNow    float
+>
+```
+
+##### PVAnlage
+
+```
+> use PVAnlage
+Using database PVAnlage
+>
+> show measurements
+name: measurements
+name
+----
+DayPower
+>
+> show field keys
+name: DayPower
+fieldKey fieldType
+-------- ---------
+max      float
+>
+```
+
+Kopieren der Tageshöhstwerte in andere Datenbank
+
+```
+> use MeteringData
+Using database MeteringData
+> select max(PDay) into PVAnlage.autogen.DayPower from PVAnlage group by time(1d)
+name: result
+time written
+---- -------
+0    4813
+>
+```
+
+Als Continuous Querry:
+
+```
+use MeteringData
+CREATE CONTINUOUS QUERY MaxPDay ON MeteringData BEGIN select max(PDay) into PVAnlage.autogen.DayPower from PVAnlage group by time(1d) END
+```
+
+Zusammenfassen der Tageswerte zu Monatswerten
+
+```
+> use PVAnlage
+>select sum(max) into PVAnlage.autogen.MonthPower from DayPower group by time(30d)
+name: result
+time written
+---- -------
+0    163
+>
+```
+
+Als Continuous Querry:
+
+```
+use PVAnlage
+CREATE CONTINUOUS QUERY SumMonth ON PVAnlage BEGIN select sum(max) into PVAnlage.autogen.MonthPower from DayPower group by time(30d) END
+```
+
+Monatswerte zu Jahreswerten
+
+```
+>select sum(sum) into PVAnlage.autogen.YearPower from MonthPower group by time(52w)
+name: result
+time written
+---- -------
+0    15
+>
+```
+
+Als Continuous Querry:
+
+```
+use PVAnlage
+ CREATE CONTINUOUS QUERY SumYear ON PVAnlage BEGIN select sum(sum) into PVAnlage.autogen.YearPower from MonthPower group by time(52w) END
+```
+
 ### MySQL
 
 In konfigurierbaren Intervallen können die ermittelten Daten in einer MySQL / MariaDB Datenbank gespeichert werden.
