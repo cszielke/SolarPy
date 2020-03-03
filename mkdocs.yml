@@ -1,5 +1,5 @@
 site_name: IA-COM-Controller
-repo_url: https://x-access-token:${PERSONAL_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+repo_url: https://github.com/cszielke/SolarPy
 site_author: Claus Zielke
 nav:
     - Home: index.md
