@@ -29,5 +29,6 @@ jobs:
         pip install pytest
         pytest
     - name: Deploy mkdocs
-      run: |
-        mkdocs gh-deploy
+      uses: mhausenblas/mkdocs-deploy-gh-pages@master
+      env:
+        PERSONAL_TOKEN: ${{ secrets.PERSONAL_TOKEN }} 
