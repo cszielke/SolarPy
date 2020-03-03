@@ -10,7 +10,6 @@ jsons
 pymysql
 Pillow
 psutil
-zlib
 flake8
 mkdocs
 mkdocs-material
