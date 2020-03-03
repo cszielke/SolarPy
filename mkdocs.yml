@@ -1,0 +1,13 @@
+site_name: IA-COM-Controller
+repo_url: https://github.com/cszielke/SolarPy
+site_author: Claus Zielke
+nav:
+    - Home: index.md
+    - Setup: setup.md
+    - Configuration: configuration.md
+    - Application: 
+      - Application: application.md
+      - Sources: sources.md
+      - Outputs: outputs.md
+    - Todo: todo.md
+theme: material
