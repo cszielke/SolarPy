@@ -12,3 +12,7 @@ Es besteht die Möglichkeit die Daten in einer MySQL und/oder InfluxDB Datenbank
 Über eine REST-API Schnittstelle oder über MQTT können die Daten abgefragt werden. Andere Ein-/Ausgabeschnittstellen sind leicht implementierbar.
 
 Das Programm ist komplett in Python geschrieben und benötigt keine Oberfläche. Das Programm lässt sich umfangreich über eine CFG-Datei konfigurieren.
+
+## Dokumentation
+
+Die Dokumentation für dieses Projekt kann unter [Doku](https://cszielke.github.io/SolarPy/) gefunden werden.
