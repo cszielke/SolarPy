@@ -1,6 +1,8 @@
 
 # SolarPy
 
+![Python application](https://github.com/cszielke/SolarPy/workflows/Python%20application/badge.svg)
+
 ![Logo](./docs/img/favicon256.png "Logo")
 
 ## Datenerfassung für Solaranlage mit Fronius Wechselrichter und Fronius IG Interface Card/Box
