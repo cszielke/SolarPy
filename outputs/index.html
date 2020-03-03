@@ -382,10 +382,9 @@
     Webcam
   </a>
   
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
+</li>
+      
+        <li class="md-nav__item">
   <a href="#influxdb" class="md-nav__link">
     InfluxDB
   </a>
@@ -419,11 +418,6 @@
   <a href="#pvanlage" class="md-nav__link">
     PVAnlage
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -551,10 +545,9 @@
     Webcam
   </a>
   
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
+</li>
+      
+        <li class="md-nav__item">
   <a href="#influxdb" class="md-nav__link">
     InfluxDB
   </a>
@@ -588,11 +581,6 @@
   <a href="#pvanlage" class="md-nav__link">
     PVAnlage
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -997,15 +985,15 @@
 <h2 id="webcam">Webcam</h2>
 <p>Sofern das Bild einer Webcam per URL abgefragt werden kann (z.B. <a href="http://www.example.com:80/img/ipcam.jpg">http://www.example.com:80/img/ipcam.jpg</a>) , ist es möglich in das Bild die Daten der PV-Anlage zu implementieren. Das modifizierte Webcam Bild kann dann über den integrierten Webserver abgefragt werden (url: <a href="http://localhost:8080/img/pvipcam.jpg)).">http://localhost:8080/img/pvipcam.jpg)).</a></p>
 <p>Wenn gewüscht kann in konfigurierbaren Intervallen ein Bild gespeichert werden. Aus dieser Bilderserie kann dann zb. mit ffmpeg ein Video generiert werden, was den Tagesverlauf der Beschattung auf den Solarpanelen zeigt.</p>
-<h3 id="influxdb">InfluxDB</h3>
+<h2 id="influxdb">InfluxDB</h2>
 <p>In konfigurierbaren Intervallen können die ermittelten Daten in einer Influx Datenbank gespeichert werden.</p>
-<h4 id="allgemein">Allgemein</h4>
+<h3 id="allgemein">Allgemein</h3>
 <p>Starten der influxdb shell</p>
-<pre><code>influx
+<pre><code class="sh">influx
 </code></pre>
 
 <p>Authentifizieren und Datenbank selektieren</p>
-<pre><code>&gt; auth
+<pre><code class="sh">&gt; auth
 username: admin
 password:
 &gt;
@@ -1024,14 +1012,15 @@ pvtest
 &gt;
 </code></pre>
 
-<h4 id="datenbankstruktur">Datenbankstruktur</h4>
+<h3 id="datenbankstruktur">Datenbankstruktur</h3>
 <p>Für die PV-Anlage existieren 2 Datenbanken:</p>
-<pre><code>MeteringData
-PVAnlage
-</code></pre>
+<ul>
+<li>MeteringData</li>
+<li>PVAnlage</li>
+</ul>
 <p>In der Datenbank "MeteringData" werden die Echtzeitdaten gespeichert. Die Datenbank "PVAnlage" beinhaltet die Akkumulierten Werte</p>
-<h5 id="meteringdata">MeteringData</h5>
-<pre><code>&gt; use MeteringData
+<h4 id="meteringdata">MeteringData</h4>
+<pre><code class="sh">&gt; use MeteringData
 Using database MeteringData
 &gt;
 &gt; show measurements
@@ -1062,7 +1051,7 @@ WR2WNow    float
 &gt;
 </code></pre>
 
-<h5 id="pvanlage">PVAnlage</h5>
+<h4 id="pvanlage">PVAnlage</h4>
 <pre><code class="sh">&gt; use PVAnlage
 Using database PVAnlage
 &gt;
