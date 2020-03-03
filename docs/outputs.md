@@ -184,18 +184,21 @@ Sofern das Bild einer Webcam per URL abgefragt werden kann (z.B. <http://www.exa
 
 Wenn gewüscht kann in konfigurierbaren Intervallen ein Bild gespeichert werden. Aus dieser Bilderserie kann dann zb. mit ffmpeg ein Video generiert werden, was den Tagesverlauf der Beschattung auf den Solarpanelen zeigt.
 
-### InfluxDB
+## InfluxDB
 
 In konfigurierbaren Intervallen können die ermittelten Daten in einer Influx Datenbank gespeichert werden.
 
-#### Allgemein
+### Allgemein
 
 Starten der influxdb shell
-```
+
+```sh
 influx
 ```
+
 Authentifizieren und Datenbank selektieren
-```
+
+```sh
 > auth
 username: admin
 password:
@@ -215,18 +218,18 @@ pvtest
 >
 ```
 
-#### Datenbankstruktur
+### Datenbankstruktur
 
 Für die PV-Anlage existieren 2 Datenbanken:
 
-    MeteringData
-    PVAnlage
+* MeteringData
+* PVAnlage
 
 In der Datenbank "MeteringData" werden die Echtzeitdaten gespeichert. Die Datenbank "PVAnlage" beinhaltet die Akkumulierten Werte
 
-##### MeteringData
+#### MeteringData
 
-```
+```sh
 > use MeteringData
 Using database MeteringData
 >
@@ -258,7 +261,7 @@ WR2WNow    float
 >
 ```
 
-##### PVAnlage
+#### PVAnlage
 
 ```sh
 > use PVAnlage
