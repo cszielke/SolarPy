@@ -339,6 +339,40 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#erzeugen-der-dokumentation" class="md-nav__link">
+    Erzeugen der Dokumentation
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#echtzeit-darstellung" class="md-nav__link">
+    Echtzeit Darstellung
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lokale-erzeugung" class="md-nav__link">
+    Lokale Erzeugung
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-publish" class="md-nav__link">
+    Github publish
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#erzeugen-von-video-dateien" class="md-nav__link">
     Erzeugen von Video Dateien
   </a>
@@ -402,6 +436,40 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#erzeugen-der-dokumentation" class="md-nav__link">
+    Erzeugen der Dokumentation
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#echtzeit-darstellung" class="md-nav__link">
+    Echtzeit Darstellung
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lokale-erzeugung" class="md-nav__link">
+    Lokale Erzeugung
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-publish" class="md-nav__link">
+    Github publish
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#erzeugen-von-video-dateien" class="md-nav__link">
     Erzeugen von Video Dateien
   </a>
@@ -441,6 +509,26 @@
                 
                 
                 <h1 id="scripts">Scripts</h1>
+<h2 id="erzeugen-der-dokumentation">Erzeugen der Dokumentation</h2>
+<p>Die Dokumentation wird aus den Markdown Dateien im Verzeichnis "docs" erstellt. Dazu wird das Tool "mkdocs" verwendet.</p>
+<h3 id="echtzeit-darstellung">Echtzeit Darstellung</h3>
+<p>Mit dem Befehl</p>
+<pre><code class="sh">mkdocs serve
+</code></pre>
+
+<p>Kann eine Echtzeitdarstellung in einem Webbrowser angesehen werden. Unter der Adresse <a href="http://localhost:8000">http://localhost:8000</a> kann jede gespeicherte Änderung an einer Markdown Datei sofort kontrolliert werden.</p>
+<h3 id="lokale-erzeugung">Lokale Erzeugung</h3>
+<p>Mit dem Befehl</p>
+<pre><code class="sh">mkdocs build
+</code></pre>
+
+<p>wird im Verzeichnis "site" ein lokales Abbild der Dokumentation erzeugt. Das Verzeichnis kann dann auf einen Webspace kopiert werden. Das Verzeichnis "site" wird nicht in git eingecheckt.</p>
+<h3 id="github-publish">Github publish</h3>
+<p>Mit dem Befehl</p>
+<pre><code class="sh">mkdocs gh-deploy
+</code></pre>
+
+<p>wird die Dokumentation erzeugt und im Branch "gh-pages" veröffentlicht. Github sorgt dafür, dass die erzeugte Seite dann unter <a href="https://cszielke.github.io/SolarPy/">https://cszielke.github.io/SolarPy/</a> aufgerufen werden kann.</p>
 <h2 id="erzeugen-von-video-dateien">Erzeugen von Video Dateien</h2>
 <p>Um aus den gespeicherten Bilder eines Tages ein Video zu erstellen, befinden sich im Verzeichnis "scripts" zwei PowerShell Scripts:</p>
 <ul>
