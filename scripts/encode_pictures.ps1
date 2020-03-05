@@ -93,4 +93,4 @@ else{
         exit 1
     }
 }
-exit 100  # schould not happen
+exit 100  # should not happen

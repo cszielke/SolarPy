@@ -9,5 +9,6 @@ nav:
       - Application: application.md
       - Sources: sources.md
       - Outputs: outputs.md
+    - Tools: tools.md
     - Todo: todo.md
 theme: material
