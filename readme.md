@@ -17,4 +17,4 @@ Das Programm ist komplett in Python geschrieben und benötigt keine Oberfläche.
 
 ## Dokumentation
 
-Die Dokumentation für dieses Projekt kann unter [Doku](https://cszielke.github.io/SolarPy/) gefunden werden.
+Die Dokumentation für dieses Projekt kann unter [Doku](https://cszielke.github.io/SolarPy/) gefunden werden..
