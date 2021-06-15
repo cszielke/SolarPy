@@ -176,31 +176,31 @@ Bilder
 .. code-block:: rst
   :caption: image
 
-  .. image:: ../docs/image/Logo_Konzept.png
+  .. image:: ./img/favicon256.png
 
-.. image:: ../docs/image/Logo_Konzept.png
+.. image:: ./img/favicon256.png
 
 .. code-block:: rst
   :caption: image
 
-  .. image:: ../docs/image/Logo_Konzept.png
+  .. image:: ./img/favicon256.png
     :alt: Alternativer Bild text
     :width: 100px
 
-.. image:: ../docs/image/Logo_Konzept.png
+.. image:: ./img/favicon256.png
   :alt: Alternativer Bild text
   :width: 100px
 
 .. code-block:: rst
   :caption: figure
 
-  .. figure:: ../docs/image/Logo_Konzept.png
+  .. figure:: ./img/favicon256.png
     :alt: Alternativer Bild text
     :width: 100px
 
     Dies ist die Bildbeschreibung
 
-.. figure:: ../docs/image/Logo_Konzept.png
+.. figure:: ./img/favicon256.png
   :alt: Alternativer Bild text
   :width: 100px
 
