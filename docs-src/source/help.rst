@@ -6,7 +6,7 @@ Hilfe für RST files und Google style docstrings
 Workflow
 ---------
 
-.. image:: ../docs/image/sphinx_workflow.png
+.. image:: ../../docs/img/sphinx_workflow.png
 
 Konfiguration (conf.py)
 ------------------------
@@ -176,31 +176,31 @@ Bilder
 .. code-block:: rst
   :caption: image
 
-  .. image:: ./img/favicon256.png
+  .. image:: ../../docs/img/favicon256.png
 
-.. image:: ./img/favicon256.png
+.. image:: ../../docs/img/favicon256.png
 
 .. code-block:: rst
   :caption: image
 
-  .. image:: ./img/favicon256.png
+  .. image:: ../../docs/img/favicon256.png
     :alt: Alternativer Bild text
     :width: 100px
 
-.. image:: ./img/favicon256.png
+.. image:: ../../docs/img/favicon256.png
   :alt: Alternativer Bild text
   :width: 100px
 
 .. code-block:: rst
   :caption: figure
 
-  .. figure:: ./img/favicon256.png
+  .. figure:: ../../docs/img/favicon256.png
     :alt: Alternativer Bild text
     :width: 100px
 
     Dies ist die Bildbeschreibung
 
-.. figure:: ./img/favicon256.png
+.. figure:: ../../docs/img/favicon256.png
   :alt: Alternativer Bild text
   :width: 100px
 
