@@ -1,7 +1,7 @@
 
 # SolarPy
 
-![Python application](https://github.com/cszielke/SolarPy/workflows/Python%20application/badge.svg)
+![Python application](https://github.com/cszielke/SolarPy/workflows/Python%20application/badge.svg) [![Documentation Status](https://readthedocs.org/projects/solarpy/badge/?version=latest)](https://solarpy.readthedocs.io/en/latest/?badge=latest)
 
 ![Logo](./docs/img/favicon256.png "Logo")
 
