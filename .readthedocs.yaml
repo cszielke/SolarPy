@@ -10,4 +10,4 @@ version: 2
   
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
-   configuration: docs-src/conf.py
+   configuration: docs-src/source/conf.py
