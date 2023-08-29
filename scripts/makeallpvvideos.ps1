@@ -23,7 +23,7 @@ if($null -eq $sourcedir){
     PrintUsage
     exit 1
     # default dir"
-    #$sourcedir = "\\raspidbsrv\web\html\webcam" 
+    #$sourcedir = "\\czsrv01\web\html\webcam" 
 }
 
 if($null -eq $destvideodir){
@@ -31,7 +31,7 @@ if($null -eq $destvideodir){
     PrintUsage
     exit 1
     # default dir"
-    # $destvideodir = "\\raspidbsrv\web\html\webcam\videos" 
+    # $destvideodir = "\\czsrv01\web\html\webcam\videos" 
 }
 
 $scriptdir = Split-Path $script:MyInvocation.MyCommand.Path

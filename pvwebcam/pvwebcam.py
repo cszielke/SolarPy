@@ -61,7 +61,8 @@ class PVWebCam(PVBaseModul):
     def GetWebCam(self, withdata=False):
         ba = bytearray()
         try:
-            response = requests.get(self.url)
+            # response = requests.get(self.url)
+            response = requests.get(self.url, verify=False,auth=(self.username, self.password))
             if(response.status_code >= 200 and response.status_code < 300):
                 im = Image.open(io.BytesIO(response.content))
             else:
