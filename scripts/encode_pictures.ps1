@@ -6,7 +6,7 @@ $sourcedir=$args[0]
 $destvideodir=$args[1]
 
 $ffmpeg="V:\Videotools\ffmpeg\ffmpeg.exe"
-$bitrate=1500000
+$bitrate=6000000
 $tmpdir="V:\Videotools\ffmpeg\tmp"
 
 if($null -eq $sourcedir){
