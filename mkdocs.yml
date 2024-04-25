@@ -4,6 +4,7 @@ site_author: Claus Zielke
 nav:
     - Home: index.md
     - Setup: setup.md
+    - Service: service.md
     - Configuration: configuration.md
     - Application: 
       - Application: application.md

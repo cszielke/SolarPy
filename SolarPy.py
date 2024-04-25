@@ -21,7 +21,7 @@ from pvwebcam import PVWebCam
 from pvweather import PVWeather
 
 # region defaults
-VERSION = "V0.1.1"
+VERSION = "V0.1.2"
 
 LOG_FILENAME = ""
 LOG_BACKUP_COUNT = 3

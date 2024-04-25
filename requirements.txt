@@ -1,7 +1,7 @@
 requests
 pytz
 influxdb
-paho-mqtt
+paho-mqtt<2.0.0
 argparse
 ConfigParser
 pyserial

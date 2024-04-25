@@ -6,6 +6,7 @@ import pytz
 import sys
 import requests
 import math
+import json
 
 local = pytz.timezone("Europe/Berlin")
 
@@ -52,7 +53,7 @@ class PVWeather(PVBaseModul):
         utc_now = pst_now.astimezone(pytz.utc)
         return utc_now
 
-    def GetWeatherData(self):
+    def GetWeatherData_old(self):
         IP = self.url  # "http://192.168.15.252/webcam/wsdata.txt"
 
         try:
@@ -89,6 +90,78 @@ class PVWeather(PVBaseModul):
                 self.weatherdata.PressureAbs = self.GetAbsolutPressure(self.weatherdata.PressureRel, self.wsheight)
                 self.weatherdata.Drewpoint = self.GetDrewPoint(self.weatherdata.Tout, self.weatherdata.Hout)
                 self.weatherdata.Windchill = self.GetWindChill(self.weatherdata.Tout, self.weatherdata.Wind)
+                self.weatherdata.WindDirName = self.GetWindDirName(self.weatherdata.WindDir)
+                self.weatherdata.Tendency = "notvalid"
+                self.weatherdata.Forecast = "notvalid"
+                self.weatherdata.Storm = "notvalid"
+
+                self.weatherdata.Error = "OK"
+            else:
+                self.weatherdata.Error = "Weather Http Error: " + str(x.status_code)
+                print(self.weatherdata.Error, file=sys.stderr)
+
+        except Exception as e:
+            self.weatherdata.Error = "Error:" + str(e)
+            print(self.weatherdata.Error, file=sys.stderr)
+
+        return self.weatherdata
+
+    def GetWeatherData(self):
+        IP = self.url  # "http://192.168.15.252/webcam/wsdata.txt"
+
+        try:
+            x = requests.get(IP)
+            print(x.text)
+            if(x.status_code == 200):
+                parsed_json_all = json.loads(x.text)
+                print(parsed_json_all)
+
+                # print("received data")
+                # kvp = {}
+                # for line in x.iter_lines(decode_unicode=True):
+                #     if(line.find(' ') != -1):
+                #         print(str(line))
+                #         key = line.split(' ', 1)[0]
+                #         value = line.split(' ', 1)[1].replace(",", ".")
+                #         print("Key: "+str(key)+" Value: "+str(value) )
+                #         kvp[key] = value
+
+                print(parsed_json_all['observations'][0])
+                parsed_json = parsed_json_all['observations'][0]
+                self.weatherdata.MeasureTime = self.LocalToUTC(datetime.datetime.strptime(parsed_json["obsTimeLocal"], '%Y-%m-%d %H:%M:%S')).timestamp()
+                print(self.weatherdata.MeasureTime)
+                self.weatherdata.Tout = float(parsed_json["metric"]["temp"])
+                print(self.weatherdata.Tout)
+                self.weatherdata.Tin = float(parsed_json["metric"]["temp"])  # falsch!!
+                print(self.weatherdata.Tin)
+                self.weatherdata.Hout = float(0.0)
+                print(self.weatherdata.Hout)
+                self.weatherdata.Hin = float(0.0)
+                print(self.weatherdata.Hin)
+                self.weatherdata.Rain1h = float(0.0)
+                print(self.weatherdata.Rain1h)
+                self.weatherdata.Rain24h = float(0.0)
+                print(self.weatherdata.Rain24h)
+                self.weatherdata.RainTotal = float(parsed_json["metric"]["precipTotal"])
+                print(self.weatherdata.RainTotal)
+                self.weatherdata.PressureAbs = float(parsed_json["metric"]["pressure"])
+                print(self.weatherdata.PressureAbs)
+                self.weatherdata.PressureRel = float(parsed_json["metric"]["pressure"])  # falsch
+                print(self.weatherdata.PressureRel)
+                self.weatherdata.Wind = float(parsed_json["metric"]["windSpeed"])
+                print(self.weatherdata.Wind)
+                self.weatherdata.WindGust = float(parsed_json["metric"]["windGust"])
+                print(self.weatherdata.WindGust)
+                self.weatherdata.WindDir = float(parsed_json["winddir"])
+                print(self.weatherdata.WindDir)
+                # self.weatherdata. = float(kvp["WDT"])
+                self.weatherdata.State = parsed_json["qcStatus"]
+                print(self.weatherdata.State)
+
+                # Berechnete Werte
+                # self.weatherdata.PressureAbs = self.GetAbsolutPressure(self.weatherdata.PressureRel, self.wsheight)
+                self.weatherdata.Drewpoint = float(parsed_json["metric"]["dewpt"])
+                self.weatherdata.Windchill = float(parsed_json["metric"]["windChill"])
                 self.weatherdata.WindDirName = self.GetWindDirName(self.weatherdata.WindDir)
                 self.weatherdata.Tendency = "notvalid"
                 self.weatherdata.Forecast = "notvalid"
