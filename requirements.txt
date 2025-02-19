@@ -1,6 +1,7 @@
 requests
 pytz
 influxdb
+influxdb-client
 paho-mqtt<2.0.0
 argparse
 ConfigParser

@@ -15,13 +15,14 @@ from pv import PVRestApi
 from pv import PVSimulation
 from pvmqtt import PVMqtt
 from pvinflux import PVInflux
+from pvinflux import PVInflux2
 from pvmysql import PVMySQL
 from pvhttpsrv import PVHttpSrv
 from pvwebcam import PVWebCam
 from pvweather import PVWeather
 
 # region defaults
-VERSION = "V0.1.2"
+VERSION = "V0.2.0"
 
 LOG_FILENAME = ""
 LOG_BACKUP_COUNT = 3
@@ -40,6 +41,7 @@ RESTURL = "/rawdata.html"
 config = configparser.ConfigParser()
 pv = None
 influxClient = PVInflux()
+influx2Client = PVInflux2()
 mysqlclient = PVMySQL()
 mqttclient = PVMqtt()
 httpsrv = PVHttpSrv()
@@ -125,6 +127,7 @@ def main():
 
     global httpsrv
     global influxClient
+    global influx2Client
     global mysqlclient
     global mqttclient
     global webcam
@@ -146,6 +149,7 @@ def main():
 
     httpsrv.InitArguments(parser)
     influxClient.InitArguments(parser)
+    influx2Client.InitArguments(parser)
     mysqlclient.InitArguments(parser)
     mqttclient.InitArguments(parser)
     webcam.InitArguments(parser)
@@ -243,6 +247,7 @@ def main():
 
     httpsrv.SetConfig(config, args)
     influxClient.SetConfig(config, args)
+    influx2Client.SetConfig(config, args)
     mysqlclient.SetConfig(config, args)
     mqttclient.SetConfig(config, args)
     webcam.SetConfig(config, args)
@@ -273,6 +278,9 @@ def main():
     if(influxClient.enabled):
         influxClient.Connect()
 
+    if(influx2Client.enabled):
+        influx2Client.Connect()
+
     if(mysqlclient.enabled):
         mysqlclient.Connect()
 
@@ -292,13 +300,16 @@ def main():
         mqttkacnt = mqttclient.keepalive
         mqttivalcnt = mqttclient.interval
         influxivalcnt = influxClient.interval
+        influx2ivalcnt = influx2Client.interval
         mysqlivalcnt = mysqlclient.interval
         webcamcnt = webcam.interval
+
         while(True):
             sleep(1)
             mqttkacnt = mqttkacnt - 1
             mqttivalcnt = mqttivalcnt - 1
             influxivalcnt = influxivalcnt - 1
+            influx2ivalcnt = influx2ivalcnt - 1
             mysqlivalcnt = mysqlivalcnt - 1
             webcamcnt = webcamcnt - 1
             # print("Counter: MQTT KeepAlive=",mqttkacnt,",MQTT interval=",mqttivalcnt,"InfluxDB Interval=",influxivalcnt,"\r", end = '')
@@ -325,6 +336,15 @@ def main():
                         GetAllData()
                         influxClient.pvdata = pvdata
                         influxClient.SendData()
+
+            if(influx2Client.enabled):
+                if(influx2ivalcnt <= 0):
+                    influx2ivalcnt = influx2Client.interval
+                    if(influx2Client.interval != 0):
+                        print("Saving to InfluxDB2")
+                        GetAllData()
+                        influx2Client.pvdata = pvdata
+                        influx2Client.SendData()
 
             if(mysqlclient.enabled):
                 if(mysqlivalcnt <= 0):
