@@ -1,5 +1,5 @@
-update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
-update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2
+#update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+#update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2
 # update-alternatives --config python
 sudo apt install python3-venv python3-pip
 python3 -m pip install --user virtualenv
