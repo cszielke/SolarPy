@@ -22,7 +22,7 @@ from pvwebcam import PVWebCam
 from pvweather import PVWeather
 
 # region defaults
-VERSION = "V0.2.0"
+VERSION = "V0.2.1"
 
 LOG_FILENAME = ""
 LOG_BACKUP_COUNT = 3
@@ -51,12 +51,12 @@ pvdata = PVData()
 
 
 def GetAllData():
-    global pv
-    global DATASOURCE
+    # global pv
+    # global DATASOURCE
     global pvdata
 
-    global RESTHOST
-    global RESTURL
+    # global RESTHOST
+    # global RESTURL
 
     print("GetAllData from {}".format(DATASOURCE))
     if(DATASOURCE == "ifcardeasy"):
@@ -79,7 +79,7 @@ def GetAllData():
 
 
 def CheckArgsOrConfig(constantvar, argconfig, configsection, configtopic, type='str'):
-    global config
+    # global config
 
     if(argconfig is not None):  # Argument has priority
         print("Var '{}.{}' from commandline set to {}".format(configsection, configtopic, argconfig))
@@ -103,13 +103,13 @@ def CheckArgsOrConfig(constantvar, argconfig, configsection, configtopic, type='
 
 
 def OnDataRequest(self):
-    global pvdata
+    # global pvdata
     GetAllData()
     return pvdata, pvweather.weatherdata
 
 
 def OnWebCamRequest(self, withdata=False):
-    global webcam
+    # global webcam
     return webcam.GetWebCam(withdata)
 
 
@@ -125,13 +125,13 @@ def main():
     global RESTHOST
     global RESTURL
 
-    global httpsrv
-    global influxClient
-    global influx2Client
-    global mysqlclient
-    global mqttclient
-    global webcam
-    global pvweather
+    # global httpsrv
+    # global influxClient
+    # global influx2Client
+    # global mysqlclient
+    # global mqttclient
+    # global webcam
+    # global pvweather
     # endregion globals
 
     # region Argument parser
