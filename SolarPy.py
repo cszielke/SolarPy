@@ -10,6 +10,7 @@ import os.path
 from time import sleep
 
 from pv import FroniusIG
+from pv import SMA
 from pv import PVData
 from pv import PVRestApi
 from pv import PVSimulation
@@ -36,6 +37,9 @@ FRONIUSCOMPORT = ""
 RESTHOST = "http://127.0.0.1"
 RESTURL = "/rawdata.html"
 
+SMAIP = "192.168.15.165"
+SMAPORT = 502
+SMAUNIT = 3
 # endregion defaults
 
 config = configparser.ConfigParser()
@@ -60,6 +64,9 @@ def GetAllData():
 
     print("GetAllData from {}".format(DATASOURCE))
     if(DATASOURCE == "ifcardeasy"):
+        pv.GetAllData()
+        pvdata = pv.pvdata
+    elif(DATASOURCE == "sma"):
         pv.GetAllData()
         pvdata = pv.pvdata
     elif(DATASOURCE == "restapi"):
@@ -125,6 +132,10 @@ def main():
     global RESTHOST
     global RESTURL
 
+    global SMAIP
+    global SMAPORT
+    global SMAUNIT
+
     # global httpsrv
     # global influxClient
     # global influx2Client
@@ -146,6 +157,10 @@ def main():
 
     parser.add_argument('-rh', '--resthost', help='Host address for RESTApi', required=False)
     parser.add_argument('-ru', '--resturl', help='URL for RESTApi', required=False)
+
+    parser.add_argument('-sip', '--smaip', help='IP for SMA Inverter', required=False)
+    parser.add_argument('-sp', '--smaport', help='Port for SMA Inverter', required=False)
+    parser.add_argument('-su', '--smaunit', help='Unit for SMA Inverter', required=False)
 
     httpsrv.InitArguments(parser)
     influxClient.InitArguments(parser)
@@ -245,6 +260,10 @@ def main():
     RESTHOST = CheckArgsOrConfig(RESTHOST, args.resthost, "restapi", "host")
     RESTURL = CheckArgsOrConfig(RESTURL, args.resturl, "restapi", "url")
 
+    SMAIP = CheckArgsOrConfig(SMAIP, args.smaip, "sma", "ip")
+    SMAPORT = CheckArgsOrConfig(SMAPORT, args.smaport, "sma", "port", type='int')
+    SMAUNIT = CheckArgsOrConfig(SMAUNIT, args.smaunit, "sma", "unit", type='int')
+
     httpsrv.SetConfig(config, args)
     influxClient.SetConfig(config, args)
     influx2Client.SetConfig(config, args)
@@ -254,19 +273,27 @@ def main():
     pvweather.SetConfig(config, args)
     # endregion default, configfile or commandline
 
+    global pv
     # region init datasources
     if(DATASOURCE == "ifcardeasy"):
-        global pv
+        # global pv
         # TODO: Anzahl WR automatisch ermitteln oder konfigurierbar machen
         pv = FroniusIG(2)
         pv.port = FRONIUSCOMPORT
+        pv.open()
+    elif(DATASOURCE == "sma"):
+        # global pv
+        pv = SMA(2)
+        pv.ip = SMAIP
+        pv.unit = SMAUNIT
+        pv.port = SMAPORT
         pv.open()
     elif(DATASOURCE == "restapi"):
         pass
     elif(DATASOURCE == "simulation"):
         pass
     else:
-        print("Error: No valid datasource [ifcard,restapi,simulation]: (" + DATASOURCE + ")")
+        print("Error: No valid datasource [ifcard,restapi,simulation,sma]: (" + DATASOURCE + ")")
         exit(1)
     # endregion init datasources
 
