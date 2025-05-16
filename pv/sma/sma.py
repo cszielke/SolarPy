@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from datetime import datetime
 from pv.data import PVData, PVWR
 from time import time
 from time import sleep
@@ -8,6 +9,7 @@ from .smareg import add_tripower_register, set_tripower_TAGLIST
 import sys
 
 import jsons
+import requests
 
 
 class SMA:
@@ -29,6 +31,8 @@ class SMA:
     pvdata = PVData()
     unit = 3
     wrmodbus = None
+    PwrLastDayCounter = 0
+    lastday = 0
 
     isreadingalready = False
 
@@ -62,9 +66,12 @@ class SMA:
         for register in registers:
             self.wrmodbus.poll_register(register)
             print(f"Poll Register: {register}")
+        
+        # TODO Read self.PwrLastDayCounter from somewhere
 
     def close(self):
         print("Close SMA Modbus")
+        # TODO Write self.PwrLastDayCounter somewhere
 
     def GetAllData(self):
         if(not self.isreadingalready):
@@ -87,7 +94,36 @@ class SMA:
 
                 self.pvdata.VersionIFC = [0, 0, 0, 0]  # Array of 4 bytes: IFC-Type, Maj, Min, Release
 
-                self.pvdata.DevTime = "{:02}.{:02}.{:02}T{:02}:{:02}:{:02}".format(25, 12, 2025, 23, 59, 59)
+                timenow = datetime.now()
+
+                self.pvdata.DevTime = "{:02}.{:02}.{:02}T{:02}:{:02}:{:02}".format(timenow.day, timenow.month, timenow.year, timenow.hour, timenow.minute, timenow.second)
+                print(f"Time: {self.pvdata.DevTime}")
+
+                # Read Total Power Counter from Webpage
+                PwrDayTot = 0  # Preset with 0
+
+                response = requests.get("https://192.168.15.165/dyn/getDashValues.json", verify=False)  # , auth=('user', 'password'))
+                data = response.json()
+                counter = data["result"]["01B8-xxxxx731"]["6400_0046C300"]["9"][0]["val"]
+
+                if self.PwrLastDayCounter == 0:
+                    # self.PwrLastDayTot was not set after program restart
+                    # Try to estimate it
+                    if timenow.hour < 3:
+                        # It is still night time, so set actual counter to last counter
+                        self.PwrLastDayCounter = counter
+                    else:
+                        # TODO: Read from Databse? Read from config?
+                        # To Test it uncomment next line
+                        self.PwrLastDayCounter = 170000
+                        pass
+                else:
+                    PwrDayTot = counter - self.PwrLastDayCounter
+                    # Reset PwrDayTot if date changes (Time 00:00)
+                    if timenow.day != self.lastday:
+                        self.lastday = timenow.day
+                        self.PwrLastDayCounter = counter
+                print(f"Counter: {counter}, PwrLastDayCounter: {self.PwrLastDayCounter}, PwrDayTot: {PwrDayTot}")
 
                 self.pvdata.ActiveInvCnt = 2  # Len = 0-Inverter count
 
@@ -96,7 +132,7 @@ class SMA:
                 self.pvdata.LocalNetStatus = 0  # 1 byte
 
                 self.pvdata.PTotal = 0
-                self.pvdata.PDayTotal = 0
+                self.pvdata.PDayTotal = PwrDayTot
 
                 # Nur wenn mindestens 1 Inverter aktiv ist
                 if(self.pvdata.ActiveInvCnt > 0):
@@ -131,7 +167,7 @@ class SMA:
                         # self.pvdata.wr[i].STATUS = self.SendIG(Devices.DEV_INV, i, Commands.INV_STATUS)
 
                         self.pvdata.PTotal = self.pvdata.PTotal + self.pvdata.wr[i].PNow
-                        self.pvdata.PDayTotal = self.pvdata.PDayTotal + self.pvdata.wr[i].PDay
+                        # self.pvdata.PDayTotal = self.pvdata.PDayTotal + self.pvdata.wr[i].PDay
 
                         pab = (self.pvdata.wr[i].UAC * self.pvdata.wr[i].IAC)
                         pzu = (self.pvdata.wr[i].UDC * self.pvdata.wr[i].IDC)
