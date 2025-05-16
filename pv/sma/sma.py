@@ -114,8 +114,9 @@ class SMA:
                         self.PwrLastDayCounter = counter
                     else:
                         # TODO: Read from Databse? Read from config?
-                        # To Test it uncomment next line
-                        self.PwrLastDayCounter = 170000
+                        # To Test it uncomment next lines
+                        # self.PwrLastDayCounter = 170000
+                        # self.lastday = timenow.day
                         pass
                 else:
                     PwrDayTot = counter - self.PwrLastDayCounter
