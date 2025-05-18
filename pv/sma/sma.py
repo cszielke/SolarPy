@@ -183,8 +183,9 @@ class SMA:
                 self.pvdata.wr[0].FAC = self.wrmodbus.available_registers[30803].value
 
                 self.pvdata.wr[1].PNow = self.wrmodbus.available_registers[30961].value
-                self.pvdata.wr[0].UDC = self.wrmodbus.available_registers[30959].value
-                self.pvdata.wr[0].IDC = self.wrmodbus.available_registers[30957].value
+                self.pvdata.wr[1].UDC = self.wrmodbus.available_registers[30959].value
+                self.pvdata.wr[1].IDC = self.wrmodbus.available_registers[30957].value
+                self.pvdata.wr[1].FAC = self.wrmodbus.available_registers[30803].value
 
                 self.pvdata.PTotal = self.wrmodbus.available_registers[30775].value
                 self.pvdata.Error = "OK"  # everything ok, if we reach this line
