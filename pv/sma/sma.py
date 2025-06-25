@@ -9,7 +9,6 @@ from .smareg import add_tripower_register, set_tripower_TAGLIST
 import sys
 
 import jsons
-import requests
 
 
 class SMA:
@@ -51,6 +50,7 @@ class SMA:
         registers = [
             30001,  # 30001 SMA.Modbus.Profile (Versionsnummer SMA Modbus-Profil) 1304
             30053,  # 30053 Nameplate.Model (Gerätetyp) Unknown Value 19051
+            30517,  # 30517 Metering.DyWhOut
             30769,  # 30769 DcMs.Amp.MPPT1 (DC Strom Eingang MPPT1) 6.521 A
             30771,  # 30771 DcMs.Vol.MPPT1 (DC Spannung Eingang  MPPT1) 462.00 V
             30773,  # 30773 DcMs.Watt.MPPT1 (DC Leistung Eingang  MPPT1) 3 kW
@@ -66,7 +66,7 @@ class SMA:
         for register in registers:
             self.wrmodbus.poll_register(register)
             print(f"Poll Register: {register}")
-        
+
         # TODO Read self.PwrLastDayCounter from somewhere
 
     def close(self):
@@ -99,41 +99,14 @@ class SMA:
                 self.pvdata.DevTime = "{:02}.{:02}.{:02}T{:02}:{:02}:{:02}".format(timenow.day, timenow.month, timenow.year, timenow.hour, timenow.minute, timenow.second)
                 print(f"Time: {self.pvdata.DevTime}")
 
-                # Read Total Power Counter from Webpage
-                PwrDayTot = 0  # Preset with 0
-
-                response = requests.get("https://192.168.15.165/dyn/getDashValues.json", verify=False)  # , auth=('user', 'password'))
-                data = response.json()
-                counter = data["result"]["01B8-xxxxx731"]["6400_0046C300"]["9"][0]["val"]
-
-                if self.PwrLastDayCounter == 0:
-                    # self.PwrLastDayTot was not set after program restart
-                    # Try to estimate it
-                    if timenow.hour < 3:
-                        # It is still night time, so set actual counter to last counter
-                        self.PwrLastDayCounter = counter
-                    else:
-                        # TODO: Read from Databse? Read from config?
-                        # To Test it uncomment next lines
-                        # self.PwrLastDayCounter = 170000
-                        # self.lastday = timenow.day
-                        pass
-                else:
-                    PwrDayTot = counter - self.PwrLastDayCounter
-                    # Reset PwrDayTot if date changes (Time 00:00)
-                    if timenow.day != self.lastday:
-                        self.lastday = timenow.day
-                        self.PwrLastDayCounter = counter
-                print(f"Counter: {counter}, PwrLastDayCounter: {self.PwrLastDayCounter}, PwrDayTot: {PwrDayTot}")
-
                 self.pvdata.ActiveInvCnt = 2  # Len = 0-Inverter count
 
                 self.pvdata.ActiveSensorCardCnt = 1  # Len = 0 - Sensorcard Count
 
                 self.pvdata.LocalNetStatus = 0  # 1 byte
 
-                self.pvdata.PTotal = 0
-                self.pvdata.PDayTotal = PwrDayTot
+                self.pvdata.PTotal = self.wrmodbus.available_registers[30775].value
+                self.pvdata.PDayTotal = self.wrmodbus.available_registers[30517].value
 
                 # Nur wenn mindestens 1 Inverter aktiv ist
                 if(self.pvdata.ActiveInvCnt > 0):
@@ -187,7 +160,6 @@ class SMA:
                 self.pvdata.wr[1].IDC = self.wrmodbus.available_registers[30957].value
                 self.pvdata.wr[1].FAC = self.wrmodbus.available_registers[30803].value
 
-                self.pvdata.PTotal = self.wrmodbus.available_registers[30775].value
                 self.pvdata.Error = "OK"  # everything ok, if we reach this line
 
             except BaseException as e:
