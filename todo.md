@@ -7,6 +7,9 @@
 * Konfigurierbarkeit über MQTT und Http (Sicherheit?)
 * Http-Server auch über https
 * Logging via MQTT/Http
+* Scripte zur Erzeugung von videos am Tagesende aufrufen:
+  `.\scripts\makeallpvvideos.ps1 \\192.168.15.241\web\html\webcam \\192.168.15.241\web\html\webcam\videos`
+* Strategie zum löschen der Tagesbilder nach Video Erstellung.
 
 ## PVData
 

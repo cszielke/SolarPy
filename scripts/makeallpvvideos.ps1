@@ -16,6 +16,7 @@ function PrintUsage {
     Write-Output '                +- 20191224'
     Write-Output '                | ....'
     Write-Output '                L- 20200112'
+    Write-Output ' Example: .\scripts\makeallpvvideos.ps1 \\192.168.15.241\web\html\webcam \\192.168.15.241\web\html\webcam\videos'
 }
 
 if($null -eq $sourcedir){
