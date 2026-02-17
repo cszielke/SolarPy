@@ -10,7 +10,7 @@ dataclasses==0.6
 jsons==1.6.3
 PyMySQL==1.1.1
 pymodbus==3.9.2
-pillow==11.2.1
+pillow==12.1.1
 psutil==7.0.0
 flake8==7.2.0
 mkdocs==1.6.1
