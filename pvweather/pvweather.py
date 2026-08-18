@@ -17,6 +17,7 @@ class PVWeather(PVBaseModul):
     user = ""
     password = ""
     wsheight = 0
+    source = "ecowitt"  # wunderground, ecowitt
 
     weatherdata = WeatherData()
 
@@ -28,6 +29,7 @@ class PVWeather(PVBaseModul):
     def InitArguments(self, parser):
         super().InitArguments(parser)
         parser.add_argument('-wten', '--weatherenable', help='Get weather enabled', required=False)
+        parser.add_argument('-wtsrc', '--weathersource', help='Get weather source', required=False)
         parser.add_argument('-wturl', '--weatherurl', help='Get weather data url', required=False)
         parser.add_argument('-wtuser', '--weatheruser', help='Get weather username', required=False)
         parser.add_argument('-wtpw', '--weatherpassword', help='Get weather password', required=False)
@@ -37,6 +39,7 @@ class PVWeather(PVBaseModul):
         super().SetConfig(config, args)
         configsection = "weather"
         self.enabled = self.CheckArgsOrConfig(config, self.enabled, args.weatherenable, configsection, "enabled", "bool")
+        self.source = self.CheckArgsOrConfig(config, self.source, args.weathersource, configsection, "source")
         self.url = self.CheckArgsOrConfig(config, self.url, args.weatherurl, configsection, "url")
         self.user = self.CheckArgsOrConfig(config, self.user, args.weatherenable, configsection, "user")
         self.password = self.CheckArgsOrConfig(config, self.password, args.weatherenable, configsection, "password")
@@ -52,6 +55,12 @@ class PVWeather(PVBaseModul):
 
         utc_now = pst_now.astimezone(pytz.utc)
         return utc_now
+
+    def FtoC(self, f):
+        return float((float(f) - 32) * 5.0 / 9.0)  # (von Fahrenheit in Celsius)
+
+    def CtoF(self, c):
+        return float(float(c) * 1.8 + 32)  # (von Celsius nach Fahrenheit)
 
     def GetWeatherData_old(self):
         IP = self.url  # "http://192.168.15.252/webcam/wsdata.txt"
@@ -115,7 +124,7 @@ class PVWeather(PVBaseModul):
             if(x.status_code == 200):
                 parsed_json_all = json.loads(x.text)
                 print(parsed_json_all)
-
+                print("Weather source: " + str(self.source))
                 # print("received data")
                 # kvp = {}
                 # for line in x.iter_lines(decode_unicode=True):
@@ -125,43 +134,91 @@ class PVWeather(PVBaseModul):
                 #         value = line.split(' ', 1)[1].replace(",", ".")
                 #         print("Key: "+str(key)+" Value: "+str(value) )
                 #         kvp[key] = value
+                if(self.source.lower() == "ecowitt"):
+                    print("Doing ecowitt data parsing")
+                    if(parsed_json_all['msg'] != "success"):
+                        self.weatherdata.Error = "Error: Ecowitt API returned error: " + str(parsed_json_all['msg'])
+                        print(self.weatherdata.Error, file=sys.stderr)
+                        return self.weatherdata
 
-                print(parsed_json_all['observations'][0])
-                parsed_json = parsed_json_all['observations'][0]
-                self.weatherdata.MeasureTime = self.LocalToUTC(datetime.datetime.strptime(parsed_json["obsTimeLocal"], '%Y-%m-%d %H:%M:%S')).timestamp()
-                print(self.weatherdata.MeasureTime)
-                self.weatherdata.Tout = float(parsed_json["metric"]["temp"])
-                print(self.weatherdata.Tout)
-                self.weatherdata.Tin = float(parsed_json["metric"]["temp"])  # falsch!!
-                print(self.weatherdata.Tin)
-                self.weatherdata.Hout = float(0.0)
-                print(self.weatherdata.Hout)
-                self.weatherdata.Hin = float(0.0)
-                print(self.weatherdata.Hin)
-                self.weatherdata.Rain1h = float(0.0)
-                print(self.weatherdata.Rain1h)
-                self.weatherdata.Rain24h = float(0.0)
-                print(self.weatherdata.Rain24h)
-                self.weatherdata.RainTotal = float(parsed_json["metric"]["precipTotal"])
-                print(self.weatherdata.RainTotal)
-                self.weatherdata.PressureAbs = float(parsed_json["metric"]["pressure"])
-                print(self.weatherdata.PressureAbs)
-                self.weatherdata.PressureRel = float(parsed_json["metric"]["pressure"])  # falsch
-                print(self.weatherdata.PressureRel)
-                self.weatherdata.Wind = float(parsed_json["metric"]["windSpeed"])
-                print(self.weatherdata.Wind)
-                self.weatherdata.WindGust = float(parsed_json["metric"]["windGust"])
-                print(self.weatherdata.WindGust)
-                self.weatherdata.WindDir = float(parsed_json["winddir"])
-                print(self.weatherdata.WindDir)
-                # self.weatherdata. = float(kvp["WDT"])
-                self.weatherdata.State = parsed_json["qcStatus"]
-                print(self.weatherdata.State)
+                    parsed_json = parsed_json_all['data']
+                    print(f"Parsed JSON: {parsed_json}")
+                    self.weatherdata.MeasureTime = int(parsed_json_all["time"])  # is already UTC timestamp
+                    print(f"self.weatherdata.MeasureTime: {self.weatherdata.MeasureTime}")
+                    self.weatherdata.Tout = float(self.FtoC(parsed_json["outdoor"]["temperature"]["value"]))
+                    print(f"self.weatherdata.Tout: {self.weatherdata.Tout}")
+                    self.weatherdata.Tin = float(self.FtoC(parsed_json["indoor"]["temperature"]["value"]))
+                    print(f"self.weatherdata.Tin: {self.weatherdata.Tin}")
+                    self.weatherdata.Hout = float(parsed_json["outdoor"]["humidity"]["value"])
+                    print(f"self.weatherdata.Hout: {self.weatherdata.Hout}")
+                    self.weatherdata.Hin = float(self.FtoC(parsed_json["indoor"]["humidity"]["value"]))
+                    print(f"self.weatherdata.Hin: {self.weatherdata.Hin}")
+                    self.weatherdata.Rain1h = float(parsed_json["rainfall"]["rain_rate"]["value"]) * 25.4  # inch/h in mm/h umrechnen
+                    print(f"self.weatherdata.Rain1h: {self.weatherdata.Rain1h}")
+                    self.weatherdata.Rain24h = float(parsed_json["rainfall"]["daily"]["value"]) * 25.4  # inch in mm umrechnen
+                    print(f"self.weatherdata.Rain24h: {self.weatherdata.Rain24h}")
+                    self.weatherdata.RainTotal = float(parsed_json["rainfall"]["yearly"]["value"]) * 25.4  # inch in mm umrechnen
+                    print(f"self.weatherdata.RainTotal: {self.weatherdata.RainTotal}")
+                    self.weatherdata.PressureAbs = float(parsed_json["pressure"]["absolute"]["value"]) / 0.029529983071445  # inchHg in hPa umrechnen
+                    print(f"self.weatherdata.PressureAbs: {self.weatherdata.PressureAbs}")
+                    self.weatherdata.PressureRel = float(parsed_json["pressure"]["relative"]["value"]) / 0.029529983071445  # inchHg in hPa umrechnen  ***********falsch**********
+                    print(f"self.weatherdata.PressureRel: {self.weatherdata.PressureRel}")
+                    self.weatherdata.Wind = float(parsed_json["wind"]["wind_speed"]["value"]) * 1.60934  # mph in km/h umrechnen
+                    print(f"self.weatherdata.Wind: {self.weatherdata.Wind}")
+                    self.weatherdata.WindGust = float(parsed_json["wind"]["wind_gust"]["value"]) * 1.60934,  # mph in km/h umrechnen
+                    print(f"self.weatherdata.WindGust: {self.weatherdata.WindGust}")
+                    self.weatherdata.WindDir = float(parsed_json["wind"]["wind_direction"]["value"])
+                    print(f"self.weatherdata.WindDir: {self.weatherdata.WindDir}")
+                    # self.weatherdata. = float(kvp["WDT"])
+                    self.weatherdata.State = parsed_json_all['msg']
+                    print(f"self.weatherdata.State: {self.weatherdata.State}")
+                    self.weatherdata.Drewpoint = float(self.FtoC(parsed_json["outdoor"]["app_temp"]["value"]))
+                    print(f"self.weatherdata.Drewpoint: {self.weatherdata.Drewpoint}")
+                    self.weatherdata.Windchill = float(self.FtoC(parsed_json["outdoor"]["feels_like"]["value"]))
+                    print(f"self.weatherdata.Windchill: {self.weatherdata.Windchill}")
+
+                elif(self.source.lower() == "wunderground"):
+                    print("Doing wunderground data parsing")
+                    print(parsed_json_all['observations'][0])
+                    parsed_json = parsed_json_all['observations'][0]
+                    self.weatherdata.MeasureTime = self.LocalToUTC(datetime.datetime.strptime(parsed_json["obsTimeLocal"], '%Y-%m-%d %H:%M:%S')).timestamp()
+                    print(self.weatherdata.MeasureTime)
+                    self.weatherdata.Tout = float(parsed_json["metric"]["temp"])
+                    print(self.weatherdata.Tout)
+                    self.weatherdata.Tin = float(parsed_json["metric"]["temp"])  # falsch!!
+                    print(self.weatherdata.Tin)
+                    self.weatherdata.Hout = float(0.0)
+                    print(self.weatherdata.Hout)
+                    self.weatherdata.Hin = float(0.0)
+                    print(self.weatherdata.Hin)
+                    self.weatherdata.Rain1h = float(0.0)
+                    print(self.weatherdata.Rain1h)
+                    self.weatherdata.Rain24h = float(0.0)
+                    print(self.weatherdata.Rain24h)
+                    self.weatherdata.RainTotal = float(parsed_json["metric"]["precipTotal"])
+                    print(self.weatherdata.RainTotal)
+                    self.weatherdata.PressureAbs = float(parsed_json["metric"]["pressure"])
+                    print(self.weatherdata.PressureAbs)
+                    self.weatherdata.PressureRel = float(parsed_json["metric"]["pressure"])  # falsch
+                    print(self.weatherdata.PressureRel)
+                    self.weatherdata.Wind = float(parsed_json["metric"]["windSpeed"])
+                    print(self.weatherdata.Wind)
+                    self.weatherdata.WindGust = float(parsed_json["metric"]["windGust"])
+                    print(self.weatherdata.WindGust)
+                    self.weatherdata.WindDir = float(parsed_json["winddir"])
+                    print(self.weatherdata.WindDir)
+                    # self.weatherdata. = float(kvp["WDT"])
+                    self.weatherdata.State = parsed_json["qcStatus"]
+                    print(self.weatherdata.State)
+                    self.weatherdata.Drewpoint = float(parsed_json["metric"]["dewpt"])
+                    self.weatherdata.Windchill = float(parsed_json["metric"]["windChill"])
+                else:
+                    self.weatherdata.Error = "Unknown weather source: " + str(self.source)
+                    print(self.weatherdata.Error, file=sys.stderr)
+                    return self.weatherdata
 
                 # Berechnete Werte
                 # self.weatherdata.PressureAbs = self.GetAbsolutPressure(self.weatherdata.PressureRel, self.wsheight)
-                self.weatherdata.Drewpoint = float(parsed_json["metric"]["dewpt"])
-                self.weatherdata.Windchill = float(parsed_json["metric"]["windChill"])
                 self.weatherdata.WindDirName = self.GetWindDirName(self.weatherdata.WindDir)
                 self.weatherdata.Tendency = "notvalid"
                 self.weatherdata.Forecast = "notvalid"

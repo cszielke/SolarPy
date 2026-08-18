@@ -1,0 +1,156 @@
+{
+    "code": 0,
+    "msg": "success",
+    "time": "1777984363",
+    "data": {
+        "outdoor": {
+            "temperature": {
+                "time": "1777984349",
+                "unit": "ºF",
+                "value": "64.8"
+            },
+            "feels_like": {
+                "time": "1777984349",
+                "unit": "ºF",
+                "value": "64.8"
+            },
+            "app_temp": {
+                "time": "1777984349",
+                "unit": "ºF",
+                "value": "66.7"
+            },
+            "dew_point": {
+                "time": "1777984349",
+                "unit": "ºF",
+                "value": "56.3"
+            },
+            "humidity": {
+                "time": "1777984349",
+                "unit": "%",
+                "value": "74"
+            }
+        },
+        "indoor": {
+            "temperature": {
+                "time": "1777984349",
+                "unit": "ºF",
+                "value": "66.9"
+            },
+            "humidity": {
+                "time": "1777984349",
+                "unit": "%",
+                "value": "54"
+            },
+            "dew_point": {
+                "time": "1777984349",
+                "unit": "ºF",
+                "value": "49.7"
+            },
+            "feels_like": {
+                "time": "1777984349",
+                "unit": "ºF",
+                "value": "66.9"
+            },
+            "app_tempin": {
+                "time": "1777984349",
+                "unit": "ºF",
+                "value": "66.9"
+            }
+        },
+        "solar_and_uvi": {
+            "solar": {
+                "time": "1777984349",
+                "unit": "W\/m²",
+                "value": "136.9"
+            },
+            "uvi": {
+                "time": "1777984349",
+                "unit": "",
+                "value": "1"
+            }
+        },
+        "rainfall": {
+            "rain_rate": {
+                "time": "1777984349",
+                "unit": "in\/hr",
+                "value": "0.00"
+            },
+            "daily": {
+                "time": "1777984349",
+                "unit": "in",
+                "value": "0.06"
+            },
+            "event": {
+                "time": "1777984349",
+                "unit": "in",
+                "value": "0.06"
+            },
+            "1_hour": {
+                "time": "1777984349",
+                "unit": "in",
+                "value": "0.00"
+            },
+            "weekly": {
+                "time": "1777984349",
+                "unit": "in",
+                "value": "0.09"
+            },
+            "monthly": {
+                "time": "1777984349",
+                "unit": "in",
+                "value": "0.09"
+            },
+            "yearly": {
+                "time": "1777984349",
+                "unit": "in",
+                "value": "1.94"
+            }
+        },
+        "wind": {
+            "wind_speed": {
+                "time": "1777984349",
+                "unit": "mph",
+                "value": "0.0"
+            },
+            "wind_gust": {
+                "time": "1777984349",
+                "unit": "mph",
+                "value": "0.0"
+            },
+            "wind_direction": {
+                "time": "1777984349",
+                "unit": "º",
+                "value": "342"
+            },
+            "10_minute_average_wind_direction": {
+                "time": "1777984349",
+                "unit": "º",
+                "value": "0"
+            }
+        },
+        "pressure": {
+            "relative": {
+                "time": "1777984349",
+                "unit": "inHg",
+                "value": "29.12"
+            },
+            "absolute": {
+                "time": "1777984349",
+                "unit": "inHg",
+                "value": "29.12"
+            }
+        },
+        "battery": {
+            "t_rh_p_sensor": {
+                "time": "1777984349",
+                "unit": "",
+                "value": "1"
+            },
+            "sensor_array": {
+                "time": "1777984349",
+                "unit": "",
+                "value": "0"
+            }
+        }
+    }
+}
