@@ -5,4 +5,3 @@
 # Copy key in Target       ~/.ssh/authorized_keys
 # Restart sshd in Target   service ssh restart
 rsync -avzh -e ssh /home/zielke/SolarPy/templates/public/webcam/ root@192.168.15.241:/var/www/html/webcam/
-
