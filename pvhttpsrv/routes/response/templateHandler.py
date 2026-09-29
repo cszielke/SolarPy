@@ -22,7 +22,7 @@ class TemplateHandler(RequestHandler):
             basedir = os.path.abspath(self.directory)
 
             filename = routeData['template']
-            while(os.path.isabs(filename) and len(filename) > 0):  # begins with a "/"?
+            while (os.path.isabs(filename) and len(filename) > 0):  # begins with a "/"?
                 filename = filename[1:]
             filename = os.path.join(basedir, filename.replace("..", ""))
 
@@ -37,7 +37,7 @@ class TemplateHandler(RequestHandler):
             return False
 
     def ReplaceTags(self, source):
-        if(self.onDataRequest is not None):
+        if (self.onDataRequest is not None):
             self.pvdata, self.weatherdata = self.onDataRequest()
 
         text = source.read()
@@ -53,7 +53,7 @@ class TemplateHandler(RequestHandler):
     def __replaceObjTags(self, text, obj, tagprefix=""):
         member = [attr for attr in dir(obj) if not callable(getattr(obj, attr)) and not attr.startswith("__")]
         for key in member:
-            if(isinstance(getattr(obj, key), list)):
+            if (isinstance(getattr(obj, key), list)):
                 for i in range(len(getattr(obj, key))):
                     tagpre = tagprefix + key + str(i) + '.'
                     arrobj = getattr(obj, key)[i]

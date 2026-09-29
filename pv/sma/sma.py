@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
+# pyright: reportMissingTypeStubs=false
+# pyright: reportUnknownMemberType=false
 from datetime import datetime
 from pv.data import PVData, PVWR
 from time import time
 from time import sleep
+from typing import Any
 from .modbus import Modbus
 # from .register import U32, U64, STR32, S32, Register  # , S16, U16
 from .smareg import add_tripower_register, set_tripower_TAGLIST
@@ -12,7 +15,7 @@ import jsons
 
 
 class SMA:
-    ERRORSTRINGS = [
+    ERRORSTRINGS: list[str] = [
         "Error 0",
         "Unknown command",
         "Timeout",
@@ -25,20 +28,20 @@ class SMA:
         "Incorrect command for device or option"
     ]
 
-    ip = "127.0.0.1"
-    port = 502
-    pvdata = PVData()
-    unit = 3
-    wrmodbus = None
-    PwrLastDayCounter = 0
-    lastday = 0
+    ip: str = "127.0.0.1"
+    port: int = 502
+    pvdata: PVData = PVData()
+    unit: int = 3
+    wrmodbus: Any = None
+    PwrLastDayCounter: int = 0
+    lastday: int = 0
 
-    isreadingalready = False
+    isreadingalready: bool = False
 
-    def __init__(self, wrcount=1):
+    def __init__(self, wrcount: int = 1) -> None:
 
         self.pvdata.wr.clear()
-        for i in range(wrcount):
+        for _ in range(wrcount):
             self.pvdata.wr.append(PVWR())
 
     def open(self):
@@ -74,7 +77,10 @@ class SMA:
         # TODO Write self.PwrLastDayCounter somewhere
 
     def GetAllData(self):
-        if(not self.isreadingalready):
+        if self.wrmodbus is None:
+            raise RuntimeError("Modbus connection is not open")
+
+        if not self.isreadingalready:
             self.isreadingalready = True
             try:
                 # self.pvdata = PVData()  # Clear everything
@@ -109,7 +115,7 @@ class SMA:
                 self.pvdata.PDayTotal = self.wrmodbus.available_registers[30517].value
 
                 # Nur wenn mindestens 1 Inverter aktiv ist
-                if(self.pvdata.ActiveInvCnt > 0):
+                if (self.pvdata.ActiveInvCnt > 0):
 
                     for i in range(len(self.pvdata.wr)):
                         self.pvdata.wr[i].DevType = 0  # 1 byte
@@ -145,7 +151,7 @@ class SMA:
 
                         pab = (self.pvdata.wr[i].UAC * self.pvdata.wr[i].IAC)
                         pzu = (self.pvdata.wr[i].UDC * self.pvdata.wr[i].IDC)
-                        if(pzu == 0):
+                        if (pzu == 0):
                             self.pvdata.wr[i].EFF = 0
                         else:
                             self.pvdata.wr[i].EFF = round(pab / pzu, 3)
@@ -171,10 +177,10 @@ class SMA:
             # Warte max. 10 Sek bis Daten gelesen wurden
             print("Wait for busy Fronius data ready")
             timeout = 100
-            while(self.isreadingalready and timeout > 0):
+            while (self.isreadingalready and timeout > 0):
                 sleep(0.1)
                 timeout = timeout - 1
-            if(timeout <= 0):
+            if (timeout <= 0):
                 print("Timeout busy Fronius wait for data ready", file=sys.stderr)
             print("Data ready from busy Fronius")
 

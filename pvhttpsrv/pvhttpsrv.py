@@ -27,6 +27,11 @@ class PVHttpSrv(PVBaseModul):
 
     def __init__(self, serveraddress="", port=8080, directory="", onDataRequest=None, onWebCamRequest=None):
         super().__init__()
+        self.serveraddress = serveraddress
+        self.port = port
+        self.directory = directory
+        self.onDataRequest = onDataRequest
+        self.onWebCamRequest = onWebCamRequest
 
     def InitArguments(self, parser):
         super().InitArguments(parser)

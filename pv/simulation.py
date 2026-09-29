@@ -9,7 +9,7 @@ class PVSimulation:
 
     def GetPVDataSimulation(self):
 
-        if(len(self.pvdata.wr) < 2):
+        if (len(self.pvdata.wr) < 2):
             self.pvdata.wr.clear()
             self.pvdata.wr.append(PVWR())
             self.pvdata.wr.append(PVWR())
@@ -17,9 +17,9 @@ class PVSimulation:
         rnd = random() * 2 - 1  # rnd=(+-)1
 
         udc = round(rnd * 20 + self.pvdata.wr[0].UDC, 1)
-        if(udc < 0):
+        if (udc < 0):
             udc = 0
-        elif(udc > 300):
+        elif (udc > 300):
             udc = 300
 
         idc = (udc / 15) + (rnd * 10)

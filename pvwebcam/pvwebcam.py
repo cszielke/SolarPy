@@ -63,7 +63,7 @@ class PVWebCam(PVBaseModul):
         try:
             # response = requests.get(self.url)
             response = requests.get(self.url, verify=False, auth=(self.username, self.password))
-            if(response.status_code >= 200 and response.status_code < 300):
+            if (response.status_code >= 200 and response.status_code < 300):
                 im = Image.open(io.BytesIO(response.content))
             else:
                 raise ValueError('Error GetWebCam: Status Code {}'.format(response.status_code))
@@ -72,7 +72,7 @@ class PVWebCam(PVBaseModul):
             im = self.GetErrorImage()
 
         try:
-            if(withdata):
+            if (withdata):
                 self.pvdata, self.weatherdata = self.onDataRequest(self)
                 # now = datetime.now()
                 now = datetime.fromtimestamp(self.pvdata.Time)
@@ -89,10 +89,10 @@ class PVWebCam(PVBaseModul):
                     round(self.weatherdata.Tout, 1),
                     round(self.weatherdata.Wind, 1))
 
-                width, height = im.size
+                _, height = im.size
 
                 # Check for Font file
-                if(not os.path.isfile(self.ttffile)):
+                if (not os.path.isfile(self.ttffile)):
                     raise ValueError('TTF-File not exist {}'.format(self.ttffile))
                 font = ImageFont.truetype(self.ttffile, 16)
 
@@ -120,7 +120,7 @@ class PVWebCam(PVBaseModul):
 
             fn = os.path.join(fnpath, name)
 
-            if(not os.path.exists(fnpath)):
+            if (not os.path.exists(fnpath)):
                 os.makedirs(fnpath)
 
             print("Save Webcam picture from {} to {}".format(self.url, fn))

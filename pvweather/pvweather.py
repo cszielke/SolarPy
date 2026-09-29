@@ -68,11 +68,11 @@ class PVWeather(PVBaseModul):
         try:
             x = requests.get(IP)
             # print(x.text)
-            if(x.status_code == 200):
+            if (x.status_code == 200):
                 # print("received data")
                 kvp = {}
                 for line in x.iter_lines(decode_unicode=True):
-                    if(line.find(' ') != -1):
+                    if (line.find(' ') != -1):
                         # print(str(line))
                         key = line.split(' ', 1)[0]
                         value = line.split(' ', 1)[1].replace(",", ".")
@@ -121,22 +121,22 @@ class PVWeather(PVBaseModul):
         try:
             x = requests.get(IP)
             print(x.text)
-            if(x.status_code == 200):
+            if (x.status_code == 200):
                 parsed_json_all = json.loads(x.text)
                 print(parsed_json_all)
                 print("Weather source: " + str(self.source))
                 # print("received data")
                 # kvp = {}
                 # for line in x.iter_lines(decode_unicode=True):
-                #     if(line.find(' ') != -1):
+                #     if (line.find(' ') != -1):
                 #         print(str(line))
                 #         key = line.split(' ', 1)[0]
                 #         value = line.split(' ', 1)[1].replace(",", ".")
                 #         print("Key: "+str(key)+" Value: "+str(value) )
                 #         kvp[key] = value
-                if(self.source.lower() == "ecowitt"):
+                if (self.source.lower() == "ecowitt"):
                     print("Doing ecowitt data parsing")
-                    if(parsed_json_all['msg'] != "success"):
+                    if (parsed_json_all['msg'] != "success"):
                         self.weatherdata.Error = "Error: Ecowitt API returned error: " + str(parsed_json_all['msg'])
                         print(self.weatherdata.Error, file=sys.stderr)
                         return self.weatherdata
@@ -177,7 +177,7 @@ class PVWeather(PVBaseModul):
                     self.weatherdata.Windchill = float(self.FtoC(parsed_json["outdoor"]["feels_like"]["value"]))
                     print(f"self.weatherdata.Windchill: {self.weatherdata.Windchill}")
 
-                elif(self.source.lower() == "wunderground"):
+                elif (self.source.lower() == "wunderground"):
                     print("Doing wunderground data parsing")
                     print(parsed_json_all['observations'][0])
                     parsed_json = parsed_json_all['observations'][0]
@@ -237,25 +237,25 @@ class PVWeather(PVBaseModul):
 
     def GetWindDirName(self, degree):
         # Info von http://climate.umn.edu/snow_fence/Components/winddirectionanddegreeswithouttable3.htm
-        if(degree <   0): return "Deg. negativ"  # noqa
-        if(degree > 360): return "Deg > 360"  # noqa
+        if (degree <   0): return "Deg. negativ"  # noqa
+        if (degree > 360): return "Deg > 360"  # noqa
 
-        if((degree > 348.75) or (degree <=  11.25) ): return "N"  # noqa
-        if((degree >  11.25) and (degree <=  33.75)): return "NNE"  # noqa
-        if((degree >  33.75) and (degree <=  56.25)): return "NE"  # noqa
-        if((degree >  56.25) and (degree <=  78.75)): return "ENE"  # noqa
-        if((degree >  78.75) and (degree <= 101.25)): return "E"  # noqa
-        if((degree > 101.25) and (degree <= 123.75)): return "ESE"  # noqa
-        if((degree > 123.75) and (degree <= 146.25)): return "SE"  # noqa
-        if((degree > 146.25) and (degree <= 168.75)): return "SSE"  # noqa
-        if((degree > 168.75) and (degree <= 191.25)): return "S"  # noqa
-        if((degree > 191.25) and (degree <= 213.75)): return "SSW"  # noqa
-        if((degree > 213.75) and (degree <= 236.25)): return "SW"  # noqa
-        if((degree > 236.25) and (degree <= 258.75)): return "WSW"  # noqa
-        if((degree > 258.75) and (degree <= 281.25)): return "W"  # noqa
-        if((degree > 281.25) and (degree <= 303.75)): return "WNW"  # noqa
-        if((degree > 303.75) and (degree <= 326.25)): return "NW"  # noqa
-        if((degree > 326.25) and (degree <= 348.75)): return "NNW"  # noqa
+        if ((degree > 348.75) or (degree <=  11.25) ): return "N"  # noqa
+        if ((degree >  11.25) and (degree <=  33.75)): return "NNE"  # noqa
+        if ((degree >  33.75) and (degree <=  56.25)): return "NE"  # noqa
+        if ((degree >  56.25) and (degree <=  78.75)): return "ENE"  # noqa
+        if ((degree >  78.75) and (degree <= 101.25)): return "E"  # noqa
+        if ((degree > 101.25) and (degree <= 123.75)): return "ESE"  # noqa
+        if ((degree > 123.75) and (degree <= 146.25)): return "SE"  # noqa
+        if ((degree > 146.25) and (degree <= 168.75)): return "SSE"  # noqa
+        if ((degree > 168.75) and (degree <= 191.25)): return "S"  # noqa
+        if ((degree > 191.25) and (degree <= 213.75)): return "SSW"  # noqa
+        if ((degree > 213.75) and (degree <= 236.25)): return "SW"  # noqa
+        if ((degree > 236.25) and (degree <= 258.75)): return "WSW"  # noqa
+        if ((degree > 258.75) and (degree <= 281.25)): return "W"  # noqa
+        if ((degree > 281.25) and (degree <= 303.75)): return "WNW"  # noqa
+        if ((degree > 303.75) and (degree <= 326.25)): return "NW"  # noqa
+        if ((degree > 326.25) and (degree <= 348.75)): return "NNW"  # noqa
 
     def GetWindChill(self, temp, wind):
         # Calc Windchill (http://de.wikipedia.org/wiki/Windchill
@@ -271,7 +271,7 @@ class PVWeather(PVBaseModul):
 
         # Sättingungsdampfdruck in Abhängigkeit von der Temperatur
 
-        if(temp >= 0):   # Sättigungsdampfdruck über Wasser
+        if (temp >= 0):   # Sättigungsdampfdruck über Wasser
             a = 7.5
             b = 237.3
         else:
@@ -282,7 +282,7 @@ class PVWeather(PVBaseModul):
 
         # Dampfdruck in Abhängigkeit von der Temperatur und der relativen Feuchte
         dd = humidity / 100 * sdd
-        if(temp >= 0):
+        if (temp >= 0):
             a = 7.5
             b = 237.3
         else:

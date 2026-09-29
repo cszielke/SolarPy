@@ -32,7 +32,7 @@ class PVRestApi:
     def GetPVDataRestApi(self):
         IP = self.host + self.url  # "http://192.168.15.160/rawdata.html"
 
-        if(len(self.pvdata.wr) < 2):
+        if (len(self.pvdata.wr) < 2):
             self.pvdata.wr.clear()
             self.pvdata.wr.append(PVWR())
             self.pvdata.wr.append(PVWR())
@@ -40,11 +40,11 @@ class PVRestApi:
         try:
             x = requests.get(IP)
             # print(x.text)
-            if(x.status_code == 200):
+            if (x.status_code == 200):
                 # print("received data")
                 kvp = {}
                 for line in x.iter_lines(decode_unicode=True):
-                    if(line.find(':') != -1):
+                    if (line.find(':') != -1):
                         # print(str(line))
                         line = line.replace("&nbsp;", "").replace("<br>", "")
                         key = line.split(':', 1)[0].replace(" ", "_")

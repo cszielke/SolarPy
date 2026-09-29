@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# pyright: reportMissingTypeStubs=false
+# pyright: reportUnknownMemberType=false
 import jsons
 from dataclasses import dataclass
 from time import time
@@ -11,30 +13,29 @@ from time import time
 
 @dataclass
 class WeatherData:
-    MeasureTime = time()
-    Tout = -273.15
-    Tin = -273.15
-    Hout = 0.0
-    Hin = 0.0
-    Rain1h = 0.0
-    Rain24h = 0.0
-    RainTotal = 0.0
-    PressureRel = 0.0
-    PressureAbs = 0.0
-    Wind = 0.0
-    WindAvg = 0.0
-    WindGust = 0.0
-    WindDir = 0.0
-    State = ""
-    Error = ""
-    # extra Values
-    Tendency = "notvalid"
-    Forecast = "notvalid"
-    Storm = "notvalid"
-    Drewpoint = 0.0
-    Windchill = 0.0
-    WindDirName = ""
+    MeasureTime: float = time()
+    Tout: float = -273.15
+    Tin: float = -273.15
+    Hout: float = 0.0
+    Hin: float = 0.0
+    Rain1h: float = 0.0
+    Rain24h: float = 0.0
+    RainTotal: float = 0.0
+    PressureRel: float = 0.0
+    PressureAbs: float = 0.0
+    Wind: float = 0.0
+    WindAvg: float = 0.0
+    WindGust: float = 0.0
+    WindDir: float = 0.0
+    State: str = ""
+    Error: str = ""
+    Tendency: str = "notvalid"
+    Forecast: str = "notvalid"
+    Storm: str = "notvalid"
+    Drewpoint: float = 0.0
+    Windchill: float = 0.0
+    WindDirName: str = ""
 
-    def toJson(self):
+    def toJson(self) -> str:
         jsondata = str(jsons.dump(self)).replace("'", '"')
         return jsondata

@@ -72,15 +72,19 @@ class PVMqtt(PVBaseModul):
         print("Publishing message to topic '{}' with value '{}'".format(self.basetopic + "alive", t))
         self.client.publish(self.basetopic + "alive", t)
 
-    def on_log(self, client, userdata, level, buf):
-        if(level == 0x08):
+    def on_log(self, _client, _userdata, level, buf):
+        if _client is not None or _userdata is not None:
+            pass
+        if (level == 0x08):
             levelstr = "Error"
             print("MQTT log: {}: {}".format(levelstr, buf), file=sys.stderr)
         else:
             levelstr = "INFO"
             print("MQTT log: {}: {}".format(levelstr, buf))
 
-    def on_message(self, client, userdata, message):
+    def on_message(self, _client, _userdata, message):
+        if _client is not None or _userdata is not None:
+            pass
 
         print("message received {}".format(str(message.payload.decode("utf-8"))))
         print("message topic={}".format(message.topic))
@@ -109,5 +113,5 @@ class PVMqtt(PVBaseModul):
         self.client.disconnect()
 
     def _getData(self):
-        if(self.onDataRequest is not None):
+        if (self.onDataRequest is not None):
             self.pvdata, self.weatherdata = self.onDataRequest(self)

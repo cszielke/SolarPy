@@ -6,10 +6,14 @@ class PVBaseModul():
     def __init__(self):
         pass
 
-    def InitArguments(self, parser):
+    def InitArguments(self, _parser):
+        if _parser is not None:
+            pass
         print("PVBaseModul.InitArguments() called")
 
-    def SetConfig(self, config, args):
+    def SetConfig(self, _config, _args):
+        if _config is not None and _args is not None:
+            pass
         print("PVBaseModul.SetConfig() called")
 
     def Connect(self):
@@ -17,19 +21,19 @@ class PVBaseModul():
 
     def CheckArgsOrConfig(self, config, constantvar, argconfig, configsection, configtopic, type='str'):
         try:
-            if(argconfig is not None):  # Argument has priority
+            if (argconfig is not None):  # Argument has priority
                 print("Var '{}.{}' from commandline set to {}".format(configsection, configtopic, argconfig))
                 return argconfig
             else:
                 # check for config
-                if(config.has_option(configsection, configtopic)):
-                    if(type == 'str'):
+                if (config.has_option(configsection, configtopic)):
+                    if (type == 'str'):
                         v = config.get(configsection, configtopic)
                         print("Var '{}.{}' from config set to {} (str)".format(configsection, configtopic, v))
-                    elif(type == 'int'):
+                    elif (type == 'int'):
                         v = config.getint(configsection, configtopic)
                         print("Var '{}.{}' from config set to {} (int)".format(configsection, configtopic, v))
-                    elif(type == 'bool'):
+                    elif (type == 'bool'):
                         v = config.getboolean(configsection, configtopic)
                         print("Var '{}.{}' from config set to {} (boolean)".format(configsection, configtopic, v))
                     else:

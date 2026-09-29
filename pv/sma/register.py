@@ -33,9 +33,11 @@ class Register:
     def __str__(self):
         return f"{self.id} {self.name} ({self.description}) {self.get_formattedValue()}"
 
-    def set_registers(self, registers):
+    def set_registers(self, _registers):
         # Decode the registers and store it to value
         # If Value is Numeric in Subclass use scalefactor
+        if _registers is not None:
+            pass
         raise NotImplementedException()
 
     def get_formattedValue(self):

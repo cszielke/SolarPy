@@ -1,0 +1,32 @@
+{
+  "include": [
+    "**/*.py"
+  ],
+  "exclude": [
+    "**/env/**",
+    "**/build/**",
+    "**/.git/**"
+  ],
+  "typeCheckingMode": "basic",
+  "reportMissingTypeStubs": "none",
+  "reportUnknownMemberType": "none",
+  "reportUnknownVariableType": "none",
+  "reportUnknownArgumentType": "none",
+  "reportUnknownParameterType": "none",
+  "reportMissingParameterType": "none",
+  "reportAttributeAccessIssue": "none",
+  "reportOptionalMemberAccess": "none",
+  "reportAssignmentType": "none",
+  "reportUnusedVariable": "none",
+  "reportUnusedImport": "none",
+  "reportConstantRedefinition": "none",
+  "reportGeneralTypeIssues": "none",
+  "reportPrivateImportUsage": "none",
+  "reportCallIssue": "none",
+  "reportOptionalCall": "none",
+  "reportUnusedClassAttribute": "none",
+  "reportArgumentType": "none",
+  "reportDeprecated": "none",
+  "reportUnusedParameter": "none",
+  "reportUnusedVariable": "none"
+}

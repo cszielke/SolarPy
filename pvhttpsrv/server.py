@@ -20,7 +20,7 @@ class Server(BaseHTTPRequestHandler):
         request_name = os.path.basename(self.path)
 
         content_length = int(self.headers['Content-Length'])  # <--- Gets the size of data
-        if(content_length > 0):
+        if (content_length > 0):
             post_data = self.rfile.read(content_length)  # <--- Gets the data itself
 
         if request_name == "config":

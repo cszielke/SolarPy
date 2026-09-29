@@ -22,12 +22,12 @@ class WebCamRequestHandler(RequestHandler):
             webc = bytearray()
             self.setStatus(404)
 
-            if(self.request_name == "pvipcam.jpg"):
-                if(self.onWebCamRequest is not None):
+            if (self.request_name == "pvipcam.jpg"):
+                if (self.onWebCamRequest is not None):
                     self.setStatus(200)
                     webc = self.onWebCamRequest(withdata=True)
-            elif(self.request_name == "ipcam.jpg"):
-                if(self.onWebCamRequest is not None):
+            elif (self.request_name == "ipcam.jpg"):
+                if (self.onWebCamRequest is not None):
                     self.setStatus(200)
                     webc = self.onWebCamRequest(withdata=False)
             else:

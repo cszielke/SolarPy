@@ -117,15 +117,27 @@ class FroniusIG:
             dsrdtr=False,
             inter_byte_timeout=None):
 
+        self.port = port
+        self.baudrate = baudrate
+        self.bytesize = bytesize
+        self.parity = parity
+        self.stopbits = stopbits
+        self.timeout = timeout
+        self.xonxoff = xonxoff
+        self.rtscts = rtscts
+        self.write_timeout = write_timeout
+        self.dsrdtr = dsrdtr
+        self.inter_byte_timeout = inter_byte_timeout
+
         self.ser = None
 
         self.pvdata.wr.clear()
-        for i in range(wrcount):
+        for _ in range(wrcount):
             self.pvdata.wr.append(PVWR())
 
     def open(self):
         print("Open COM-Port")
-        if(self.ser is None):
+        if (self.ser is None):
             self.ser = serial.Serial(
                 port=self.port,
                 baudrate=self.baudrate,
@@ -141,7 +153,7 @@ class FroniusIG:
 
     def close(self):
         print("Close COM-Port")
-        if(self.ser is not None):
+        if (self.ser is not None):
             self.ser.close()
             self.ser = None
 
@@ -149,7 +161,7 @@ class FroniusIG:
         try:
             length = len(val)
 
-            if(length == 0):
+            if (length == 0):
                 ba1 = pack(">BBBB", length, dev, nr + 1, cmd)
             else:
                 ba1 = pack(">BBBB{}s".format(length), length, dev, nr + 1, cmd, val)
@@ -177,11 +189,11 @@ class FroniusIG:
 
     def WaitForBytesAvail(self, cnt=1):
         timeout = 50  # Max 0,5 Sek auf min. cnt Zeichen warten
-        while(self.ser.in_waiting < cnt and timeout > 0):
+        while (self.ser.in_waiting < cnt and timeout > 0):
             sleep(0.01)
             timeout = timeout - 1
 
-        if(timeout == 0):
+        if (timeout == 0):
             self.close()
             sleep(0.5)
             self.open()
@@ -205,18 +217,18 @@ class FroniusIG:
         data = bytearray()
         try:
             ba = bytearray()
-            if(not self.WaitForBytesAvail(cnt=7)):
+            if (not self.WaitForBytesAvail(cnt=7)):
                 raise ValueError('Timeout receiving bytes')
 
             # Get available bytes
             ba += self.ser.read(size=7)
 
             # Check length again
-            if(len(ba) < 7):
+            if (len(ba) < 7):
                 raise ValueError('To less bytes received ({})'.format(len(ba)))
 
             # Startsequenz OK?
-            if(ba[0] != 0x80 or ba[1] != 0x80 or ba[2] != 0x80):
+            if (ba[0] != 0x80 or ba[1] != 0x80 or ba[2] != 0x80):
                 raise ValueError("Start sequence wrong")
 
             # get parameter
@@ -228,42 +240,42 @@ class FroniusIG:
             # 3xStart + length + device + number + command + data[datalength] + checksum
             baLenNeeded = 3 + 1 + 1 + 1 + 1 + datalength + 1
             restbytescnt = baLenNeeded - len(ba)
-            if(not self.WaitForBytesAvail(cnt=restbytescnt)):
+            if (not self.WaitForBytesAvail(cnt=restbytescnt)):
                 raise ValueError('Timeout receiving rest bytes')
 
             # Get available bytes
             ba += self.ser.read(size=restbytescnt)
 
-            if(len(ba) < baLenNeeded):
+            if (len(ba) < baLenNeeded):
                 raise ValueError('To less rest bytes received ({})'.format(len(ba)))
 
             # we are here, so we have a complete sequence
             data += ba[7:(7 + datalength)]
             checksum = ba[baLenNeeded - 1]
 
-            if(not self.CheckChkSum(checksum, ba)):
+            if (not self.CheckChkSum(checksum, ba)):
                 raise ValueError('Checksum Error received')
 
-            if(command == 0x0e):  # Error?
+            if (command == 0x0e):  # Error?
                 c = data[0]
                 nr = data[1]
-                if(nr > 0 and nr < len(self.ERRORSTRINGS)):
+                if (nr > 0 and nr < len(self.ERRORSTRINGS)):
                     print("Error Nr: " + str(nr) + "(" + self.ERRORSTRINGS[nr] + ") in cmd " + str(c))
                 else:
                     print("Error Nr: " + str(nr))
                 data = bytearray()  # clear Data
 
-            elif(command == 0x0f):  # Status?
+            elif (command == 0x0f):  # Status?
                 c = data[0]
                 nr = data[1]
-                if(nr > 0 and nr < len(self.ERRORSTRINGS)):
+                if (nr > 0 and nr < len(self.ERRORSTRINGS)):
                     print("Status Nr: " + str(nr) + "(" + self.ERRORSTRINGS[nr] + ") in cmd" + str(c))
                 else:
                     print("Status Nr: " + str(nr))
                 data = bytearray()  # clear Data
 
             # Check for another chunk of bytes available (Status or Error)
-            if(self.ser.in_waiting > 0):
+            if (self.ser.in_waiting > 0):
                 self.RecvIG()  # recursive
 
         except BaseException as e:
@@ -276,13 +288,13 @@ class FroniusIG:
 
     def parseFloatValue(self, ba):
         val = 0
-        if(len(ba) == 3):
+        if (len(ba) == 3):
             m, exp = unpack(">Hb", ba)
             val = round(m * pow(10, exp), 3)
         return val
 
     def GetAllData(self):
-        if(not self.isreadingalready):
+        if (not self.isreadingalready):
             self.isreadingalready = True
             try:
                 # self.pvdata = PVData()  # Clear everything
@@ -310,14 +322,14 @@ class FroniusIG:
 
                 self.SendIG(Devices.DEV_IFCARD, 0, Commands.IFCCMD_GET_LOCALNET_STATUS)
                 val = self.RecvIG()
-                if(len(val) > 0):
+                if (len(val) > 0):
                     self.pvdata.LocalNetStatus = val[0]  # 1 byte
 
                 self.pvdata.PTotal = 0
                 self.pvdata.PDayTotal = 0
 
                 # Nur wenn mindestens 1 Inverter aktiv ist
-                if(len(self.pvdata.ActiveInvCnt) != 0):
+                if self.pvdata.ActiveInvCnt != 0:
 
                     for i in range(len(self.pvdata.wr)):
                         self.SendIG(Devices.DEV_INV, i, Commands.IFCCMD_GET_DEVTYP)
@@ -364,7 +376,7 @@ class FroniusIG:
 
                         pab = (self.pvdata.wr[i].UAC * self.pvdata.wr[i].IAC)
                         pzu = (self.pvdata.wr[i].UDC * self.pvdata.wr[i].IDC)
-                        if(pzu == 0):
+                        if (pzu == 0):
                             self.pvdata.wr[i].EFF = 0
                         else:
                             self.pvdata.wr[i].EFF = round(pab / pzu, 3)
@@ -380,10 +392,10 @@ class FroniusIG:
             # Warte max. 10 Sek bis Daten gelesen wurden
             print("Wait for busy Fronius data ready")
             timeout = 100
-            while(self.isreadingalready and timeout > 0):
+            while (self.isreadingalready and timeout > 0):
                 sleep(0.1)
                 timeout = timeout - 1
-            if(timeout <= 0):
+            if (timeout <= 0):
                 print("Timeout busy Fronius wait for data ready", file=sys.stderr)
             print("Data ready from busy Fronius")
 

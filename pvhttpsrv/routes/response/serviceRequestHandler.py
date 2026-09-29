@@ -16,7 +16,7 @@ class ServiceRequestHandler(RequestHandler):
         try:
             print("ServiceRequestHandler processPost: '" + self.request_name + "'")
 
-            if(not(None is post_data or len(post_data) == 0)):
+            if (not(None is post_data or len(post_data) == 0)):
                 print("POST request,\nPath: '{}' Body:\n{}\n".format(
                     str(file_path), post_data.decode('utf-8')))
 

@@ -24,7 +24,7 @@ class StaticHandler(RequestHandler):
             basedir = os.path.join(os.path.abspath(self.directory), "public")
 
             filename = file_path
-            while(os.path.isabs(filename) and len(filename) > 0):  # begins with a "/"?
+            while (os.path.isabs(filename) and len(filename) > 0):  # begins with a "/"?
                 filename = filename[1:]
             filename = os.path.join(basedir, filename.replace("..", ""))
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# pyright: reportConstantRedefinition=false
 import argparse
 import configparser
 
@@ -8,6 +9,7 @@ import logging.handlers
 import sys
 import os.path
 from time import sleep
+from typing import Any, Optional, TextIO
 
 from pv import FroniusIG
 from pv import SMA
@@ -25,14 +27,14 @@ from pvweather import PVWeather
 # region defaults
 VERSION = "V0.2.1"
 
-LOG_FILENAME = ""
+LOG_FILENAME: str = ""
 LOG_BACKUP_COUNT = 3
-LOG_LEVEL = logging.INFO  # Could be e.g. "DEBUG" or "WARNING"
+LOG_LEVEL: int = logging.INFO  # Could be e.g. "DEBUG" or "WARNING"
 
 CONFIG_FILENAME = "./solarpy.cfg"
 DATASOURCE = 'simulation'
 
-FRONIUSCOMPORT = ""
+FRONIUSCOMPORT: str = ""
 
 RESTHOST = "http://127.0.0.1"
 RESTURL = "/rawdata.html"
@@ -42,85 +44,79 @@ SMAPORT = 502
 SMAUNIT = 3
 # endregion defaults
 
-config = configparser.ConfigParser()
-pv = None
-influxClient = PVInflux()
-influx2Client = PVInflux2()
-mysqlclient = PVMySQL()
-mqttclient = PVMqtt()
-httpsrv = PVHttpSrv()
-webcam = PVWebCam()
-pvweather = PVWeather()
-pvdata = PVData()
+config: configparser.ConfigParser = configparser.ConfigParser()
+pv: Any = None
+influxClient: Any = PVInflux()
+influx2Client: Any = PVInflux2()
+mysqlclient: Any = PVMySQL()
+mqttclient: Any = PVMqtt()
+httpsrv: Any = PVHttpSrv()
+webcam: Any = PVWebCam()
+pvweather: Any = PVWeather()
+pvdata: PVData = PVData()
 
 
-def GetAllData():
-    # global pv
-    # global DATASOURCE
+def GetAllData() -> None:
     global pvdata
 
-    # global RESTHOST
-    # global RESTURL
-
     print("GetAllData from {}".format(DATASOURCE))
-    if(DATASOURCE == "ifcardeasy"):
-        pv.GetAllData()
-        pvdata = pv.pvdata
-    elif(DATASOURCE == "sma"):
-        pv.GetAllData()
-        pvdata = pv.pvdata
-    elif(DATASOURCE == "restapi"):
-        restapi = PVRestApi(host=RESTHOST, url=RESTURL)
+    if DATASOURCE == "ifcardeasy":
+        if pv is not None:
+            pv.GetAllData()
+            pvdata = pv.pvdata
+    elif DATASOURCE == "sma":
+        if pv is not None:
+            pv.GetAllData()
+            pvdata = pv.pvdata
+    elif DATASOURCE == "restapi":
+        restapi: PVRestApi = PVRestApi(host=RESTHOST, url=RESTURL)
         pvdata = restapi.GetPVDataRestApi()
-    elif(DATASOURCE == "simulation"):
-        sim = PVSimulation()
+    elif DATASOURCE == "simulation":
+        sim: PVSimulation = PVSimulation()
         pvdata = sim.GetPVDataSimulation()
     else:
         pvdata.Time = 0
         pvdata.Error = "Error: No valid datasource [ifcard,restapi,simulation]: (" + DATASOURCE + ")"
         print(pvdata.Error)
-        exit(1)
+        raise SystemExit(1)
 
-    if(pvweather.enabled):
+    if pvweather.enabled:
         pvweather.GetWeatherData()
 
 
-def CheckArgsOrConfig(constantvar, argconfig, configsection, configtopic, type='str'):
-    # global config
-
-    if(argconfig is not None):  # Argument has priority
+def CheckArgsOrConfig(constantvar: Any, argconfig: Optional[Any], configsection: str, configtopic: str, type: str = "str") -> Any:
+    if argconfig is not None:
         print("Var '{}.{}' from commandline set to {}".format(configsection, configtopic, argconfig))
         return argconfig
-    else:
-        # check for config
-        if(config.has_option(configsection, configtopic)):
-            if(type == 'str'):
-                v = config.get(configsection, configtopic)
-                print("Var '{}.{}' from config set to {} (str)".format(configsection, configtopic, v))
-            elif(type == 'int'):
-                v = config.getint(configsection, configtopic)
-                print("Var '{}.{}' from config set to {} (int)".format(configsection, configtopic, v))
-            else:
-                print("Error CheckArgsOrConfig: unknown type")
 
-            return v
+    if config.has_option(configsection, configtopic):
+        if type == 'str':
+            v: Any = config.get(configsection, configtopic)
+            print("Var '{}.{}' from config set to {} (str)".format(configsection, configtopic, v))
+        elif type == 'int':
+            v = config.getint(configsection, configtopic)
+            print("Var '{}.{}' from config set to {} (int)".format(configsection, configtopic, v))
+        else:
+            print("Error CheckArgsOrConfig: unknown type")
+            return constantvar
+        return v
 
     print("Var '{}.{}' from program default set to {} ".format(configsection, configtopic, constantvar))
     return constantvar
 
 
-def OnDataRequest(self):
-    # global pvdata
+def OnDataRequest(_self: Any) -> tuple[Any, Any]:
+    del _self
     GetAllData()
     return pvdata, pvweather.weatherdata
 
 
-def OnWebCamRequest(self, withdata=False):
-    # global webcam
+def OnWebCamRequest(_self: Any, withdata: bool = False) -> Any:
+    del _self
     return webcam.GetWebCam(withdata)
 
 
-def main():
+def main() -> int:
     # region globals
     global CONFIG_FILENAME
     global LOG_FILENAME
@@ -170,7 +166,7 @@ def main():
     webcam.InitArguments(parser)
     pvweather.InitArguments(parser)
 
-    args = parser.parse_args()
+    args: argparse.Namespace = parser.parse_args()
     # endregion Argument parser
 
     # region configuration file
@@ -193,10 +189,10 @@ def main():
     # region Logging
     LOG_FILENAME = CheckArgsOrConfig(LOG_FILENAME, args.logfile, "program", "logfile")
     LOG_BACKUP_COUNT = CheckArgsOrConfig(LOG_BACKUP_COUNT, args.logbackupcount, "program", "logbackupcount", type='int')
-    if(LOG_FILENAME != ""):
+    if (LOG_FILENAME != ""):
         # Configure logging to log to a file, making a new file at midnight and keeping the last 3 day's data
         # Give the logger a unique name (good practice)
-        logger = logging.getLogger(__name__)
+        logger: logging.Logger = logging.getLogger(__name__)
         # Set the log level to LOG_LEVEL
         logger.setLevel(LOG_LEVEL)
         # Make a handler that writes to a file, making a new file at midnight and keeping 3 (default) backups
@@ -210,16 +206,16 @@ def main():
 
         # Make a class we can use to capture stdout and sterr in the log
         class MyLogger(object):
-            islogging = False
+            islogging: bool = False
 
-            def __init__(self, logger, level, originalprint):
+            def __init__(self, logger: logging.Logger, level: int, originalprint: TextIO) -> None:
                 """Needs a logger and a logger level."""
-                self.logger = logger
-                self.level = level
-                self.originalprint = originalprint
+                self.logger: logging.Logger = logger
+                self.level: int = level
+                self.originalprint: TextIO = originalprint
 
-            def write(self, message):
-                if(self.islogging):
+            def write(self, message: str) -> None:
+                if self.islogging:
                     return
                 self.islogging = True
                 try:
@@ -228,22 +224,21 @@ def main():
                         self.logger.log(self.level, message.rstrip())
 
                 except BaseException as e:
-                    backup = sys.stdout  # backup output
-                    sys.stdout = self.originalprint  # set stdout to prevent recursion and stack overflow
+                    backup: TextIO = sys.stdout
+                    sys.stdout = self.originalprint
                     print("LoggerError: {} Msg: {}".format(str(e), message.rstrip()))
-                    sys.stdout = backup  # restore output
-                    pass
+                    sys.stdout = backup
                 self.islogging = False
 
-            def flush(self):
+            def flush(self) -> None:
                 # TODO: check if this is OK...
                 pass
 
         # Replace stdout with logging to file at INFO level
-        stdprintoriginal = sys.stdout
+        stdprintoriginal: TextIO = sys.stdout
         sys.stdout = MyLogger(logger, logging.INFO, stdprintoriginal)
         # Replace stderr with logging to file at ERROR level
-        stderroriginal = sys.stderr
+        stderroriginal: TextIO = sys.stderr
         sys.stderr = MyLogger(logger, logging.ERROR, stderroriginal)
 
     # logger start message
@@ -275,22 +270,22 @@ def main():
 
     global pv
     # region init datasources
-    if(DATASOURCE == "ifcardeasy"):
+    if (DATASOURCE == "ifcardeasy"):
         # global pv
         # TODO: Anzahl WR automatisch ermitteln oder konfigurierbar machen
         pv = FroniusIG(2)
         pv.port = FRONIUSCOMPORT
         pv.open()
-    elif(DATASOURCE == "sma"):
+    elif (DATASOURCE == "sma"):
         # global pv
         pv = SMA(2)
         pv.ip = SMAIP
         pv.unit = SMAUNIT
         pv.port = SMAPORT
         pv.open()
-    elif(DATASOURCE == "restapi"):
+    elif (DATASOURCE == "restapi"):
         pass
-    elif(DATASOURCE == "simulation"):
+    elif (DATASOURCE == "simulation"):
         pass
     else:
         print("Error: No valid datasource [ifcard,restapi,simulation,sma]: (" + DATASOURCE + ")")
@@ -298,26 +293,26 @@ def main():
     # endregion init datasources
 
     # region init destinations
-    if(httpsrv.enabled):
+    if (httpsrv.enabled):
         httpsrv.Connect(onDataRequest=OnDataRequest, onWebCamRequest=OnWebCamRequest)
         httpsrv.run()
 
-    if(influxClient.enabled):
+    if (influxClient.enabled):
         influxClient.Connect()
 
-    if(influx2Client.enabled):
+    if (influx2Client.enabled):
         influx2Client.Connect()
 
-    if(mysqlclient.enabled):
+    if (mysqlclient.enabled):
         mysqlclient.Connect()
 
-    if(mqttclient.enabled):
+    if (mqttclient.enabled):
         mqttclient.Connect(onDataRequest=OnDataRequest)
 
-    if(webcam.enabled):
+    if (webcam.enabled):
         webcam.Connect(onDataRequest=OnDataRequest)
 
-    if(pvweather.enabled):
+    if (pvweather.enabled):
         pvweather.Connect()
     # endregion init destinations
 
@@ -331,7 +326,7 @@ def main():
         mysqlivalcnt = mysqlclient.interval
         webcamcnt = webcam.interval
 
-        while(True):
+        while (True):
             sleep(1)
             mqttkacnt = mqttkacnt - 1
             mqttivalcnt = mqttivalcnt - 1
@@ -341,52 +336,52 @@ def main():
             webcamcnt = webcamcnt - 1
             # print("Counter: MQTT KeepAlive=",mqttkacnt,",MQTT interval=",mqttivalcnt,"InfluxDB Interval=",influxivalcnt,"\r", end = '')
 
-            if(mqttclient.enabled):
-                if(mqttivalcnt <= 0):
+            if (mqttclient.enabled):
+                if (mqttivalcnt <= 0):
                     mqttivalcnt = mqttclient.interval
-                    if(mqttclient.interval != 0):
+                    if (mqttclient.interval != 0):
                         print("Sending data via MQTT")
                         mqttclient.publishData()
                         mqttkacnt = 0  # do a keepalive!
 
-                if(mqttkacnt <= 0):
+                if (mqttkacnt <= 0):
                     mqttkacnt = mqttclient.keepalive
-                    if(mqttclient.keepalive != 0):
+                    if (mqttclient.keepalive != 0):
                         print("Sending keepalive via MQTT")
                         mqttclient.publishKeepAlive()
 
-            if(influxClient.enabled):
-                if(influxivalcnt <= 0):
+            if (influxClient.enabled):
+                if (influxivalcnt <= 0):
                     influxivalcnt = influxClient.interval
-                    if(influxClient.interval != 0):
+                    if (influxClient.interval != 0):
                         print("Saving to InfluxDB")
                         GetAllData()
                         influxClient.pvdata = pvdata
                         influxClient.SendData()
 
-            if(influx2Client.enabled):
-                if(influx2ivalcnt <= 0):
+            if (influx2Client.enabled):
+                if (influx2ivalcnt <= 0):
                     influx2ivalcnt = influx2Client.interval
-                    if(influx2Client.interval != 0):
+                    if (influx2Client.interval != 0):
                         print("Saving to InfluxDB2")
                         GetAllData()
                         influx2Client.pvdata = pvdata
                         influx2Client.SendData()
 
-            if(mysqlclient.enabled):
-                if(mysqlivalcnt <= 0):
+            if (mysqlclient.enabled):
+                if (mysqlivalcnt <= 0):
                     mysqlivalcnt = mysqlclient.interval
-                    if(mysqlclient.interval != 0):
+                    if (mysqlclient.interval != 0):
                         print("Saving to MySQL")
                         GetAllData()
                         mysqlclient.pvdata = pvdata
                         mysqlclient.weatherdata = pvweather.weatherdata
                         mysqlclient.SendData()
 
-            if(webcam.enabled):
-                if(webcamcnt <= 0):
+            if (webcam.enabled):
+                if (webcamcnt <= 0):
                     webcamcnt = webcam.interval
-                    if(webcam.interval != 0):
+                    if (webcam.interval != 0):
                         print("Saving Webcam picture")
                         webcam.SaveWebCam()
 
@@ -395,10 +390,10 @@ def main():
     # endregion main loop
 
     # region deinit destinations
-    if(mqttclient.enabled):
+    if (mqttclient.enabled):
         mqttclient.close()
 
-    if(httpsrv.enabled):
+    if (httpsrv.enabled):
         httpsrv.stop()
 
     # endregion deinit destinations

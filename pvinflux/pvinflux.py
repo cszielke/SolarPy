@@ -54,7 +54,7 @@ class PVInflux(PVBaseModul):
         try:
             datapoint = [{
                 "measurement": "PVAnlage",
-                "time": datetime.datetime.utcfromtimestamp(self.pvdata.Time),
+                "time": datetime.datetime.fromtimestamp(self.pvdata.Time, tz=datetime.timezone.utc),
                 "fields": {
                     "WR1WNow": float(self.pvdata.wr[0].PNow),
                     "WR1DCVNow": float(self.pvdata.wr[0].UDC),
