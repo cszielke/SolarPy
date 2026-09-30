@@ -22,6 +22,7 @@ to build the list for other languages or other SMA inverters:
     extract and union all values from column O (use text editor!)
     back in excel filter unique values, split text data by ":" and "generate code" with a formula
 
+For Sunny Tripower SE : https://files.sma.de/downloads/PARAMETER-HTML_STPxx-3SE-40_30109R_V11.zip
 """
 
 
@@ -115,11 +116,15 @@ def set_tripower_TAGLIST():
         1984: 'Blindleistungs-/Spannungskennlinie Q(U) mit Stützpunkten (VArCtlVolCrv)',
         2119: 'Abregelung (Drt)',
         2270: 'cos Phi- oder Q-Vorgabe durch Anlagensteuerung (VArPFCtlCom)',
+        2291: 'Batterie Standby (BatWait)',
+        2292: 'Batterie laden (BatCha)',
+        2293: 'Batterie entladen (BatDsch)',
         2476: 'Wie statische Spannungshaltung (VArModRef)',
         2478: 'Sekunden (XRefTms)',
         2479: 'Spannung in Prozent von Unenn (YRefVNom)',
         2506: 'Werte beibehalten (UsStp)',
         2507: 'Verwendung Fallback-Einstellung (UsFlb)',
+        3664: 'Notladebetrieb (EmgCha)',
         7501: 'RD1663/661-A (RD1663/661-A)',
         7510: 'VDE-AR-N4105 (VDE-AR-N4105)',
         7514: 'VDE-AR-N4105-HP (VDE-AR-N4105-HP)',
@@ -216,6 +221,16 @@ def add_tripower_register(wr: Modbus):
     wr.add_register(U32(30835, 'Inverter.WModCfg.WMod', 'Betriebsart des Einspeisemanagements', 'TAGLIST', ''))
     wr.add_register(U32(30837, 'Inverter.WModCfg.WCnstCfg.W', 'Wirkleistungsbegrenzung in W', 'FIX0', 'W'))
     wr.add_register(U32(30839, 'Inverter.WModCfg.WCnstCfg.WNom', 'Wirkleistungsbegrenzung in %', 'FIX0', '%'))
+
+    wr.add_register(S32(30843, "Bat.Amp", "Batteriestrom in A", 'FIX3', "A"))
+    wr.add_register(U32(30851, "Bat.Vol", "Batteriespannung", 'FIX2', "V"))
+    wr.add_register(U32(30845, "Bat.ChaStt", "Batterieladezustand", 'FIX0', "%"))
+    wr.add_register(S32(30849, "Bat.TmpVal", "Batterietemperatur", 'TEMP', "°C"))
+    wr.add_register(U64(31397, "BatChrg.BatChrg", "Batterieladung", 'FIX0', 'Wh'))
+    wr.add_register(U64(31401, "BatDsch.BatDsch", "Batterieentladung", 'FIX0', 'Wh'))
+    # wr.add_register(U32(30955, "Bat.OpStt", "Betriebsstatus der Batterie", 'TAGLIST', ''))
+    wr.add_register(U32(30955, "Bat.OpStt", "Betriebsstatus der Batterie", 'FIX0', ''))
+    
     wr.add_register(U32(30881, 'Operation.PvGriConn', 'Netzanbindung der PV-Anlage ', 'TAGLIST', ''))
     wr.add_register(U32(30919, 'Inverter.VArModCfg.VArModDmd', 'Betriebsart der statischen Spannungshaltung bei Q on Demand, Konfiguration der statischen Spannungshaltung', 'TAGLIST', ''))
     wr.add_register(U32(30925, 'Spdwr.ComSocA.ConnSpd', 'Verbindungsgeschwindigkeit von SMACOM A', 'TAGLIST', ''))

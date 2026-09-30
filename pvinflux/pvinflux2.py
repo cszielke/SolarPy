@@ -88,8 +88,14 @@ class PVInflux2(PVBaseModul):
                 .field("WR2WDay", float(self.pvdata.wr[1].PDay))
                 .field("PNow", float(self.pvdata.PTotal))
                 .field("PDay", float(self.pvdata.PDayTotal))
+                .field("BatAmp", float(self.pvdata.bat[0].BatAmp))
+                .field("BatVol", float(self.pvdata.bat[0].BatVol))
+                .field("BatChaStt", float(self.pvdata.bat[0].BatChaStt))
+                .field("BatTmpVal", float(self.pvdata.bat[0].BatTmpVal))
+                .field("BatChrg", float(self.pvdata.bat[0].BatChrg))
+                .field("BatDsch", float(self.pvdata.bat[0].BatDsch))
+                .field("BatOpState", str(self.pvdata.bat[0].BatOpState))
             )
-
             print(self.write_api.write(bucket=self.bucket, org=self.org, record=datapoint))
 
             print(datapoint)

@@ -37,17 +37,41 @@ class PVWR:
 
 
 @dataclass
+class PVBAT:
+    BatAmp: float = 0.0
+    BatVol: float = 0.0
+    BatChaStt: float = 0.0
+    BatTmpVal: float = 0.0
+    BatChrg: float = 0.0
+    BatDsch: float = 0.0
+    BatOpState: int = 0
+    BatOpStt: str = "Unknown"
+
+    def Clear(self) -> None:
+        self.BatAmp = 0.0
+        self.BatVol = 0.0
+        self.BatChaStt = 0.0
+        self.BatTmpVal = 0.0
+        self.BatChrg = 0.0
+        self.BatDsch = 0.0
+        self.BatOpState = 0
+        self.BatOpStt = "Information liegt nicht vor (NaNStt)"
+
+
+@dataclass
 class PVData:
     Error: str = "No Data"
     VersionIFC: List[int] = field(default_factory=lambda: [0, 0, 0, 0])
     DevTime: str = ""
     ActiveInvCnt: int = 0
     ActiveSensorCardCnt: int = 0
+    ActiveBattCnt: int = 0
     LocalNetStatus: int = -1
     Time: float = 0.0
     PTotal: float = 0.0
     PDayTotal: float = 0.0
     wr: List[PVWR] = field(default_factory=lambda: [PVWR()])
+    bat: List[PVBAT] = field(default_factory=lambda: [PVBAT()])
 
     def toJson(self) -> str:
         jsondata = str(jsons.dump(self)).replace("'", '"')
@@ -59,6 +83,7 @@ class PVData:
         self.DevTime = -1
         self.ActiveInvCnt = 0
         self.ActiveSensorCardCnt = 0
+        self.ActiveBattCnt = 0
         self.LocalNetStatus = -1
         self.Time = 0.0
         self.PTotal = 0.0
@@ -66,6 +91,8 @@ class PVData:
 
         for w in self.wr:
             w.Clear()
+        for b in self.bat:
+            b.Clear()
 
 
 @dataclass

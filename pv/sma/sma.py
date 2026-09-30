@@ -9,8 +9,9 @@ from typing import Any
 from .modbus import Modbus
 # from .register import U32, U64, STR32, S32, Register  # , S16, U16
 from .smareg import add_tripower_register, set_tripower_TAGLIST
-import sys
+from .register import Register
 
+import sys
 import jsons
 
 
@@ -63,7 +64,14 @@ class SMA:
             30957,  # 30957 DcMs.Amp.MPPT2 (DC Strom Eingang MPPT2) 9.340 A
             30959,  # 30959 DcMs.Vol.MPPT2 (DC Spannung Eingang MPPT2) 273.10 V
             30961,  # 30961 DcMs.Watt.MPPT2 (DC Leistung Eingang  MPPT2) 3 kW
-            34113   # 34113 Coolsys.Cab.TmpVal (Innentemperatur) 49.6 °C
+            34113,  # 34113 Coolsys.Cab.TmpVal (Innentemperatur) 49.6 °C
+            30843,  # 30843 Bat.Amp (Batteriestrom) 6.521 A
+            30851,  # 30851 Bat.Vol (Batteriespannung) 462.00 V
+            30845,  # 30845 Bat.ChaStt (Aktueller Batterieladezustand) 80 %
+            30849,  # 30849 Bat.TmpVal (Batterietemperatur) 25.0 °C
+            31397,  # 31397 BatChrg.BatChrg (Batterieladung)
+            31401,  # 31401 BatDsch.BatDsch (Batterieentladung)
+            30955   # 30955 Bat.OpStt (Betriebsstatus der Batterie)
         ]
 
         for register in registers:
@@ -108,6 +116,8 @@ class SMA:
                 self.pvdata.ActiveInvCnt = 2  # Len = 0-Inverter count
 
                 self.pvdata.ActiveSensorCardCnt = 1  # Len = 0 - Sensorcard Count
+
+                self.pvdata.ActiveBattCnt = 1  # Len = 0 - Battery Count
 
                 self.pvdata.LocalNetStatus = 0  # 1 byte
 
@@ -165,6 +175,27 @@ class SMA:
                 self.pvdata.wr[1].UDC = self.wrmodbus.available_registers[30959].value
                 self.pvdata.wr[1].IDC = self.wrmodbus.available_registers[30957].value
                 self.pvdata.wr[1].FAC = self.wrmodbus.available_registers[30803].value
+
+                # Nur wenn mindestens 1 Batterie aktiv ist
+                if (self.pvdata.ActiveBattCnt > 0):
+                    for i in range(len(self.pvdata.bat)):
+                        self.pvdata.bat[i].BatAmp = 0.0
+                        self.pvdata.bat[i].BatVol = 0.0
+                        self.pvdata.bat[i].BatChaStt = 0.0
+                        self.pvdata.bat[i].BatTmpVal = 0.0
+                        self.pvdata.bat[i].BatChrg = 0.0
+                        self.pvdata.bat[i].BatDsch = 0.0
+                        self.pvdata.bat[i].BatOpStt = "Information liegt nicht vor (NaNStt)"
+
+                self.pvdata.bat[0].BatAmp = self.wrmodbus.available_registers[30843].value
+                self.pvdata.bat[0].BatVol = self.wrmodbus.available_registers[30851].value
+                self.pvdata.bat[0].BatChaStt = self.wrmodbus.available_registers[30845].value
+                self.pvdata.bat[0].BatTmpVal = self.wrmodbus.available_registers[30849].value
+                self.pvdata.bat[0].BatChrg = self.wrmodbus.available_registers[31397].value
+                self.pvdata.bat[0].BatDsch = self.wrmodbus.available_registers[31401].value
+                self.pvdata.bat[0].BatOpState = self.wrmodbus.available_registers[30955].value
+                # remap State to string
+                self.pvdata.bat[0].BatOpStt = Register.SMA_TAGLIST.get(self.pvdata.bat[0].BatOpState, f"Unknown Value {self.pvdata.bat[0].BatOpState}")
 
                 self.pvdata.Error = "OK"  # everything ok, if we reach this line
 
