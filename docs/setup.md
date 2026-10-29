@@ -14,7 +14,7 @@ Für die Konfiguration des Programms die Datei ```./solarpy-default.cfg``` nach 
 
 Das Programm kann mit ```python ./SolarPy.py``` gestartet werden.
 
-## Upate
+## Update
 
 Um das Programm upzudaten folgende Befehle eingeben:
 
@@ -119,3 +119,23 @@ Dazu muss das externe Verzeichnis in ein locales Verzeichnis gemountet werden. D
 ```
 
 Das bewirkt, dass bereits beim Start des Raspberry in das Verzeichnis ```/var/nas``` die externe Netzwerkfreigabe ```//192.168.15.107/web``` eingebunden wird. Hier können jetzt Webcambilder und Log-File geschrieben werden.
+
+Sollte das nicht funktionieren, weil z.B. das Programm in einem LCX Container unter Proxmox läuft, dann eine Syncronisation auch über rsync erfolgen.
+
+## Alternative Installation
+
+```bash
+cd /pfad/zu/SolarPy
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+```
+-e installiert das Projekt im Entwicklungsmodus. Dabei werden die Laufzeitabhängigkeiten aus setup.py installiert und der Befehl solarpy eingerichtet. Danach kannst du es im Projektverzeichnis starten:
+
+```sh
+solarpy --help
+solarpy --configfile ./solarpy.cfg
+```
+
+Für eine normale, nicht editierbare Installation verwendest du `python -m pip install .` statt `-e .` . `python setup.py install` ist veraltet und sollte vermieden werden.
+

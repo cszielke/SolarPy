@@ -5,6 +5,7 @@
 Folgende Quellen für die PV-Daten sind Möglich:
 
 * Fronius
+* SMA
 * REST-Api
 * Simulation
 
@@ -13,6 +14,10 @@ Es darf nur eine der Möglichkeiten aktiv sein. Welche das ist, kann in der Konf
 ### Fronius
 
 Über eine Serielle Schnittstelle werden die Daten direkt von der InterfaceCard der Fronius Anlage geholt.
+
+## SMA
+
+Die Daten werden über ModBus-TCP vom Wechselrichter geholt
 
 ### REST-Api
 
