@@ -38,7 +38,7 @@ class PVRestApi:
             self.pvdata.wr.append(PVWR())
 
         try:
-            x = requests.get(IP)
+            x = requests.get(IP, timeout=10)
             # print(x.text)
             if (x.status_code == 200):
                 # print("received data")
