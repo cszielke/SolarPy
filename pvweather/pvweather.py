@@ -66,7 +66,7 @@ class PVWeather(PVBaseModul):
         IP = self.url  # "http://192.168.15.252/webcam/wsdata.txt"
 
         try:
-            x = requests.get(IP)
+            x = requests.get(IP, timeout=10)
             # print(x.text)
             if (x.status_code == 200):
                 # print("received data")
@@ -119,7 +119,7 @@ class PVWeather(PVBaseModul):
         IP = self.url  # "http://192.168.15.252/webcam/wsdata.txt"
 
         try:
-            x = requests.get(IP)
+            x = requests.get(IP, timeout=10)
             print(x.text)
             if (x.status_code == 200):
                 parsed_json_all = json.loads(x.text)
